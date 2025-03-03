@@ -1,0 +1,16 @@
+meta {
+  name: View
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{url}}/library?sortOption=default&order=default
+  body: none
+  auth: none
+}
+
+params:query {
+  sortOption: default
+  order: default
+}
