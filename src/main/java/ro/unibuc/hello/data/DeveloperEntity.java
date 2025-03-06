@@ -14,6 +14,19 @@ public class DeveloperEntity {
     private String studio;
     private String website;
 
+    public DeveloperEntity() {
+
+    }
+
+    public DeveloperEntity(String id, String username, String password, String email, String studio, String website) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.studio = studio;
+        this.website = website;
+    }
+
     public DeveloperEntity(String username, String password, String email, String studio, String website) {
         this.username = username;
         this.password = password;

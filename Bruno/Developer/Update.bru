@@ -5,7 +5,21 @@ meta {
 }
 
 put {
-  url: {{url}}/developers/{{id}}
-  body: none
-  auth: none
+  url: {{url}}/developers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "username": "developer-username",
+    "password": "developer-password",
+    "email": "developer-email",
+    "studio": "developer-studio",
+    "website": "developer-website"
+  }
 }

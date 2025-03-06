@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CustomerRepository extends MongoRepository<CustomerEntity, String> {
 
-    // TODO
+    CustomerEntity findByUsername(String username);
 
 }

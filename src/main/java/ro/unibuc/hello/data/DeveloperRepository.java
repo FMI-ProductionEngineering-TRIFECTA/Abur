@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DeveloperRepository extends MongoRepository<DeveloperEntity, String> {
 
-    // TODO
+    DeveloperEntity findByUsername(String username);
 
 }

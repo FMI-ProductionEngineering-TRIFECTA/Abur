@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import ro.unibuc.hello.data.*;
 
 import jakarta.annotation.PostConstruct;
+import ro.unibuc.hello.service.AuthenticationService;
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackages = "ro.unibuc.hello.data")
@@ -35,8 +36,9 @@ public class HelloApplication {
 
 		developerRepository.deleteAll();
 		developerRepository.save(new DeveloperEntity(
+				"67c9f02a5582625f6c6639b4",
 				"PlayStationStudios",
-				"PlayStationStudios1234",
+				AuthenticationService.encryptPassword("PlayStationStudios1234"),
 				"contact@sony.com",
 				"PlayStation Studios",
 				"https://www.playstation.com/playstation-studios/"
@@ -44,8 +46,9 @@ public class HelloApplication {
 
 		customerRepository.deleteAll();
 		customerRepository.save(new CustomerEntity(
+				"67c9f02a5582625f6c6639b5",
 				"FixBambucea",
-				"FixBambucea1234",
+				AuthenticationService.encryptPassword("FixBambucea1234"),
 				"fixbambucea@gmail.com",
 				"Bambucea",
 				"Fix"

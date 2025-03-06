@@ -1,47 +1,40 @@
 package ro.unibuc.hello.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.dto.DeveloperInput;
-import ro.unibuc.hello.dto.LoginInput;
-import ro.unibuc.hello.dto.LoginResult;
+import ro.unibuc.hello.data.CustomerEntity;
+import ro.unibuc.hello.data.DeveloperEntity;
+import ro.unibuc.hello.dto.*;
+import ro.unibuc.hello.service.AuthenticationService;
 
 @Controller
+@RequestMapping("/auth")
 public class AuthenticationController {
 
-    @PostMapping("/auth/login")
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @PostMapping("/login")
     @ResponseBody
     public LoginResult login(@Valid @RequestBody LoginInput loginInput) {
-        return new LoginResult("LOGIN TEST: "
-                + " --- Username: " + loginInput.getUsername()
-                + " --- Password: " + loginInput.getPassword()
-        );
+        return authenticationService.login(loginInput);
     }
 
-    @PostMapping("auth/signup/developer")
+    @PostMapping("/signup/developer")
     @ResponseBody
-    public String signupDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
-        return "Signup Developer: "
-                + " --- Username: " + developerInput.getUsername()
-                + " --- Password: " + developerInput.getPassword()
-                + " --- Email: " + developerInput.getEmail()
-                + " --- Studio: " + developerInput.getStudio()
-                + " --- Website: " + developerInput.getWebsite();
+    public DeveloperEntity signupDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
+        return authenticationService.signupDeveloper(developerInput);
     }
 
-    @PostMapping("auth/signup/customer")
+    @PostMapping("/signup/customer")
     @ResponseBody
-    public String signupCustomer(@Valid @RequestBody CustomerInput customerInput) {
-        return "Signup Customer: "
-                + " --- Username: " + customerInput.getUsername()
-                + " --- Password: " + customerInput.getPassword()
-                + " --- Email: " + customerInput.getEmail()
-                + " --- FirstName: " + customerInput.getFirstName()
-                + " --- LastName: " + customerInput.getLastName();
+    public CustomerEntity signupCustomer(@Valid @RequestBody CustomerInput customerInput) {
+        return authenticationService.signupCustomer(customerInput);
     }
 
 }

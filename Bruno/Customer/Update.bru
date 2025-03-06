@@ -5,7 +5,21 @@ meta {
 }
 
 put {
-  url: {{url}}/customers/{{id}}
-  body: none
-  auth: none
+  url: {{url}}/customers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
+}
+
+body:json {
+  {
+    "username": "customer-username",
+    "password": "customer-password1234",
+    "email": "customer-email",
+    "firstName": "customer-firstName",
+    "lastName": "customer-lastName"
+  }
 }
