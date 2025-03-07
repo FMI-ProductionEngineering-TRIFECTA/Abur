@@ -9,13 +9,13 @@ import ro.unibuc.hello.config.DatabaseSeeder;
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackages = "ro.unibuc.hello.data")
-public class HelloApplication {
+public class Application {
 
     @Autowired
     private DatabaseSeeder databaseSeeder;
 
 	public static void main(String[] args) {
-		SpringApplication.run(HelloApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 	@PostConstruct

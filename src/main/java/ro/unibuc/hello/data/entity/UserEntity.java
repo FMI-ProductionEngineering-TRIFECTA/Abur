@@ -1,9 +1,18 @@
 package ro.unibuc.hello.data.entity;
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import ro.unibuc.hello.security.AuthenticationService;
 
+@Document(collection = "users")
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@Builder
 public class UserEntity {
 
     public enum Role {
@@ -11,6 +20,9 @@ public class UserEntity {
         DEVELOPER
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
     public static class UserDetails {
         private String studio;
         private String website;
@@ -18,51 +30,13 @@ public class UserEntity {
         private String firstName;
         private String lastName;
 
-        private UserDetails(String firstName, String lastName, String studio, String website) {
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.studio = studio;
-            this.website = website;
-        }
 
         public static UserDetails forCustomer(String firstName, String lastName) {
-            return new UserDetails(firstName, lastName, null, null);
+            return new UserDetails(null, null, firstName, lastName);
         }
 
         public static UserDetails forDeveloper(String studio, String website) {
-            return new UserDetails(null, null, studio, website);
-        }
-
-        public String getStudio() {
-            return studio;
-        }
-
-        public void setStudio(String studio) {
-            this.studio = studio;
-        }
-
-        public String getWebsite() {
-            return website;
-        }
-
-        public void setWebsite(String website) {
-            this.website = website;
-        }
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
+            return new UserDetails(studio, website, null, null);
         }
     }
 
@@ -81,8 +55,6 @@ public class UserEntity {
 
     private UserDetails details;
 
-    public UserEntity() {}
-
     public UserEntity(String username, String password, String email, Role role, UserDetails details) {
         this.username = username;
         this.password = AuthenticationService.encryptPassword(password);
@@ -100,52 +72,41 @@ public class UserEntity {
         this.details = details;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = AuthenticationService.encryptPassword(password);
     }
 
-    public String getEmail() {
-        return email;
+    private static UserEntity buildUser(String id, String email, Role role, UserDetails details) {
+        String username = role == Role.CUSTOMER
+                ? String.format("%s%s", details.getFirstName(), details.getLastName())
+                : details.getStudio().replaceAll("\\s+", "");
+
+        return UserEntity
+                .builder()
+                .id(id)
+                .username(username)
+                .password(String.format("%s1234", username))
+                .email(email)
+                .role(role)
+                .details(details)
+                .build();
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public static UserEntity buildDeveloper(String id, String email, String studio, String website) {
+        return buildUser(
+                id,
+                email,
+                Role.DEVELOPER,
+                UserDetails.forDeveloper(studio, website)
+        );
     }
 
-    public Role getRole() {
-        return role;
+    public static UserEntity buildCustomer(String id, String email, String firstName, String lastName) {
+        return buildUser(
+                id,
+                email,
+                Role.CUSTOMER,
+                UserDetails.forCustomer(firstName, lastName)
+        );
     }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public UserDetails getDetails() {
-        return details;
-    }
-
-    public void setDetails(UserDetails details) {
-        this.details = details;
-    }
-
 }
