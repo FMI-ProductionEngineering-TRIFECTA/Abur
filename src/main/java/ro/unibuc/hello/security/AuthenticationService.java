@@ -1,15 +1,19 @@
-package ro.unibuc.hello.service;
+package ro.unibuc.hello.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.CustomerEntity;
-import ro.unibuc.hello.data.CustomerRepository;
-import ro.unibuc.hello.data.DeveloperEntity;
-import ro.unibuc.hello.data.DeveloperRepository;
-import ro.unibuc.hello.dto.*;
+import ro.unibuc.hello.data.entity.CustomerEntity;
+import ro.unibuc.hello.data.entity.DeveloperEntity;
+import ro.unibuc.hello.data.repository.CustomerRepository;
+import ro.unibuc.hello.data.repository.DeveloperRepository;
+import ro.unibuc.hello.dto.CustomerInput;
+import ro.unibuc.hello.dto.DeveloperInput;
+import ro.unibuc.hello.dto.LoginInput;
+import ro.unibuc.hello.dto.LoginResult;
+import ro.unibuc.hello.security.jwt.JWTService;
 
 @Service
 public class AuthenticationService {

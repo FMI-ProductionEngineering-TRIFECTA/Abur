@@ -1,4 +1,4 @@
-package ro.unibuc.hello.data;
+package ro.unibuc.hello.config;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;

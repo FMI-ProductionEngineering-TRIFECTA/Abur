@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.CustomerEntity;
-import ro.unibuc.hello.data.CustomerRepository;
+import ro.unibuc.hello.data.entity.CustomerEntity;
+import ro.unibuc.hello.data.repository.CustomerRepository;
 import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.exception.EntityNotFoundException;
+import ro.unibuc.hello.security.AuthenticationService;
 
 import java.util.List;
 import java.util.Optional;

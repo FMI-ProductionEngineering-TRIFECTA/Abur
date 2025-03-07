@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.DeveloperEntity;
-import ro.unibuc.hello.data.DeveloperRepository;
+import ro.unibuc.hello.data.entity.DeveloperEntity;
+import ro.unibuc.hello.data.repository.DeveloperRepository;
 import ro.unibuc.hello.dto.DeveloperInput;
 
 import java.util.List;

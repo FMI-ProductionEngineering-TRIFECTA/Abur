@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ro.unibuc.hello.data.CustomerEntity;
-import ro.unibuc.hello.data.DeveloperEntity;
-import ro.unibuc.hello.dto.*;
-import ro.unibuc.hello.service.AuthenticationService;
+import ro.unibuc.hello.data.entity.CustomerEntity;
+import ro.unibuc.hello.data.entity.DeveloperEntity;
+import ro.unibuc.hello.dto.CustomerInput;
+import ro.unibuc.hello.dto.DeveloperInput;
+import ro.unibuc.hello.dto.LoginInput;
+import ro.unibuc.hello.dto.LoginResult;
+import ro.unibuc.hello.security.AuthenticationService;
 
 @Controller
 @RequestMapping("/auth")

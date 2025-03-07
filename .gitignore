@@ -43,3 +43,6 @@ infrastructure/prometheus/durable
 
 ### Durable Loki store
 infrastructure/loki/durable/
+
+### Secrets
+src/main/resources/application.properties

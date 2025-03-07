@@ -6,9 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ro.unibuc.hello.data.CustomerEntity;
+import ro.unibuc.hello.data.entity.CustomerEntity;
 import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.service.AuthenticationService;
+import ro.unibuc.hello.security.AuthenticationService;
 import ro.unibuc.hello.service.CustomerService;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package ro.unibuc.hello.config;
+package ro.unibuc.hello.security.jwt;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

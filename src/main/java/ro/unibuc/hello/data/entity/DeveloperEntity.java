@@ -1,8 +1,8 @@
-package ro.unibuc.hello.data;
+package ro.unibuc.hello.data.entity;
 
 import org.springframework.data.annotation.Id;
 
-public class CustomerEntity {
+public class DeveloperEntity {
 
     @Id
     private String id;
@@ -11,28 +11,26 @@ public class CustomerEntity {
     private String password;
     private String email;
 
-    private String firstName;
-    private String lastName;
+    private String studio;
+    private String website;
 
-    CustomerEntity() {
+    public DeveloperEntity() {}
 
-    }
-
-    public CustomerEntity(String id, String username, String password, String email, String firstName, String lastName) {
+    public DeveloperEntity(String id, String username, String password, String email, String studio, String website) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.studio = studio;
+        this.website = website;
     }
 
-    public CustomerEntity(String username, String password, String email, String firstName, String lastName) {
+    public DeveloperEntity(String username, String password, String email, String studio, String website) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.studio = studio;
+        this.website = website;
     }
 
     public String getId() {
@@ -67,31 +65,31 @@ public class CustomerEntity {
         this.email = email;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getStudio() {
+        return studio;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setStudio(String studio) {
+        this.studio = studio;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getWebsite() {
+        return website;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
     @Override
     public String toString() {
-        return "CustomerEntity{" +
+        return "DeveloperEntity{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", studio='" + studio + '\'' +
+                ", website='" + website + '\'' +
                 '}';
     }
 
