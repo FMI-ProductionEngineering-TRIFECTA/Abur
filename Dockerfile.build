@@ -4,4 +4,8 @@ RUN mkdir /build
 
 WORKDIR /build
 
+COPY ./scripts ./scripts
+
+WORKDIR /build/scripts
+
 CMD ["sh", "build.sh"]
