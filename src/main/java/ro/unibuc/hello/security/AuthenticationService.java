@@ -5,10 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.entity.CustomerEntity;
-import ro.unibuc.hello.data.entity.DeveloperEntity;
-import ro.unibuc.hello.data.repository.CustomerRepository;
-import ro.unibuc.hello.data.repository.DeveloperRepository;
+import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.CustomerInput;
 import ro.unibuc.hello.dto.DeveloperInput;
 import ro.unibuc.hello.dto.LoginInput;
@@ -22,51 +20,43 @@ public class AuthenticationService {
     JWTService jwtService;
 
     @Autowired
-    DeveloperRepository developerRepository;
-
-    @Autowired
-    CustomerRepository customerRepository;
+    UserRepository userRepository;
 
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
-    public enum AccessType {
-        CUSTOMER,
-        DEVELOPER,
-        ALL
-    }
-
     public LoginResult login(LoginInput loginInput) {
-        // TODO: refactor - dupa ce vedem cum retinem datele in mongo DB
-        DeveloperEntity developer = developerRepository.findByUsername(loginInput.getUsername());
-        CustomerEntity customer = customerRepository.findByUsername(loginInput.getUsername());
+        UserEntity user = userRepository.findByUsername(loginInput.getUsername());
 
-        // TODO: refactor - dupa ce vedem cum retinem datele in mongo DB
-        if (developer != null && isPasswordValid(loginInput.getPassword(), developer.getPassword())) {
-            return new LoginResult(jwtService.getToken(developer.getId()));
-        } else if (customer != null && isPasswordValid(loginInput.getPassword(), customer.getPassword())) {
-            return new LoginResult(jwtService.getToken(customer.getId()));
+        if (user != null && isPasswordValid(loginInput.getPassword(), user.getPassword())) {
+            return new LoginResult(jwtService.getToken(user.getId()));
         }
 
         return new LoginResult(null);
     }
 
-    public DeveloperEntity signupDeveloper(DeveloperInput developerInput) {
-        return developerRepository.save(new DeveloperEntity(
+    public UserEntity signupDeveloper(DeveloperInput developerInput) {
+        return userRepository.save(new UserEntity(
                 developerInput.getUsername(),
-                encryptPassword(developerInput.getPassword()),
+                developerInput.getPassword(),
                 developerInput.getEmail(),
-                developerInput.getStudio(),
-                developerInput.getWebsite()
+                UserEntity.Role.DEVELOPER,
+                UserEntity.UserDetails.forDeveloper(
+                        developerInput.getStudio(),
+                        developerInput.getWebsite()
+                )
         ));
     }
 
-    public CustomerEntity signupCustomer(CustomerInput customerInput) {
-        return customerRepository.save(new CustomerEntity(
+    public UserEntity signupCustomer(CustomerInput customerInput) {
+        return userRepository.save(new UserEntity(
                 customerInput.getUsername(),
-                encryptPassword(customerInput.getPassword()),
+                customerInput.getPassword(),
                 customerInput.getEmail(),
-                customerInput.getFirstName(),
-                customerInput.getLastName()
+                UserEntity.Role.CUSTOMER,
+                UserEntity.UserDetails.forCustomer(
+                        customerInput.getFirstName(),
+                        customerInput.getLastName()
+                )
         ));
     }
 
@@ -74,14 +64,10 @@ public class AuthenticationService {
         return passwordEncoder.encode(password);
     }
 
-    public boolean verifyAccess(AccessType access) {
+    public boolean hasAccess(UserEntity.Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
-            return switch (access) {
-                case CUSTOMER -> (customerRepository.findById(userId)).isPresent();
-                case DEVELOPER -> (developerRepository.findById(userId)).isPresent();
-                case ALL -> true;
-            };
+            return userRepository.findByIdAndRole(userId, role) != null;
         }
 
         return false;

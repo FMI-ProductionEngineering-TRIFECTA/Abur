@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ro.unibuc.hello.data.entity.DeveloperEntity;
+import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.DeveloperInput;
 import ro.unibuc.hello.security.AuthenticationService;
 import ro.unibuc.hello.service.DeveloperService;
@@ -25,23 +25,23 @@ public class DeveloperController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public DeveloperEntity getDeveloperById(@PathVariable String id) {
+    public UserEntity getDeveloperById(@PathVariable String id) {
         return developerService.getDeveloperById(id);
     }
 
     @GetMapping("")
     @ResponseBody
-    public List<DeveloperEntity> getAllDevelopers() {
+    public List<UserEntity> getAllDevelopers() {
         return developerService.getAllDevelopers();
     }
 
     @PutMapping("")
     @ResponseBody
-    public DeveloperEntity updateLoggedDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
-        if (!authenticationService.verifyAccess(AuthenticationService.AccessType.DEVELOPER)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
+    public UserEntity updateLoggedDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
+        if (authenticationService.hasAccess(UserEntity.Role.DEVELOPER)) {
+            return developerService.updateLoggedDeveloper(developerInput);
         }
-        return developerService.updateLoggedDeveloper(developerInput);
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
     }
 
 }

@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.entity.DeveloperEntity;
-import ro.unibuc.hello.data.repository.DeveloperRepository;
+import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.DeveloperInput;
 
 import java.util.List;
@@ -15,29 +15,31 @@ import java.util.Optional;
 public class DeveloperService {
 
     @Autowired
-    DeveloperRepository developerRepository;
+    UserRepository userRepository;
 
-    public DeveloperEntity getDeveloperById(String id) {
-        return (developerRepository.findById(id)).get();
+    public UserEntity getDeveloperById(String id) {
+        return userRepository.findByIdAndRole(id, UserEntity.Role.DEVELOPER);
     }
 
-    public List<DeveloperEntity> getAllDevelopers() {
-        return developerRepository.findAll();
+    public List<UserEntity> getAllDevelopers() {
+        return userRepository.findByRole(UserEntity.Role.DEVELOPER);
     }
 
-    public DeveloperEntity updateLoggedDeveloper(DeveloperInput developerInput) {
+    public UserEntity updateLoggedDeveloper(DeveloperInput developerInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             // TODO: refactor -> Optional pentru atributele DeveloperInput
-            Optional<DeveloperEntity> developer = developerRepository.findById(userId);
+            Optional<UserEntity> developer = userRepository.findById(userId);
             if (developer.isPresent()) {
                 developer.get().setUsername(developerInput.getUsername());
                 developer.get().setPassword(developerInput.getPassword());
                 developer.get().setEmail(developerInput.getEmail());
-                developer.get().setStudio(developerInput.getStudio());
-                developer.get().setWebsite(developerInput.getWebsite());
+                developer.get().setDetails(UserEntity.UserDetails.forDeveloper(
+                        developerInput.getStudio(),
+                        developerInput.getWebsite()
+                ));
 
-                return developerRepository.save(developer.get());
+                return userRepository.save(developer.get());
             }
         }
 

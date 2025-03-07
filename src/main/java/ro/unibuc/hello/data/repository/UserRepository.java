@@ -2,15 +2,19 @@ package ro.unibuc.hello.data.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import ro.unibuc.hello.data.entity.CustomerEntity;
+import ro.unibuc.hello.data.entity.UserEntity;
+
+import java.util.List;
 
 /**
  * No need to implement this interface.
  * Spring Data MongoDB automatically creates a class it implementing the interface when you run the application.
  */
 @Repository
-public interface CustomerRepository extends MongoRepository<CustomerEntity, String> {
+public interface UserRepository extends MongoRepository<UserEntity, String> {
 
-    CustomerEntity findByUsername(String username);
+    UserEntity findByUsername(String username);
+    List<UserEntity> findByRole(UserEntity.Role role);
+    UserEntity findByIdAndRole(String id, UserEntity.Role role);
 
 }

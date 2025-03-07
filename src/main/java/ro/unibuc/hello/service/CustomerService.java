@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ro.unibuc.hello.data.entity.CustomerEntity;
-import ro.unibuc.hello.data.repository.CustomerRepository;
+import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.security.AuthenticationService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,29 +15,31 @@ import java.util.Optional;
 public class CustomerService {
 
     @Autowired
-    CustomerRepository customerRepository;
+    UserRepository userRepository;
 
-    public CustomerEntity getCustomerById(String id) {
-        return (customerRepository.findById(id)).get();
+    public UserEntity getCustomerById(String id) {
+        return userRepository.findByIdAndRole(id, UserEntity.Role.CUSTOMER);
     }
 
-    public List<CustomerEntity> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<UserEntity> getAllCustomers() {
+        return userRepository.findByRole(UserEntity.Role.CUSTOMER);
     }
 
-    public CustomerEntity updateLoggedCustomer(CustomerInput customerInput) {
+    public UserEntity updateLoggedCustomer(CustomerInput customerInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             // TODO: refactor -> Optional pentru atributele CustomerInput
-            Optional<CustomerEntity> customer = customerRepository.findById(userId);
+            Optional<UserEntity> customer = userRepository.findById(userId);
             if (customer.isPresent()) {
                 customer.get().setUsername(customerInput.getUsername());
-                customer.get().setPassword(AuthenticationService.encryptPassword(customerInput.getPassword()));
+                customer.get().setPassword(customerInput.getPassword());
                 customer.get().setEmail(customerInput.getEmail());
-                customer.get().setFirstName(customerInput.getFirstName());
-                customer.get().setLastName(customerInput.getLastName());
+                customer.get().setDetails(UserEntity.UserDetails.forCustomer(
+                        customerInput.getFirstName(),
+                        customerInput.getLastName()
+                ));
 
-                return customerRepository.save(customer.get());
+                return userRepository.save(customer.get());
             }
         }
 
