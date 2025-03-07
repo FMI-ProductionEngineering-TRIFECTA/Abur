@@ -22,14 +22,10 @@ public class JWTAuthenticationToken implements Authentication {
     }
 
     @Override
-    public Object getCredentials() {
-        return null;
-    }
+    public Object getCredentials() { return null; }
 
     @Override
-    public Object getDetails() {
-        return null;
-    }
+    public Object getDetails() { return null; }
 
     @Override
     public Object getPrincipal() {

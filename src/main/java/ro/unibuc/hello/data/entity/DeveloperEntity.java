@@ -1,6 +1,7 @@
 package ro.unibuc.hello.data.entity;
 
 import org.springframework.data.annotation.Id;
+import ro.unibuc.hello.security.AuthenticationService;
 
 public class DeveloperEntity {
 
@@ -16,18 +17,18 @@ public class DeveloperEntity {
 
     public DeveloperEntity() {}
 
-    public DeveloperEntity(String id, String username, String password, String email, String studio, String website) {
-        this.id = id;
+    public DeveloperEntity(String username, String password, String email, String studio, String website) {
         this.username = username;
-        this.password = password;
+        this.password = AuthenticationService.encryptPassword(password);
         this.email = email;
         this.studio = studio;
         this.website = website;
     }
 
-    public DeveloperEntity(String username, String password, String email, String studio, String website) {
+    public DeveloperEntity(String id, String username, String password, String email, String studio, String website) {
+        this.id = id;
         this.username = username;
-        this.password = password;
+        this.password = AuthenticationService.encryptPassword(password);
         this.email = email;
         this.studio = studio;
         this.website = website;

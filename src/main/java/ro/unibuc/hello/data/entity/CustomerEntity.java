@@ -1,6 +1,7 @@
 package ro.unibuc.hello.data.entity;
 
 import org.springframework.data.annotation.Id;
+import ro.unibuc.hello.security.AuthenticationService;
 
 public class CustomerEntity {
 
@@ -16,18 +17,18 @@ public class CustomerEntity {
 
     public CustomerEntity() {}
 
-    public CustomerEntity(String id, String username, String password, String email, String firstName, String lastName) {
-        this.id = id;
+    public CustomerEntity(String username, String password, String email, String firstName, String lastName) {
         this.username = username;
-        this.password = password;
+        this.password = AuthenticationService.encryptPassword(password);
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public CustomerEntity(String username, String password, String email, String firstName, String lastName) {
+    public CustomerEntity(String id, String username, String password, String email, String firstName, String lastName) {
+        this.id = id;
         this.username = username;
-        this.password = password;
+        this.password = AuthenticationService.encryptPassword(password);
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
