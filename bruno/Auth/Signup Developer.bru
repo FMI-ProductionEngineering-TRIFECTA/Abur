@@ -1,0 +1,21 @@
+meta {
+  name: Signup Developer
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/auth/signup/developer
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "username": "RockstarGames",
+      "password": "RockstarGames1234",
+      "email": "contact@rockstar.com",
+      "studio": "Rockstar Games",
+      "website": "https://www.rockstargames.com/"
+  }
+}

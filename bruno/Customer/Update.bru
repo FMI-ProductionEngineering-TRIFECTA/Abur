@@ -1,0 +1,25 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{url}}/customers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
+}
+
+body:json {
+  {
+    "username": "customer-username",
+    "password": "customer-password1234",
+    "email": "customer-email",
+    "firstName": "customer-firstName",
+    "lastName": "customer-lastName"
+  }
+}

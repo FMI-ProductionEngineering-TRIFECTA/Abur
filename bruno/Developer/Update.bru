@@ -1,0 +1,25 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{url}}/developers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "username": "developer-username",
+    "password": "developer-password",
+    "email": "developer-email",
+    "studio": "developer-studio",
+    "website": "developer-website"
+  }
+}

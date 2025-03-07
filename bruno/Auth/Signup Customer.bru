@@ -1,0 +1,21 @@
+meta {
+  name: Signup Customer
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{url}}/auth/signup/customer
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "username": "eu",
+      "password": "eu1234",
+      "email": "eu@gmail.com",
+      "firstName": "eu",
+      "lastName": "mereu"
+  }
+}
