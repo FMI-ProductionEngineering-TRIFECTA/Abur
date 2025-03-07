@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.dto.DeveloperInput;
+import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.security.AuthenticationService;
 import ro.unibuc.hello.service.DeveloperService;
 
@@ -37,9 +37,9 @@ public class DeveloperController {
 
     @PutMapping("")
     @ResponseBody
-    public UserEntity updateLoggedDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
+    public UserEntity updateLoggedDeveloper(@Valid @RequestBody Developer developer) {
         if (authenticationService.hasAccess(UserEntity.Role.DEVELOPER)) {
-            return developerService.updateLoggedDeveloper(developerInput);
+            return developerService.updateLoggedDeveloper(developer);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
     }

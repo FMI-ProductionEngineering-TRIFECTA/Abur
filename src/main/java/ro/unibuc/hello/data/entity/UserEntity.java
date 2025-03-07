@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ro.unibuc.hello.security.AuthenticationService;
 
-@Document(collection = "users")
+// @Document(collection = "users")
 @Getter
 @Setter
 @ToString

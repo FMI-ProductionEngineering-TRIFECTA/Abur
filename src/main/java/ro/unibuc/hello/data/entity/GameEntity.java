@@ -10,7 +10,7 @@ import java.util.Date;
 
 import static ro.unibuc.hello.utils.DateUtils.parseDate;
 
-@Document(collection = "games")
+// @Document(collection = "games")
 @Getter
 @Setter
 @ToString

@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.dto.CustomerInput;
+import ro.unibuc.hello.dto.Customer;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class CustomerService {
         return userRepository.findByRole(UserEntity.Role.CUSTOMER);
     }
 
-    public UserEntity updateLoggedCustomer(CustomerInput customerInput) {
+    public UserEntity updateLoggedCustomer(Customer customerInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             Optional<UserEntity> customer = userRepository.findById(userId);

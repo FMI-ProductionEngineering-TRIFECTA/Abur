@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.dto.DeveloperInput;
-import ro.unibuc.hello.dto.LoginInput;
-import ro.unibuc.hello.dto.LoginResult;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.Credentials;
+import ro.unibuc.hello.dto.Token;
 import ro.unibuc.hello.security.AuthenticationService;
 
 @Controller
@@ -23,20 +23,20 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     @ResponseBody
-    public LoginResult login(@Valid @RequestBody LoginInput loginInput) {
-        return authenticationService.login(loginInput);
+    public Token login(@Valid @RequestBody Credentials credentials) {
+        return authenticationService.login(credentials);
     }
 
     @PostMapping("/signup/developer")
     @ResponseBody
-    public UserEntity signupDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
-        return authenticationService.signupDeveloper(developerInput);
+    public UserEntity signupDeveloper(@Valid @RequestBody Developer developer) {
+        return authenticationService.signupDeveloper(developer);
     }
 
     @PostMapping("/signup/customer")
     @ResponseBody
-    public UserEntity signupCustomer(@Valid @RequestBody CustomerInput customerInput) {
-        return authenticationService.signupCustomer(customerInput);
+    public UserEntity signupCustomer(@Valid @RequestBody Customer customer) {
+        return authenticationService.signupCustomer(customer);
     }
 
 }

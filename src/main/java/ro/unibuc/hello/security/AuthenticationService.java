@@ -7,10 +7,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.dto.DeveloperInput;
-import ro.unibuc.hello.dto.LoginInput;
-import ro.unibuc.hello.dto.LoginResult;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.Credentials;
+import ro.unibuc.hello.dto.Token;
 import ro.unibuc.hello.security.jwt.JWTService;
 
 @Service
@@ -24,38 +24,38 @@ public class AuthenticationService {
 
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
-    public LoginResult login(LoginInput loginInput) {
-        UserEntity user = userRepository.findByUsername(loginInput.getUsername());
+    public Token login(Credentials credentials) {
+        UserEntity user = userRepository.findByUsername(credentials.getUsername());
 
-        if (user != null && isPasswordValid(loginInput.getPassword(), user.getPassword())) {
-            return new LoginResult(jwtService.getToken(user.getId()));
+        if (user != null && isPasswordValid(credentials.getPassword(), user.getPassword())) {
+            return new Token(jwtService.getToken(user.getId()));
         }
 
-        return new LoginResult(null);
+        return new Token(null);
     }
 
-    public UserEntity signupDeveloper(DeveloperInput developerInput) {
+    public UserEntity signupDeveloper(Developer developer) {
         return userRepository.save(new UserEntity(
-                developerInput.getUsername(),
-                developerInput.getPassword(),
-                developerInput.getEmail(),
+                developer.getUsername(),
+                developer.getPassword(),
+                developer.getEmail(),
                 UserEntity.Role.DEVELOPER,
                 UserEntity.UserDetails.forDeveloper(
-                        developerInput.getStudio(),
-                        developerInput.getWebsite()
+                        developer.getStudio(),
+                        developer.getWebsite()
                 )
         ));
     }
 
-    public UserEntity signupCustomer(CustomerInput customerInput) {
+    public UserEntity signupCustomer(Customer customer) {
         return userRepository.save(new UserEntity(
-                customerInput.getUsername(),
-                customerInput.getPassword(),
-                customerInput.getEmail(),
+                customer.getUsername(),
+                customer.getPassword(),
+                customer.getEmail(),
                 UserEntity.Role.CUSTOMER,
                 UserEntity.UserDetails.forCustomer(
-                        customerInput.getFirstName(),
-                        customerInput.getLastName()
+                        customer.getFirstName(),
+                        customer.getLastName()
                 )
         ));
     }
