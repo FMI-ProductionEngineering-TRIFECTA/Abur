@@ -28,9 +28,24 @@ public class DeveloperService {
     public UserEntity updateLoggedDeveloper(DeveloperInput developerInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
-            // TODO: refactor -> Optional pentru atributele DeveloperInput
             Optional<UserEntity> developer = userRepository.findById(userId);
             if (developer.isPresent()) {
+                if (developerInput.getUsername() == null || developerInput.getUsername().isBlank()) {
+                    developer.get().setUsername(developerInput.getUsername());
+                }
+                if (developerInput.getPassword() != null && !developerInput.getPassword().isBlank()) {
+                    developer.get().setPassword(developerInput.getPassword());
+                }
+                if (developerInput.getEmail() != null && !developerInput.getEmail().isBlank()) {
+                    developer.get().setEmail(developerInput.getEmail());
+                }
+                if (developerInput.getStudio() != null && !developerInput.getStudio().isBlank()) {
+                    developer.get().getDetails().setStudio(developerInput.getStudio());
+                }
+                if (developerInput.getWebsite() != null && !developerInput.getWebsite().isBlank()) {
+                    developer.get().getDetails().setWebsite(developerInput.getWebsite());
+                }
+
                 developer.get().setUsername(developerInput.getUsername());
                 developer.get().setPassword(developerInput.getPassword());
                 developer.get().setEmail(developerInput.getEmail());

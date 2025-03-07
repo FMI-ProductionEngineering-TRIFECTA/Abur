@@ -1,6 +1,7 @@
 package ro.unibuc.hello.data.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import ro.unibuc.hello.security.AuthenticationService;
 
 public class UserEntity {
@@ -68,9 +69,14 @@ public class UserEntity {
     @Id
     private String id;
 
+    @Indexed(unique = true)
     private String username;
+
     private String password;
+
+    @Indexed(unique = true)
     private String email;
+
     private Role role;
 
     private UserDetails details;

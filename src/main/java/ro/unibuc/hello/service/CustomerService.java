@@ -28,16 +28,23 @@ public class CustomerService {
     public UserEntity updateLoggedCustomer(CustomerInput customerInput) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
-            // TODO: refactor -> Optional pentru atributele CustomerInput
             Optional<UserEntity> customer = userRepository.findById(userId);
             if (customer.isPresent()) {
-                customer.get().setUsername(customerInput.getUsername());
-                customer.get().setPassword(customerInput.getPassword());
-                customer.get().setEmail(customerInput.getEmail());
-                customer.get().setDetails(UserEntity.UserDetails.forCustomer(
-                        customerInput.getFirstName(),
-                        customerInput.getLastName()
-                ));
+                if (customerInput.getUsername() == null || customerInput.getUsername().isBlank()) {
+                    customer.get().setUsername(customerInput.getUsername());
+                }
+                if (customerInput.getPassword() != null && !customerInput.getPassword().isBlank()) {
+                    customer.get().setPassword(customerInput.getPassword());
+                }
+                if (customerInput.getEmail() != null && !customerInput.getEmail().isBlank()) {
+                    customer.get().setEmail(customerInput.getEmail());
+                }
+                if (customerInput.getFirstName() != null && !customerInput.getFirstName().isBlank()) {
+                    customer.get().getDetails().setFirstName(customerInput.getFirstName());
+                }
+                if (customerInput.getLastName() != null && !customerInput.getLastName().isBlank()) {
+                    customer.get().getDetails().setLastName(customerInput.getLastName());
+                }
 
                 return userRepository.save(customer.get());
             }
