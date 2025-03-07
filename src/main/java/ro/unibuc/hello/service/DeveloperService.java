@@ -30,7 +30,7 @@ public class DeveloperService {
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             Optional<UserEntity> developer = userRepository.findById(userId);
             if (developer.isPresent()) {
-                if (developerInput.getUsername() == null || developerInput.getUsername().isBlank()) {
+                if (developerInput.getUsername() != null && !developerInput.getUsername().isBlank()) {
                     developer.get().setUsername(developerInput.getUsername());
                 }
                 if (developerInput.getPassword() != null && !developerInput.getPassword().isBlank()) {
@@ -45,15 +45,7 @@ public class DeveloperService {
                 if (developerInput.getWebsite() != null && !developerInput.getWebsite().isBlank()) {
                     developer.get().getDetails().setWebsite(developerInput.getWebsite());
                 }
-
-                developer.get().setUsername(developerInput.getUsername());
-                developer.get().setPassword(developerInput.getPassword());
-                developer.get().setEmail(developerInput.getEmail());
-                developer.get().setDetails(UserEntity.UserDetails.forDeveloper(
-                        developerInput.getStudio(),
-                        developerInput.getWebsite()
-                ));
-
+                
                 return userRepository.save(developer.get());
             }
         }

@@ -30,7 +30,7 @@ public class CustomerService {
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             Optional<UserEntity> customer = userRepository.findById(userId);
             if (customer.isPresent()) {
-                if (customerInput.getUsername() == null || customerInput.getUsername().isBlank()) {
+                if (customerInput.getUsername() != null && !customerInput.getUsername().isBlank()) {
                     customer.get().setUsername(customerInput.getUsername());
                 }
                 if (customerInput.getPassword() != null && !customerInput.getPassword().isBlank()) {
