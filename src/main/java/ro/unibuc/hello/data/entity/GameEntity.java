@@ -1,5 +1,6 @@
 package ro.unibuc.hello.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -18,6 +19,7 @@ import static ro.unibuc.hello.utils.DateUtils.parseDate;
 @AllArgsConstructor
 @Builder
 @Document("games")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameEntity {
 
     public enum Type {

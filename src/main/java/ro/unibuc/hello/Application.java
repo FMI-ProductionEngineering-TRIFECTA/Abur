@@ -17,9 +17,6 @@ public class Application {
     @Autowired
     private DatabaseSeeder databaseSeeder;
 
-	@Autowired
-	private GameRepository gameRepository;
-
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
