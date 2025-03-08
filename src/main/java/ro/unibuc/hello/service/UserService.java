@@ -11,6 +11,7 @@ import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.ErrorString;
 import ro.unibuc.hello.dto.User;
+import ro.unibuc.hello.security.AuthenticationUtils;
 
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
@@ -32,6 +33,18 @@ public abstract class UserService<T extends User> {
 
     public ResponseEntity<?> getAllUsers() {
         return ok(userRepository.findByRole(getRole()));
+    }
+
+    public ResponseEntity<?> getGames() {
+        UserEntity user = AuthenticationUtils.getAuthorizedUser(getRole());
+        if (user == null) return unauthorized();
+
+        return ok(user.getDetails().getGames());
+    }
+
+    public ResponseEntity<?> getGames(String id) {
+        UserEntity user = userRepository.findByIdAndRole(id, getRole());
+        return ok(user.getDetails().getGames());
     }
 
     private ResponseEntity<ErrorString> updateSpecificFields(T userInput, UserEntity user) {

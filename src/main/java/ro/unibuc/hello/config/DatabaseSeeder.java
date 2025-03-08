@@ -10,6 +10,8 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.InformationRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.dto.User;
+import ro.unibuc.hello.service.DeveloperService;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +30,8 @@ public class DatabaseSeeder {
 
     @Autowired
     private GameRepository gameRepository;
+    @Autowired
+    private DeveloperService developerService;
 
     @Async
     protected void seedInformation() {
@@ -73,7 +77,12 @@ public class DatabaseSeeder {
                         "18-02-2017",
                         userRepository.findByIdAndRole("67c9f02a5582625f6c6639u1", UserEntity.Role.DEVELOPER)
                 )
-        ));
+        ))
+        .forEach(gameEntity -> {
+            UserEntity developer = gameEntity.getDeveloper();
+            developer.getDetails().getGames().add(gameEntity);
+            userRepository.save(developer);
+        });
     }
 
     @Async
@@ -87,7 +96,16 @@ public class DatabaseSeeder {
                         userRepository.findByIdAndRole("67c9f02a5582625f6c6639u1", UserEntity.Role.DEVELOPER),
                         gameRepository.findByIdAndType("67c9f02a5582625f6c6639g1", GameEntity.Type.GAME)
                 )
-        ));
+        ))
+        .forEach(dlcEntity -> {
+            UserEntity developer = dlcEntity.getDeveloper();
+            developer.getDetails().getGames().add(dlcEntity);
+            userRepository.save(developer);
+
+            GameEntity baseGame = dlcEntity.getBaseGame();
+            baseGame.getDlcs().add(dlcEntity);
+            gameRepository.save(baseGame);
+        });
     }
 
     private CompletableFuture<Void> executeAsync(List<Runnable> actions) {

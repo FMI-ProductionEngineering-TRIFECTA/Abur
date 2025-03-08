@@ -25,10 +25,22 @@ public class DeveloperController {
         return developerService.getUserById(id);
     }
 
+    @GetMapping("/{id}/games")
+    @ResponseBody
+    public ResponseEntity<?> getDeveloperGames(@PathVariable String id) {
+        return developerService.getGames(id);
+    }
+
     @GetMapping("")
     @ResponseBody
     public ResponseEntity<?> getAllDevelopers() {
         return developerService.getAllUsers();
+    }
+
+    @GetMapping("/myGames")
+    @ResponseBody
+    public ResponseEntity<?> getMyGames() {
+        return developerService.getGames();
     }
 
     @PutMapping("")

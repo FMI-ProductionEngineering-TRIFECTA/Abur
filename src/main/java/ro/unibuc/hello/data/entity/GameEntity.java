@@ -1,5 +1,7 @@
 package ro.unibuc.hello.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -7,7 +9,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static ro.unibuc.hello.utils.DateUtils.*;
 
@@ -49,16 +53,9 @@ public class GameEntity {
     @DBRef
     private GameEntity baseGame;
 
-    public GameEntity(String title, Double price, Integer discountPercentage, Integer keys, Date releaseDate, UserEntity developer, Type type, GameEntity baseGame) {
-        this.title = title;
-        this.price = price;
-        this.discountPercentage = discountPercentage;
-        this.keys = keys;
-        this.releaseDate = releaseDate;
-        this.developer = developer;
-        this.type = type;
-        this.baseGame = baseGame;
-    }
+    @DBRef
+    @JsonIgnore
+    private List<GameEntity> dlcs;
 
     public static GameEntity buildGame(String title, Double price, Integer discountPercentage, Integer keys, UserEntity developer) {
         return GameEntity
@@ -70,6 +67,7 @@ public class GameEntity {
                 .releaseDate(dateNow())
                 .developer(developer)
                 .type(Type.GAME)
+                .dlcs(new ArrayList<>())
                 .build();
     }
 
@@ -84,6 +82,7 @@ public class GameEntity {
                 .releaseDate(parseDate(releaseDate))
                 .developer(developer)
                 .type(Type.GAME)
+                .dlcs(new ArrayList<>())
                 .build();
     }
 
@@ -98,6 +97,7 @@ public class GameEntity {
 
         dlc.setType(Type.DLC);
         dlc.setBaseGame(baseGame);
+        dlc.setDlcs(null);
         return dlc;
     }
 
@@ -112,6 +112,7 @@ public class GameEntity {
 
         dlc.setType(Type.DLC);
         dlc.setBaseGame(baseGame);
+        dlc.setDlcs(null);
         return dlc;
     }
 }

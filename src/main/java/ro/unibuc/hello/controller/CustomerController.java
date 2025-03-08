@@ -25,10 +25,22 @@ public class CustomerController {
         return customerService.getUserById(id);
     }
 
+    @GetMapping("/{id}/games")
+    @ResponseBody
+    public ResponseEntity<?> getCustomerGames(@PathVariable String id) {
+        return customerService.getGames(id);
+    }
+
     @GetMapping("")
     @ResponseBody
     public ResponseEntity<?> getAllCustomers() {
         return customerService.getAllUsers();
+    }
+
+    @GetMapping("/myGames")
+    @ResponseBody
+    public ResponseEntity<?> getMyGames() {
+        return customerService.getGames();
     }
 
     @PutMapping("")

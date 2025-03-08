@@ -9,11 +9,11 @@ public class ResponseUtils {
         return new ResponseEntity<>(obj, status);
     }
 
-    public static <T> ResponseEntity<T> ok (T obj) {
+    public static <T> ResponseEntity<T> ok(T obj) {
         return response(obj, HttpStatus.OK);
     }
 
-    public static <T> ResponseEntity<T> created (T obj) {
+    public static <T> ResponseEntity<T> created(T obj) {
         return response(obj, HttpStatus.CREATED);
     }
 

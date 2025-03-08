@@ -1,11 +1,16 @@
 package ro.unibuc.hello.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ro.unibuc.hello.security.AuthenticationUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,11 +38,16 @@ public class UserEntity {
         private String firstName;
         private String lastName;
 
+        @DBRef
+        @JsonIgnore
+        private List<GameEntity> games;
+
         public static UserDetails forCustomer(String firstName, String lastName) {
             return UserDetails
                     .builder()
                     .firstName(firstName)
                     .lastName(lastName)
+                    .games(new ArrayList<>())
                     .build();
         }
 
@@ -46,6 +56,7 @@ public class UserEntity {
                     .builder()
                     .studio(studio)
                     .website(website)
+                    .games(new ArrayList<>())
                     .build();
         }
     }

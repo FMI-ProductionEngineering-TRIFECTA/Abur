@@ -10,7 +10,7 @@ import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.ErrorString;
 import ro.unibuc.hello.dto.Game;
-import ro.unibuc.hello.security.UserContext;
+import ro.unibuc.hello.security.AuthenticationUtils;
 
 import static ro.unibuc.hello.data.entity.GameEntity.buildDLC;
 import static ro.unibuc.hello.data.entity.GameEntity.buildGame;
@@ -22,7 +22,7 @@ import static ro.unibuc.hello.utils.ValidationUtils.*;
 public class GameService {
 
     @Autowired
-    private GameRepository gameRepository;
+    protected GameRepository gameRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,8 +41,14 @@ public class GameService {
         return ok(gameRepository.findByType(getType()));
     }
 
-    @DeveloperOnly
+    public ResponseEntity<?> getGameDLCs(String id) {
+        return ok(gameRepository.findByIdAndType(id, getType()).getDlcs());
+    }
+
     public ResponseEntity<?> createGame(Game gameInput) {
+        UserEntity user = AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER);
+        if (user == null) return unauthorized();
+
         String title = gameInput.getTitle();
         if (gameRepository.findByTitle(title) != null) {
             return badRequest("The game %s already exists", title);
@@ -61,9 +67,7 @@ public class GameService {
         );
         if (err != null) return err;
 
-        UserEntity user = UserContext.getCurrentUser();
-
-        return created(gameRepository.save(getType() == GameEntity.Type.GAME
+        GameEntity savedGame = gameRepository.save(getType() == GameEntity.Type.GAME
                 ? buildGame(
                         title,
                         price,
@@ -79,7 +83,12 @@ public class GameService {
                         user,
                         gameInput.getBaseGame()
                 )
-        ));
+        );
+
+        user.getDetails().getGames().add(savedGame);
+        userRepository.save(user);
+
+        return created(savedGame);
     }
 
     @DeveloperOnly
