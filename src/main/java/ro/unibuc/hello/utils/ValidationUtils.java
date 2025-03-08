@@ -1,50 +1,129 @@
 package ro.unibuc.hello.utils;
 
+import jakarta.validation.ValidationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
-    public static <T> boolean isValid(T field) {
-        return switch (field) {
-            case null -> false;
-            case String s -> !s.isBlank();
-            case Integer i -> i > 0;
-            case List<?> list -> !list.isEmpty();
-            case Double v -> v > 0;
-            default -> true;
+    private static final String missingFieldTemplate = "%s is required";
+    private static final String emptyFieldTemplate = "%s cannot be empty!";
+    private static final String negativeFieldTemplate = "%s cannot be negative!";
+
+    @FunctionalInterface
+    public interface ValidationRule<T> {
+        String validate(T value);
+
+        default ValidationRule<T> and(ValidationRule<T> other) {
+            return value -> {
+                String error = this.validate(value);
+                if (error != null) {
+                    return error;
+                }
+                return other.validate(value);
+            };
+        }
+    }
+
+    private static ResponseEntity<String> errorResponse(String template, String fieldName) {
+        return new ResponseEntity<>(String.format(template, fieldName), HttpStatus.BAD_REQUEST);
+    }
+
+    private static boolean failsRegex(String regex, String value) {
+        return !Pattern.compile(regex).matcher(value).matches();
+    }
+
+    private static <T> ResponseEntity<String> validate(T field, String fieldName) {
+        ResponseEntity<String> error;
+
+        switch (field) {
+            case String s when s.isBlank() -> error = errorResponse(emptyFieldTemplate, fieldName);
+            case Integer i when i < 0 -> error = errorResponse(negativeFieldTemplate, fieldName);
+            case Double v when v < 0 -> error = errorResponse(negativeFieldTemplate, fieldName);
+            default -> error = null;
         };
 
+        return error;
     }
 
-    public static <T> boolean isValid(T field, Predicate<T> validator) {
-        return field != null && validator.test(field);
+    private static <T> ResponseEntity<String> validate(T field, String fieldName, ValidationRule<T> validator) {
+        if (field == null) {
+            return null;
+        }
+        String errorMessage = validator.validate(field);
+        if (errorMessage != null) {
+            return errorResponse(errorMessage, fieldName);
+        }
+        return null;
     }
 
-    private static boolean matchesRegex(String regex, String value) {
-        return Pattern.compile(regex).matcher(value).matches();
+    public static ResponseEntity<String> exists(String fieldName, String value) {
+        return value == null
+            ? errorResponse(missingFieldTemplate, fieldName)
+            : null;
     }
 
-    public static Predicate<String> validLength(int min) {
-        return value -> value != null && value.length() >= min;
+    public static <R> ResponseEntity<String> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue, ValidationRule<R> validator) {
+        ResponseEntity<String> err = validator == null
+                ? validate(fieldValue, fieldName)
+                : validate(fieldValue, fieldName, validator);
+
+        if (err != null) return err;
+        if (fieldValue != null) setter.accept(fieldValue);
+        return null;
     }
 
-    public static Predicate<String> validLength(int min, int max) {
-        return value -> value != null && value.length() >= min && value.length() <= max;
+    public static <R> ResponseEntity<String> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue) {
+        return validateAndUpdate(fieldName, setter, fieldValue, null);
     }
 
-    public static Predicate<String> validPassword() {
-        return value ->
-                value != null &&
-                matchesRegex("[A-Z]", value) &&
-                matchesRegex("[0-9]", value);
+    @SuppressWarnings("unchecked")
+    public static ResponseEntity<String> chain(ResponseEntity<String>... responses) {
+        for (ResponseEntity<String> response : responses) {
+            if (response != null) {
+                return response;
+            }
+        }
+        return null;
     }
 
-    public static Predicate<String> validEmail() {
-        return value -> matchesRegex("^[A-Za-z0-9+_.-]+@(.+)$", value);
+
+    public static ValidationRule<String> validLength(int min) {
+        return value -> value.length() < min
+                ? "%s must be at least " + min + " characters long!"
+                : null;
     }
 
-    public static Predicate<String> validWebsite() {
-        return value -> matchesRegex("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$", value);
+    public static ValidationRule<String> validLength(int min, int max) {
+        return value -> value.length() < min || value.length() > max
+                ? "%s must be between " + min + " and " + max + " characters long!"
+                : null;
+    }
+
+    public static ValidationRule<String> validPassword() {
+        return value -> {
+            if (failsRegex("[A-Z]", value)) {
+                return "%s must contain at least one uppercase letter!";
+            }
+            if (failsRegex("[0-9]", value)) {
+                return "%s must contain at least one digit!";
+            }
+            return null;
+        };
+    }
+
+    public static ValidationRule<String> validEmail() {
+        return value -> failsRegex("^[A-Za-z0-9+_.-]+@(.+)$", value)
+                ? "%s must be a valid email address!"
+                : null;
+    }
+
+    public static ValidationRule<String> validWebsite() {
+        return value -> failsRegex("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$", value)
+                ? "%s must be a valid website URL!"
+                : null;
     }
 }
