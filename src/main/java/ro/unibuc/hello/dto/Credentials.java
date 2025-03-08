@@ -6,10 +6,8 @@ import lombok.Getter;
 @Getter
 public class Credentials {
 
-    @NotNull
     private String username;
 
-    @NotNull
     private String password;
 
 }

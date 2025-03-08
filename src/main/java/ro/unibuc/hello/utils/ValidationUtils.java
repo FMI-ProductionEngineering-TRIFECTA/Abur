@@ -3,6 +3,7 @@ package ro.unibuc.hello.utils;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import ro.unibuc.hello.dto.ErrorString;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,16 +29,16 @@ public class ValidationUtils {
         }
     }
 
-    private static ResponseEntity<String> errorResponse(String template, String fieldName) {
-        return new ResponseEntity<>(String.format(template, fieldName), HttpStatus.BAD_REQUEST);
+    private static ResponseEntity<ErrorString> errorResponse(String template, String fieldName) {
+        return new ResponseEntity<>(new ErrorString(String.format(template, fieldName)), HttpStatus.BAD_REQUEST);
     }
 
     private static boolean failsRegex(String regex, String value) {
         return !Pattern.compile(regex).matcher(value).matches();
     }
 
-    private static <T> ResponseEntity<String> validate(T field, String fieldName) {
-        ResponseEntity<String> error;
+    public static <T> ResponseEntity<ErrorString> validate(T field, String fieldName) {
+        ResponseEntity<ErrorString> error;
 
         switch (field) {
             case String s when s.isBlank() -> error = errorResponse(emptyFieldTemplate, fieldName);
@@ -49,7 +50,7 @@ public class ValidationUtils {
         return error;
     }
 
-    private static <T> ResponseEntity<String> validate(T field, String fieldName, ValidationRule<T> validator) {
+    public static <T> ResponseEntity<ErrorString> validate(T field, String fieldName, ValidationRule<T> validator) {
         if (field == null) {
             return null;
         }
@@ -60,14 +61,14 @@ public class ValidationUtils {
         return null;
     }
 
-    public static ResponseEntity<String> exists(String fieldName, String value) {
+    public static ResponseEntity<ErrorString> exists(String fieldName, String value) {
         return value == null
             ? errorResponse(missingFieldTemplate, fieldName)
             : null;
     }
 
-    public static <R> ResponseEntity<String> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue, ValidationRule<R> validator) {
-        ResponseEntity<String> err = validator == null
+    public static <R> ResponseEntity<ErrorString> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue, ValidationRule<R> validator) {
+        ResponseEntity<ErrorString> err = validator == null
                 ? validate(fieldValue, fieldName)
                 : validate(fieldValue, fieldName, validator);
 
@@ -76,13 +77,13 @@ public class ValidationUtils {
         return null;
     }
 
-    public static <R> ResponseEntity<String> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue) {
+    public static <R> ResponseEntity<ErrorString> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue) {
         return validateAndUpdate(fieldName, setter, fieldValue, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static ResponseEntity<String> chain(ResponseEntity<String>... responses) {
-        for (ResponseEntity<String> response : responses) {
+    public static ResponseEntity<ErrorString> chain(ResponseEntity<ErrorString>... responses) {
+        for (ResponseEntity<ErrorString> response : responses) {
             if (response != null) {
                 return response;
             }

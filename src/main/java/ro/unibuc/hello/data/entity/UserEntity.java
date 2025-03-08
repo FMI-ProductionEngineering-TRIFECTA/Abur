@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import ro.unibuc.hello.security.AuthenticationService;
+import ro.unibuc.hello.security.AuthenticationUtils;
 
 @Getter
 @Setter
@@ -67,7 +67,7 @@ public class UserEntity {
 
     public UserEntity(String username, String password, String email, Role role, UserDetails details) {
         this.username = username;
-        this.password = AuthenticationService.encryptPassword(password);
+        this.password = AuthenticationUtils.encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
@@ -76,14 +76,14 @@ public class UserEntity {
     public UserEntity(String id, String username, String password, String email, Role role, UserDetails details) {
         this.id = id;
         this.username = username;
-        this.password = AuthenticationService.encryptPassword(password);
+        this.password = AuthenticationUtils.encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
     }
 
     public void setPassword(String password) {
-        this.password = AuthenticationService.encryptPassword(password);
+        this.password = AuthenticationUtils.encryptPassword(password);
     }
 
     private static UserEntity buildUser(String id, String email, Role role, UserDetails details) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Developer;
-import ro.unibuc.hello.security.AuthenticationService;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.DeveloperService;
 
 import java.util.List;
@@ -20,9 +20,6 @@ public class DeveloperController {
 
     @Autowired
     private DeveloperService developerService;
-
-    @Autowired
-    private AuthenticationService authenticationService;
 
     @GetMapping("/{id}")
     @ResponseBody
@@ -39,7 +36,7 @@ public class DeveloperController {
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedDeveloper(@Valid @RequestBody Developer developer) {
-        if (authenticationService.hasAccess(UserEntity.Role.DEVELOPER)) {
+        if (AuthenticationUtils.hasAccess(UserEntity.Role.DEVELOPER)) {
             return developerService.updateLoggedUser(developer);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");

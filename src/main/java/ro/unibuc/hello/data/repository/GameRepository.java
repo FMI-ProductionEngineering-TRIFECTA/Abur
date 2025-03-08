@@ -15,4 +15,5 @@ public interface GameRepository extends MongoRepository<GameEntity, String> {
 
     GameEntity findByIdAndType(String id, GameEntity.Type type);
     List<GameEntity> findByType(GameEntity.Type type);
+
 }

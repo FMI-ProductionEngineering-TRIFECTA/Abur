@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Customer;
-import ro.unibuc.hello.security.AuthenticationService;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.CustomerService;
 
 import java.util.List;
@@ -20,9 +20,6 @@ public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
-
-    @Autowired
-    private AuthenticationService authenticationService;
 
     @GetMapping("/{id}")
     @ResponseBody
@@ -39,7 +36,7 @@ public class CustomerController {
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedCustomer(@Valid @RequestBody Customer customer) {
-        if (authenticationService.hasAccess(UserEntity.Role.CUSTOMER)) {
+        if (AuthenticationUtils.hasAccess(UserEntity.Role.CUSTOMER)) {
             return customerService.updateLoggedUser(customer);
         }
 

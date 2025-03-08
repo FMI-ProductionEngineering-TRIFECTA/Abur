@@ -9,6 +9,7 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.ErrorString;
 import ro.unibuc.hello.dto.User;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public abstract class UserService<T extends User> {
     @Autowired
     private UserRepository userRepository;
 
-    private static ResponseEntity<String> err;
+    private static ResponseEntity<ErrorString> err;
 
     protected abstract UserEntity.Role getRole();
 
@@ -34,7 +35,7 @@ public abstract class UserService<T extends User> {
         return userRepository.findByRole(getRole());
     }
 
-    private ResponseEntity<String> updateSpecificFields(T userInput, UserEntity user) {
+    private ResponseEntity<ErrorString> updateSpecificFields(T userInput, UserEntity user) {
         if (userInput instanceof Customer customerInput) {
             err = chain
             (
@@ -61,7 +62,7 @@ public abstract class UserService<T extends User> {
             err = chain
             (
                     validateAndUpdate("Username", user::setUsername, userInput.getUsername()),
-                    validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword()),
+                    validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword().and(validLength(5))),
                     validateAndUpdate("Email", user::setEmail, userInput.getEmail(), validEmail()),
                     updateSpecificFields(userInput, user)
             );
