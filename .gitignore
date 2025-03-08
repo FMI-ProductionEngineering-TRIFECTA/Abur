@@ -44,5 +44,8 @@ infrastructure/prometheus/durable
 ### Durable Loki store
 infrastructure/loki/durable/
 
+### Zone.Identifier
+*.Identifier
+
 ### Secrets
 src/main/resources/application.properties
