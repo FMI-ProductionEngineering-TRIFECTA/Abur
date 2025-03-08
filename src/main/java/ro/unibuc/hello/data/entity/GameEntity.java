@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-import static ro.unibuc.hello.utils.DateUtils.parseDate;
+import static ro.unibuc.hello.utils.DateUtils.*;
 
 @Getter
 @Setter
@@ -37,6 +37,8 @@ public class GameEntity {
 
     private Integer discountPercentage;
 
+    private Integer keys;
+
     private Date releaseDate;
 
     @DBRef
@@ -47,14 +49,28 @@ public class GameEntity {
     @DBRef
     private GameEntity baseGame;
 
-    public GameEntity(String title, Double price, Integer discountPercentage, Date releaseDate, UserEntity developer, Type type, GameEntity baseGame) {
+    public GameEntity(String title, Double price, Integer discountPercentage, Integer keys, Date releaseDate, UserEntity developer, Type type, GameEntity baseGame) {
         this.title = title;
         this.price = price;
         this.discountPercentage = discountPercentage;
+        this.keys = keys;
         this.releaseDate = releaseDate;
         this.developer = developer;
         this.type = type;
         this.baseGame = baseGame;
+    }
+
+    public static GameEntity buildGame(String title, Double price, Integer discountPercentage, Integer keys, UserEntity developer) {
+        return GameEntity
+                .builder()
+                .title(title)
+                .price(price)
+                .discountPercentage(discountPercentage)
+                .keys(keys)
+                .releaseDate(dateNow())
+                .developer(developer)
+                .type(Type.GAME)
+                .build();
     }
 
     public static GameEntity buildGame(String id, String title, Double price, String releaseDate, UserEntity developer) {
@@ -64,10 +80,25 @@ public class GameEntity {
                 .title(title)
                 .price(price)
                 .discountPercentage(0)
+                .keys(100)
                 .releaseDate(parseDate(releaseDate))
                 .developer(developer)
                 .type(Type.GAME)
                 .build();
+    }
+
+    public static GameEntity buildDLC(String title, Double price, Integer discountPercentage, Integer keys, UserEntity developer, GameEntity baseGame) {
+        GameEntity dlc = buildGame(
+                title,
+                price,
+                discountPercentage,
+                keys,
+                developer
+        );
+
+        dlc.setType(Type.DLC);
+        dlc.setBaseGame(baseGame);
+        return dlc;
     }
 
     public static GameEntity buildDLC(String id, String title, Double price, String releaseDate, UserEntity developer, GameEntity baseGame) {

@@ -1,13 +1,12 @@
 package ro.unibuc.hello.utils;
 
-import jakarta.validation.ValidationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ro.unibuc.hello.dto.ErrorString;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+
+import static ro.unibuc.hello.utils.ResponseUtils.badRequest;
 
 public class ValidationUtils {
     private static final String missingFieldTemplate = "%s is required";
@@ -29,48 +28,45 @@ public class ValidationUtils {
         }
     }
 
-    private static ResponseEntity<ErrorString> errorResponse(String template, String fieldName) {
-        return new ResponseEntity<>(new ErrorString(String.format(template, fieldName)), HttpStatus.BAD_REQUEST);
+    public static ResponseEntity<ErrorString> exists(String fieldName, String value) {
+        return value == null
+                ? badRequest(missingFieldTemplate, fieldName)
+                : null;
     }
 
-    private static boolean failsRegex(String regex, String value) {
-        return !Pattern.compile(regex).matcher(value).matches();
+    public static <T> T fallback(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
     }
 
-    public static <T> ResponseEntity<ErrorString> validate(T field, String fieldName) {
+    public static <T> ResponseEntity<ErrorString> validate(String fieldName, T field) {
         ResponseEntity<ErrorString> error;
 
         switch (field) {
-            case String s when s.isBlank() -> error = errorResponse(emptyFieldTemplate, fieldName);
-            case Integer i when i < 0 -> error = errorResponse(negativeFieldTemplate, fieldName);
-            case Double v when v < 0 -> error = errorResponse(negativeFieldTemplate, fieldName);
+            case null -> error = null;
+            case String s when s.isBlank() -> error = badRequest(emptyFieldTemplate, fieldName);
+            case Integer i when i < 0 -> error = badRequest(negativeFieldTemplate, fieldName);
+            case Double v when v < 0 -> error = badRequest(negativeFieldTemplate, fieldName);
             default -> error = null;
         };
 
         return error;
     }
 
-    public static <T> ResponseEntity<ErrorString> validate(T field, String fieldName, ValidationRule<T> validator) {
+    public static <T> ResponseEntity<ErrorString> validate(String fieldName, T field, ValidationRule<T> validator) {
         if (field == null) {
             return null;
         }
         String errorMessage = validator.validate(field);
         if (errorMessage != null) {
-            return errorResponse(errorMessage, fieldName);
+            return badRequest(errorMessage, fieldName);
         }
         return null;
     }
 
-    public static ResponseEntity<ErrorString> exists(String fieldName, String value) {
-        return value == null
-            ? errorResponse(missingFieldTemplate, fieldName)
-            : null;
-    }
-
     public static <R> ResponseEntity<ErrorString> validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue, ValidationRule<R> validator) {
         ResponseEntity<ErrorString> err = validator == null
-                ? validate(fieldValue, fieldName)
-                : validate(fieldValue, fieldName, validator);
+                ? validate(fieldName, fieldValue)
+                : validate(fieldName, fieldValue, validator);
 
         if (err != null) return err;
         if (fieldValue != null) setter.accept(fieldValue);
@@ -91,6 +87,9 @@ public class ValidationUtils {
         return null;
     }
 
+    private static boolean failsRegex(String regex, String value) {
+        return !Pattern.compile(regex).matcher(value).matches();
+    }
 
     public static ValidationRule<String> validLength(int min) {
         return value -> value.length() < min

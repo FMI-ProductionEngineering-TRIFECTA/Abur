@@ -1,6 +1,8 @@
 package ro.unibuc.hello.utils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class DateUtils {
@@ -18,5 +20,9 @@ public class DateUtils {
         catch (Exception e) {
             return null;
         }
+    }
+
+    public static Date dateNow() {
+        return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }
 }
