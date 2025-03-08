@@ -28,6 +28,7 @@ dependencies {
 	def testcontainersVersion = "1.20.4"
 	def jwtVersion = "0.12.6"
 	def lombokVersion = "1.18.36"
+	def aspectjVersion = "1.9.22.1"
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -47,6 +48,11 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
+
+	// AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation "org.aspectj:aspectjrt:$aspectjVersion"
+	implementation "org.aspectj:aspectjweaver:$aspectjVersion"
 
 	// JWT
 	implementation "io.jsonwebtoken:jjwt-api:$jwtVersion"

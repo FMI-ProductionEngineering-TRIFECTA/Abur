@@ -1,5 +1,4 @@
 server.servlet.contextPath=/api
-security.password.encoder.strength=12
 spring.data.mongodb.auto-index-creation=true
 mongodb.connection.url=${MONGODB_CONECTION_URL:mongodb://root:example@localhost:27017}
 security.jwt.secret-key=YOUR_JWT_SECRET

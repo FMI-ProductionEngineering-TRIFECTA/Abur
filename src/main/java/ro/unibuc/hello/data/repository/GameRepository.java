@@ -14,6 +14,7 @@ import java.util.List;
 public interface GameRepository extends MongoRepository<GameEntity, String> {
 
     GameEntity findByIdAndType(String id, GameEntity.Type type);
+    GameEntity findByTitle(String title);
     List<GameEntity> findByType(GameEntity.Type type);
 
 }
