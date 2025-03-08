@@ -10,6 +10,7 @@ import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTService;
 
 import static ro.unibuc.hello.utils.ValidationUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.*;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -36,16 +37,16 @@ public class AuthenticationService {
         UserEntity user = userRepository.findByUsername(credentials.getUsername());
 
         if (user != null && AuthenticationUtils.isPasswordValid(credentials.getPassword(), user.getPassword())) {
-            return ResponseEntity.ok(new Token(jwtService.getToken(user.getId())));
+            return ok(new Token(jwtService.getToken(user.getId())));
         }
 
-        return ResponseEntity.ok(new Token(null));
+        return badRequest("User %s doesn't exist", credentials.getUsername());
     }
 
-    public UserEntity signupDeveloper(Developer developer) {
+    public ResponseEntity<?> signupDeveloper(Developer developer) {
         // TODO: Add validation
 
-        return userRepository.save(new UserEntity(
+        return created(userRepository.save(new UserEntity(
                 developer.getUsername(),
                 developer.getPassword(),
                 developer.getEmail(),
@@ -54,13 +55,13 @@ public class AuthenticationService {
                         developer.getStudio(),
                         developer.getWebsite()
                 )
-        ));
+        )));
     }
 
-    public UserEntity signupCustomer(Customer customer) {
+    public ResponseEntity<?> signupCustomer(Customer customer) {
         // TODO: Add validation
 
-        return userRepository.save(new UserEntity(
+        return created(userRepository.save(new UserEntity(
                 customer.getUsername(),
                 customer.getPassword(),
                 customer.getEmail(),
@@ -69,7 +70,7 @@ public class AuthenticationService {
                         customer.getFirstName(),
                         customer.getLastName()
                 )
-        ));
+        )));
     }
 
 }

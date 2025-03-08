@@ -12,8 +12,6 @@ import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.DeveloperService;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/developers")
 public class DeveloperController {
@@ -23,20 +21,20 @@ public class DeveloperController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public UserEntity getDeveloperById(@PathVariable String id) {
+    public ResponseEntity<?> getDeveloperById(@PathVariable String id) {
         return developerService.getUserById(id);
     }
 
     @GetMapping("")
     @ResponseBody
-    public List<UserEntity> getAllDevelopers() {
+    public ResponseEntity<?> getAllDevelopers() {
         return developerService.getAllUsers();
     }
 
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedDeveloper(@Valid @RequestBody Developer developer) {
-        if (AuthenticationUtils.hasAccess(UserEntity.Role.DEVELOPER)) {
+        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER) != null) {
             return developerService.updateLoggedUser(developer);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");

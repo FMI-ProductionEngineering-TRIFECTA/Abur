@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Credentials;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
@@ -29,13 +28,13 @@ public class AuthenticationController {
 
     @PostMapping("/signup/developer")
     @ResponseBody
-    public UserEntity signupDeveloper(@Valid @RequestBody Developer developer) {
+    public ResponseEntity<?> signupDeveloper(@Valid @RequestBody Developer developer) {
         return authenticationService.signupDeveloper(developer);
     }
 
     @PostMapping("/signup/customer")
     @ResponseBody
-    public UserEntity signupCustomer(@Valid @RequestBody Customer customer) {
+    public ResponseEntity<?> signupCustomer(@Valid @RequestBody Customer customer) {
         return authenticationService.signupCustomer(customer);
     }
 

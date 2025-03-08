@@ -14,13 +14,12 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static ro.unibuc.hello.data.entity.GameEntity.buildDLC;
-import static ro.unibuc.hello.data.entity.GameEntity.buildGame;
-import static ro.unibuc.hello.data.entity.UserEntity.buildCustomer;
-import static ro.unibuc.hello.data.entity.UserEntity.buildDeveloper;
+import static ro.unibuc.hello.data.entity.GameEntity.*;
+import static ro.unibuc.hello.data.entity.UserEntity.*;
 
 @Component
 public class DatabaseSeeder {
+
     @Autowired
     private InformationRepository informationRepository;
 
@@ -115,4 +114,5 @@ public class DatabaseSeeder {
         .thenRunAsync(this::seedDLC)
         .join();
     }
+
 }

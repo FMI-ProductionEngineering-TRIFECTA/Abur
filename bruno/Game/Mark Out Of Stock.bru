@@ -1,11 +1,11 @@
 meta {
-  name: Delete
+  name: Mark Out Of Stock
   type: http
-  seq: 5
+  seq: 7
 }
 
-delete {
-  url: {{url}}/games/{{gameId}}
+put {
+  url: {{url}}/games/{{gameId}}/markOutOfStock
   body: none
   auth: bearer
 }

@@ -12,8 +12,7 @@ import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.ErrorString;
 import ro.unibuc.hello.dto.User;
 
-import java.util.List;
-
+import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
@@ -27,12 +26,12 @@ public abstract class UserService<T extends User> {
 
     protected abstract UserEntity.Role getRole();
 
-    public UserEntity getUserById(String id) {
-        return userRepository.findByIdAndRole(id, getRole());
+    public ResponseEntity<?> getUserById(String id) {
+        return ok(userRepository.findByIdAndRole(id, getRole()));
     }
 
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findByRole(getRole());
+    public ResponseEntity<?> getAllUsers() {
+        return ok(userRepository.findByRole(getRole()));
     }
 
     private ResponseEntity<ErrorString> updateSpecificFields(T userInput, UserEntity user) {
@@ -56,21 +55,17 @@ public abstract class UserService<T extends User> {
 
     public ResponseEntity<?> updateLoggedUser(T userInput) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof String userId) {
-            UserEntity user = userRepository.findByIdAndRole(userId, getRole());
+        UserEntity user = userRepository.findByIdAndRole((String) auth.getPrincipal(), getRole());
 
-            err = chain
-            (
-                    validateAndUpdate("Username", user::setUsername, userInput.getUsername()),
-                    validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword().and(validLength(5))),
-                    validateAndUpdate("Email", user::setEmail, userInput.getEmail(), validEmail()),
-                    updateSpecificFields(userInput, user)
-            );
+        err = chain
+        (
+                validateAndUpdate("Username", user::setUsername, userInput.getUsername()),
+                validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword().and(validLength(5))),
+                validateAndUpdate("Email", user::setEmail, userInput.getEmail(), validEmail()),
+                updateSpecificFields(userInput, user)
+        );
 
-            return err != null ? err : ResponseEntity.ok(userRepository.save(user));
-        }
-
-        return null;
+        return err != null ? err : ok(userRepository.save(user));
     }
 
 }

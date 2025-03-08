@@ -1,8 +1,6 @@
 package ro.unibuc.hello.security;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,31 +12,23 @@ import ro.unibuc.hello.data.repository.UserRepository;
 public class AuthenticationUtils {
 
     private static UserRepository userRepository;
-    private static BCryptPasswordEncoder passwordEncoder;
-
-    @Value("${security.password.encoder.strength}")
-    private int encoderStrength;
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     @Autowired
     public AuthenticationUtils(UserRepository userRepository) {
         AuthenticationUtils.userRepository = userRepository;
     }
 
-    @PostConstruct
-    public void init() {
-        passwordEncoder = new BCryptPasswordEncoder(encoderStrength);
-    }
-
     public static String encryptPassword(String password) {
         return passwordEncoder.encode(password);
     }
 
-    public static boolean hasAccess(UserEntity.Role role) {
+    public static UserEntity getAuthorizedUser(UserEntity.Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
-            return userRepository.findByIdAndRole(userId, role) != null;
+            return userRepository.findByIdAndRole(userId, role);
         }
-        return false;
+        return null;
     }
 
     public static boolean isPasswordValid(String providedPassword, String actualPassword) {

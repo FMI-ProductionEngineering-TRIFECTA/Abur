@@ -6,6 +6,18 @@ meta {
 
 post {
   url: {{url}}/games
-  body: none
-  auth: none
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "title": "test",
+    "price": "19.99",
+    "keys": "10"
+  }
 }

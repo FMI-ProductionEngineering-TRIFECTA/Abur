@@ -12,8 +12,6 @@ import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.CustomerService;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
@@ -23,20 +21,20 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public UserEntity getCustomerById(@PathVariable String id) {
+    public ResponseEntity<?> getCustomerById(@PathVariable String id) {
         return customerService.getUserById(id);
     }
 
     @GetMapping("")
     @ResponseBody
-    public List<UserEntity> getAllCustomers() {
+    public ResponseEntity<?> getAllCustomers() {
         return customerService.getAllUsers();
     }
 
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedCustomer(@Valid @RequestBody Customer customer) {
-        if (AuthenticationUtils.hasAccess(UserEntity.Role.CUSTOMER)) {
+        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.CUSTOMER) != null) {
             return customerService.updateLoggedUser(customer);
         }
 
