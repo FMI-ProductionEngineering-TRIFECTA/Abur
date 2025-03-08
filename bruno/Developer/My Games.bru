@@ -1,11 +1,11 @@
 meta {
-  name: Mark Out Of Stock
+  name: My Games
   type: http
-  seq: 7
+  seq: 4
 }
 
-put {
-  url: {{url}}/games/{{gameId}}/markOutOfStock
+get {
+  url: {{url}}/developers/myGames
   body: none
   auth: bearer
 }

@@ -1,0 +1,15 @@
+meta {
+  name: My Games
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{url}}/customers/myGames
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
+}
