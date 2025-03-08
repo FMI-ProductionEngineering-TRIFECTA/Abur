@@ -18,10 +18,10 @@ import java.util.List;
 public class CustomerController {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @GetMapping("/{id}")
     @ResponseBody

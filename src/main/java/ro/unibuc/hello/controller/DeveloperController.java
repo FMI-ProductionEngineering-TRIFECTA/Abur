@@ -18,10 +18,10 @@ import java.util.List;
 public class DeveloperController {
 
     @Autowired
-    DeveloperService developerService;
+    private DeveloperService developerService;
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @GetMapping("/{id}")
     @ResponseBody

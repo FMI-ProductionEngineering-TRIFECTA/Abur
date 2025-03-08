@@ -17,7 +17,7 @@ import java.util.List;
 public abstract class UserService<T extends User> {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     protected abstract UserEntity.Role getRole();
 

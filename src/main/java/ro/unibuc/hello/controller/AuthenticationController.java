@@ -19,7 +19,7 @@ import ro.unibuc.hello.security.AuthenticationService;
 public class AuthenticationController {
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @PostMapping("/login")
     @ResponseBody
