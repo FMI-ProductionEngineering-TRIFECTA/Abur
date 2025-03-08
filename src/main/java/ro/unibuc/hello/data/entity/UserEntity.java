@@ -1,18 +1,19 @@
 package ro.unibuc.hello.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ro.unibuc.hello.security.AuthenticationService;
 
-// @Document(collection = "users")
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
 @Builder
+@Document("users")
 public class UserEntity {
 
     public enum Role {
@@ -23,6 +24,8 @@ public class UserEntity {
     @Getter
     @Setter
     @AllArgsConstructor
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UserDetails {
         private String studio;
         private String website;
@@ -30,13 +33,20 @@ public class UserEntity {
         private String firstName;
         private String lastName;
 
-
         public static UserDetails forCustomer(String firstName, String lastName) {
-            return new UserDetails(null, null, firstName, lastName);
+            return UserDetails
+                    .builder()
+                    .firstName(firstName)
+                    .lastName(lastName)
+                    .build();
         }
 
         public static UserDetails forDeveloper(String studio, String website) {
-            return new UserDetails(studio, website, null, null);
+            return UserDetails
+                    .builder()
+                    .studio(studio)
+                    .website(website)
+                    .build();
         }
     }
 

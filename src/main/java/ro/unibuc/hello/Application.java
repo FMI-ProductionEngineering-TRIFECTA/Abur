@@ -7,14 +7,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import ro.unibuc.hello.config.DatabaseSeeder;
+import ro.unibuc.hello.data.repository.GameRepository;
 
 @SpringBootApplication
-@EnableMongoRepositories(basePackages = "ro.unibuc.hello.data")
 @EntityScan(basePackages = "ro.unibuc.hello.data.entity")
+@EnableMongoRepositories(basePackages = "ro.unibuc.hello.data")
 public class Application {
 
     @Autowired
     private DatabaseSeeder databaseSeeder;
+
+	@Autowired
+	private GameRepository gameRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

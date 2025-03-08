@@ -10,7 +10,6 @@ import java.util.Date;
 
 import static ro.unibuc.hello.utils.DateUtils.parseDate;
 
-// @Document(collection = "games")
 @Getter
 @Setter
 @ToString
@@ -18,6 +17,7 @@ import static ro.unibuc.hello.utils.DateUtils.parseDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Document("games")
 public class GameEntity {
 
     public enum Type {
