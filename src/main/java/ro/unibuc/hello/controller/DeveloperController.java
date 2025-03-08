@@ -26,20 +26,20 @@ public class DeveloperController {
     @GetMapping("/{id}")
     @ResponseBody
     public UserEntity getDeveloperById(@PathVariable String id) {
-        return developerService.getDeveloperById(id);
+        return developerService.getUserById(id);
     }
 
     @GetMapping("")
     @ResponseBody
     public List<UserEntity> getAllDevelopers() {
-        return developerService.getAllDevelopers();
+        return developerService.getAllUsers();
     }
 
     @PutMapping("")
     @ResponseBody
     public UserEntity updateLoggedDeveloper(@Valid @RequestBody Developer developer) {
         if (authenticationService.hasAccess(UserEntity.Role.DEVELOPER)) {
-            return developerService.updateLoggedDeveloper(developer);
+            return developerService.updateLoggedUser(developer);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
     }

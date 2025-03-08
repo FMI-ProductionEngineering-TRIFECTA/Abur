@@ -26,20 +26,20 @@ public class CustomerController {
     @GetMapping("/{id}")
     @ResponseBody
     public UserEntity getCustomerById(@PathVariable String id) {
-        return customerService.getCustomerById(id);
+        return customerService.getUserById(id);
     }
 
     @GetMapping("")
     @ResponseBody
     public List<UserEntity> getAllCustomers() {
-        return customerService.getAllCustomers();
+        return customerService.getAllUsers();
     }
 
     @PutMapping("")
     @ResponseBody
     public UserEntity updateLoggedCustomer(@Valid @RequestBody Customer customer) {
         if (authenticationService.hasAccess(UserEntity.Role.CUSTOMER)) {
-            return customerService.updateLoggedCustomer(customer);
+            return customerService.updateLoggedUser(customer);
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
