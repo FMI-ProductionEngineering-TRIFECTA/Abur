@@ -30,6 +30,26 @@ public class DatabaseSeeder {
     @Autowired
     private GameRepository gameRepository;
 
+    private UserEntity getDeveloper(Integer id) {
+        return userRepository.findByIdAndRole(SeederUtils.getId("developers", id), Role.DEVELOPER);
+    }
+
+    private GameEntity getGame(Integer id) {
+        return gameRepository.findByIdAndType(SeederUtils.getId("games", id), Type.GAME);
+    }
+
+    private void updateDeveloper(GameEntity gameEntity) {
+        UserEntity developer = gameEntity.getDeveloper();
+        developer.getGames().add(gameEntity);
+        userRepository.save(developer);
+    }
+
+    private void updateBaseGame(GameEntity dlcEntity) {
+        GameEntity baseGame = dlcEntity.getBaseGame();
+        baseGame.getDlcs().add(dlcEntity);
+        gameRepository.save(baseGame);
+    }
+
     @Async
     protected void seedInformation() {
         informationRepository.saveAll(List.of(
@@ -116,38 +136,146 @@ public class DatabaseSeeder {
     protected void seedGame() {
         gameRepository.saveAll(List.of(
                 buildGame(
-                        "Horizon Zero Dawn",
+                        "God of War Ragnarok",
                         59.99,
-                        "18-02-2017",
-                        userRepository.findByIdAndRole(SeederUtils.getId("developers", 0), UserEntity.Role.DEVELOPER)
+                        "19-09-2024",
+                        getDeveloper(0)
+                ),
+                buildGame(
+                        "Cyberpunk 2077",
+                        59.99,
+                        "10-12-2020",
+                        getDeveloper(1)
+                ),
+                buildGame(
+                        "Life is Strange 2",
+                        31.96,
+                        "26-09-2018",
+                        getDeveloper(2)
+                ),
+                buildGame(
+                        "The Legend of Zelda: Breath of the Wild",
+                        59.99,
+                        "03-03-2017",
+                        getDeveloper(3)
+                ),
+                buildGame(
+                        "Pronty",
+                        14.99,
+                        "19-11-2021",
+                        getDeveloper(4)
+                ),
+                buildGame(
+                        "Devil May Cry 5",
+                        29.99,
+                        "24-04-2023",
+                        getDeveloper(5)
+                ),
+                buildGame(
+                        "Elden Ring",
+                        59.99,
+                        "25-02-2022",
+                        getDeveloper(6)
+                ),
+                buildGame(
+                        "Death Stranding",
+                        9.99,
+                        "29-03-2022",
+                        getDeveloper(7)
+                ),
+                buildGame(
+                        "GTA VI",
+                        129.99,
+                        "04-10-2030",
+                        getDeveloper(8)
+                ),
+                buildGame(
+                        "Soma",
+                        28.99,
+                        "22-09-2015",
+                        getDeveloper(9)
                 )
         ))
-        .forEach(gameEntity -> {
-            UserEntity developer = gameEntity.getDeveloper();
-            developer.getGames().add(gameEntity);
-            userRepository.save(developer);
-        });
+        .forEach(this::updateDeveloper);
     }
 
     @Async
     protected void seedDLC() {
         gameRepository.saveAll(List.of(
                 buildDLC(
-                        "Horizon Zero Dawn: The Frozen Wilds",
+                        "God Of War Ragnarok Valhalla",
+                        0.0,
+                        "20-08-2024",
+                        getDeveloper(0),
+                        getGame(0)
+                ),
+                buildDLC(
+                        "Cyberpunk 2077 Phantom Liberty",
+                        29.99,
+                        "26-09-2023",
+                        getDeveloper(1),
+                        getGame(1)
+                ),
+                buildDLC(
+                        "Life is Strange 2 Mascot Bundle",
+                        1.99,
+                        "27-09-2018",
+                        getDeveloper(2),
+                        getGame(2)
+                ),
+                buildDLC(
+                        "The Legend of Zelda: Breath of the Wild Expansion Pass",
+                        19.99,
+                        "30-06-2017",
+                        getDeveloper(3),
+                        getGame(3)
+                ),
+                buildDLC(
+                        "Pronty: Neptune’s Hall",
+                        0.0,
+                        "24-01-2022",
+                        getDeveloper(4),
+                        getGame(4)
+                ),
+                buildDLC(
+                        "Devil May Cry 5: Playable Character Vergil",
+                        4.95,
+                        "15-12-2020",
+                        getDeveloper(5),
+                        getGame(5)
+                ),
+                buildDLC(
+                        "Elden Ring: Shadow of the Erdtree",
+                        39.99,
+                        "21-06-2024",
+                        getDeveloper(6),
+                        getGame(6)
+                ),
+                buildDLC(
+                        "Death Stranding Director's Cut",
                         9.99,
-                        "07-09-2017",
-                        userRepository.findByIdAndRole(SeederUtils.getId("developers", 0), UserEntity.Role.DEVELOPER),
-                        gameRepository.findByIdAndType(SeederUtils.getId("games", 0), GameEntity.Type.GAME)
+                        "24-01-2022",
+                        getDeveloper(7),
+                        getGame(7)
+                ),
+                buildDLC(
+                        "GTA VI 1000000 Cash",
+                        0.0,
+                        "24-01-2035",
+                        getDeveloper(8),
+                        getGame(8)
+                ),
+                buildDLC(
+                        "Soma Safe Mode",
+                        0.0,
+                        "22-09-2015",
+                        getDeveloper(9),
+                        getGame(9)
                 )
         ))
         .forEach(dlcEntity -> {
-            UserEntity developer = dlcEntity.getDeveloper();
-            developer.getGames().add(dlcEntity);
-            userRepository.save(developer);
-
-            GameEntity baseGame = dlcEntity.getBaseGame();
-            baseGame.getDlcs().add(dlcEntity);
-            gameRepository.save(baseGame);
+            updateBaseGame(dlcEntity);
+            updateDeveloper(dlcEntity);
         });
     }
 

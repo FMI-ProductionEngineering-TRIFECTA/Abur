@@ -117,7 +117,7 @@ public class UserEntity {
 
     public static UserEntity buildDeveloper(String studio, String website) {
         return buildUser(
-                SeederUtils.getNewId("developers"),
+                SeederUtils.generateId("developers"),
                 String.format("contact@%s.com", studio.split("\\s")[0].toLowerCase()),
                 Role.DEVELOPER,
                 UserDetails.forDeveloper(studio, website)
@@ -126,7 +126,7 @@ public class UserEntity {
 
     public static UserEntity buildCustomer(String firstName, String lastName) {
         return buildUser(
-                SeederUtils.getNewId("customers"),
+                SeederUtils.generateId("customers"),
                 String.format("%s%s@gmail.com", firstName.toLowerCase(), lastName.toLowerCase()),
                 Role.CUSTOMER,
                 UserDetails.forCustomer(firstName, lastName)

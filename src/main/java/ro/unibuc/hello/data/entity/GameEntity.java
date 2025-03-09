@@ -76,7 +76,7 @@ public class GameEntity {
     public static GameEntity buildGame(String title, Double price, String releaseDate, UserEntity developer) {
         return GameEntity
                 .builder()
-                .id(SeederUtils.getNewId("games"))
+                .id(SeederUtils.generateId("games"))
                 .title(title)
                 .price(price)
                 .discountPercentage(0)
@@ -111,7 +111,7 @@ public class GameEntity {
                 developer
         );
 
-        dlc.setId(SeederUtils.getNewId("dlcs"));
+        dlc.setId(SeederUtils.generateId("dlcs"));
         dlc.setType(Type.DLC);
         dlc.setBaseGame(baseGame);
         dlc.setDlcs(null);
