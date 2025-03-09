@@ -1,0 +1,22 @@
+meta {
+  name: Create DLC As Customer
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/games/{{gameId}}/addDLC
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
+}
+
+body:json {
+  {
+    "title": "Test DLC",
+    "price": "-19.99"
+  }
+}

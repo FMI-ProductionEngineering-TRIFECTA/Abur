@@ -1,0 +1,21 @@
+meta {
+  name: Update Developer
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{url}}/developers
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "developer-username",
+    "password": "developer-password",
+    "email": "developer@gmail.com",
+    "studio": "developer-studio",
+    "website": "https://example.com"
+  }
+}

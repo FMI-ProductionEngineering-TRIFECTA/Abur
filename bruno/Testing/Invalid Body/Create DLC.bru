@@ -1,11 +1,11 @@
 meta {
-  name: Create
+  name: Create DLC
   type: http
-  seq: 4
+  seq: 1
 }
 
 post {
-  url: {{url}}/games
+  url: {{url}}/games/{{gameId}}/addDLC
   body: json
   auth: bearer
 }
@@ -16,8 +16,8 @@ auth:bearer {
 
 body:json {
   {
-    "title": "Test",
-    "price": "19.99",
+    "title": "Test DLC",
+    "price": "-19.99",
     "keys": "10"
   }
 }
