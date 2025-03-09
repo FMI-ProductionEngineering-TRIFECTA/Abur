@@ -9,6 +9,7 @@ import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.security.AuthenticationUtils;
+import ro.unibuc.hello.security.UserContext;
 
 import static ro.unibuc.hello.utils.ResponseUtils.unauthorized;
 
@@ -32,6 +33,7 @@ public class RoleAuthorizationAspect {
             return unauthorized();
         }
 
+        UserContext.setUser(user);
         return (ResponseEntity<?>) joinPoint.proceed();
     }
 }

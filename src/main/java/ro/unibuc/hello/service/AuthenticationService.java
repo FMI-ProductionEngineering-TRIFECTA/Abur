@@ -13,7 +13,6 @@ import static ro.unibuc.hello.utils.ValidationUtils.*;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 
 @Service
-@SuppressWarnings("unchecked")
 public class AuthenticationService {
 
     @Autowired
@@ -22,17 +21,9 @@ public class AuthenticationService {
     @Autowired
     private JWTService jwtService;
 
-    private static ResponseEntity<ErrorString> err;
-
     public ResponseEntity<?> login(Credentials credentials) {
-        err = chain
-        (
-            exists("Username", credentials.getUsername()),
-            exists("Password", credentials.getPassword()),
-            validate("Username", credentials.getUsername()),
-            validate("Password", credentials.getPassword(), validPassword().and(validLength(5)))
-        );
-        if (err != null) return err;
+        exists("Username", credentials.getUsername());
+        exists("Password", credentials.getPassword());
 
         UserEntity user = userRepository.findByUsername(credentials.getUsername());
 
@@ -40,7 +31,7 @@ public class AuthenticationService {
             return ok(new Token(jwtService.getToken(user.getId())));
         }
 
-        return badRequest("User %s doesn't exist", credentials.getUsername());
+        return badRequest("Invalid credentials");
     }
 
     public ResponseEntity<?> signupDeveloper(Developer developer) {

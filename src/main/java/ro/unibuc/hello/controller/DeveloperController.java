@@ -45,7 +45,7 @@ public class DeveloperController {
 
     @PutMapping("")
     @ResponseBody
-    public ResponseEntity<?> updateLoggedDeveloper(@Valid @RequestBody Developer developer) {
+    public ResponseEntity<?> updateLoggedDeveloper(@RequestBody Developer developer) {
         if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER) != null) {
             return developerService.updateLoggedUser(developer);
         }

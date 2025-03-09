@@ -28,13 +28,13 @@ public class AuthenticationController {
 
     @PostMapping("/signup/developer")
     @ResponseBody
-    public ResponseEntity<?> signupDeveloper(@Valid @RequestBody Developer developer) {
+    public ResponseEntity<?> signupDeveloper(@RequestBody Developer developer) {
         return authenticationService.signupDeveloper(developer);
     }
 
     @PostMapping("/signup/customer")
     @ResponseBody
-    public ResponseEntity<?> signupCustomer(@Valid @RequestBody Customer customer) {
+    public ResponseEntity<?> signupCustomer(@RequestBody Customer customer) {
         return authenticationService.signupCustomer(customer);
     }
 

@@ -8,17 +8,18 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.dto.ErrorString;
 import ro.unibuc.hello.dto.Game;
-import ro.unibuc.hello.security.AuthenticationUtils;
+import ro.unibuc.hello.exception.NotFoundException;
+import ro.unibuc.hello.exception.UnauthorizedAccessException;
+import ro.unibuc.hello.security.UserContext;
 
-import static ro.unibuc.hello.data.entity.GameEntity.buildDLC;
-import static ro.unibuc.hello.data.entity.GameEntity.buildGame;
+import java.util.Objects;
+
+import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
-@SuppressWarnings("unchecked")
 public class GameService {
 
     @Autowired
@@ -27,7 +28,14 @@ public class GameService {
     @Autowired
     private UserRepository userRepository;
 
-    private static ResponseEntity<ErrorString> err;
+    private GameEntity validateGameOwnership(String id, UserEntity user) {
+        GameEntity game = gameRepository.findByIdAndType(id, getType());
+
+        if (game == null) throw new NotFoundException("No game found at id %s", id);
+        if (user == null || !Objects.equals(user.getUsername(), game.getDeveloper().getUsername())) throw new UnauthorizedAccessException();
+
+        return game;
+    }
 
     protected GameEntity.Type getType() {
         return GameEntity.Type.GAME;
@@ -45,9 +53,14 @@ public class GameService {
         return ok(gameRepository.findByIdAndType(id, getType()).getDlcs());
     }
 
+    @DeveloperOnly
     public ResponseEntity<?> createGame(Game gameInput) {
-        UserEntity user = AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER);
-        if (user == null) return unauthorized();
+        UserEntity user = Objects.requireNonNull(UserContext.getUser());
+
+        GameEntity baseGame = gameInput.getBaseGame();
+        if (getType() == GameEntity.Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) {
+            throw new UnauthorizedAccessException();
+        }
 
         String title = gameInput.getTitle();
         if (gameRepository.findByTitle(title) != null) {
@@ -57,15 +70,12 @@ public class GameService {
         Double price = fallback(gameInput.getPrice(), 0.0);
         Integer discountPercentage = fallback(gameInput.getDiscountPercentage(), 0);
         Integer keys = fallback(gameInput.getKeys(), 100);
-        err = chain
-        (
-                exists("Title", title),
-                validate("Title", title, validLength(3)),
-                validate("Price", price),
-                validate("Discount percentage", discountPercentage),
-                validate("Number of keys", keys)
-        );
-        if (err != null) return err;
+
+        exists("Title", title);
+        validate("Title", title, validLength(3));
+        validate("Price", price);
+        validate("Discount percentage", discountPercentage);
+        validate("Number of keys", keys);
 
         GameEntity savedGame = gameRepository.save(getType() == GameEntity.Type.GAME
                 ? buildGame(
@@ -81,7 +91,7 @@ public class GameService {
                         discountPercentage,
                         keys,
                         user,
-                        gameInput.getBaseGame()
+                        baseGame
                 )
         );
 
@@ -93,40 +103,36 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> updateGame(String id, Game gameInput) {
-        GameEntity game = gameRepository.findByIdAndType(id, getType());
-        err = chain
-        (
-                validateAndUpdate("Title", game::setTitle, gameInput.getTitle(), validLength(3)),
-                validateAndUpdate("Price", game::setPrice, gameInput.getPrice()),
-                validateAndUpdate("Discount percentage", game::setDiscountPercentage, gameInput.getDiscountPercentage())
-        );
+        GameEntity game = validateGameOwnership(id, UserContext.getUser());
 
-        return err != null ? err : ok(gameRepository.save(game));
+        validateAndUpdate("Title", game::setTitle, gameInput.getTitle(), validLength(3));
+        validateAndUpdate("Price", game::setPrice, gameInput.getPrice());
+        validateAndUpdate("Discount percentage", game::setDiscountPercentage, gameInput.getDiscountPercentage());
+
+        return ok(gameRepository.save(game));
     }
 
     @DeveloperOnly
     public ResponseEntity<?> addKeys(String id, Integer keys) {
-        err = chain
-        (
-                validate("Number of keys", keys)
-        );
-        if (err != null) return err;
+        GameEntity game = validateGameOwnership(id, UserContext.getUser());
 
-        GameEntity game = gameRepository.findByIdAndType(id, getType());
+        validate("Number of keys", keys);
+
         game.setKeys(keys + game.getKeys());
         return ok(gameRepository.save(game));
     }
 
     @DeveloperOnly
     public ResponseEntity<?> markOutOfStock(String id) {
-        GameEntity game = gameRepository.findByIdAndType(id, getType());
+        GameEntity game = validateGameOwnership(id, UserContext.getUser());
         game.setKeys(0);
         return ok(gameRepository.save(game));
     }
 
     @DeveloperOnly
     public ResponseEntity<?> deleteGame(String id) {
-        gameRepository.delete(gameRepository.findByIdAndType(id, getType()));
+        GameEntity game = validateGameOwnership(id, UserContext.getUser());
+        gameRepository.delete(game);
         return noContent();
     }
 }

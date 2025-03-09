@@ -25,8 +25,8 @@ public class ResponseUtils {
         return response(new ErrorString(err), HttpStatus.BAD_REQUEST);
     }
 
-    public static ResponseEntity<ErrorString> badRequest(String template, String input) {
-        return response(new ErrorString(String.format(template, input)), HttpStatus.BAD_REQUEST);
+    public static ResponseEntity<ErrorString> badRequest(String template, Object... args) {
+        return response(new ErrorString(String.format(template, args)), HttpStatus.BAD_REQUEST);
     }
 
     public static ResponseEntity<ErrorString> unauthorized() {

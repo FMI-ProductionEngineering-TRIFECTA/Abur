@@ -10,8 +10,6 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.InformationRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.dto.User;
-import ro.unibuc.hello.service.DeveloperService;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -30,8 +28,6 @@ public class DatabaseSeeder {
 
     @Autowired
     private GameRepository gameRepository;
-    @Autowired
-    private DeveloperService developerService;
 
     @Async
     protected void seedInformation() {
