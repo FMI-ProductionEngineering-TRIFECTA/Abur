@@ -1,0 +1,23 @@
+meta {
+  name: Create Game As Customer
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}/games
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
+}
+
+body:json {
+  {
+    "title": "Test",
+    "price": "19.99",
+    "keys": "10"
+  }
+}

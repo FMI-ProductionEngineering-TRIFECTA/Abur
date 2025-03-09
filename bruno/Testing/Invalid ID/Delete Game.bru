@@ -1,0 +1,15 @@
+meta {
+  name: Delete Game
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{url}}/games/{{invalidId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Update Customer
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{url}}/customers
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "customer-username",
+    "password": "customer-password1234",
+    "email": "customer-email",
+    "firstName": "customer-firstName",
+    "lastName": "customer-lastName"
+  }
+}

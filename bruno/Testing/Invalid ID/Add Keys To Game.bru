@@ -1,0 +1,19 @@
+meta {
+  name: Add Keys To Game
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{url}}/games/{{invalidId}}/addKeys?quantity=10
+  body: none
+  auth: bearer
+}
+
+params:query {
+  quantity: 10
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}

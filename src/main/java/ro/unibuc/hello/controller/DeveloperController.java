@@ -3,43 +3,51 @@ package ro.unibuc.hello.controller;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.dto.DeveloperInput;
-import ro.unibuc.hello.security.AuthenticationService;
+import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.DeveloperService;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/developers")
 public class DeveloperController {
 
     @Autowired
-    DeveloperService developerService;
-
-    @Autowired
-    AuthenticationService authenticationService;
+    private DeveloperService developerService;
 
     @GetMapping("/{id}")
     @ResponseBody
-    public UserEntity getDeveloperById(@PathVariable String id) {
-        return developerService.getDeveloperById(id);
+    public ResponseEntity<?> getDeveloperById(@PathVariable String id) {
+        return developerService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/games")
+    @ResponseBody
+    public ResponseEntity<?> getDeveloperGames(@PathVariable String id) {
+        return developerService.getGames(id);
     }
 
     @GetMapping("")
     @ResponseBody
-    public List<UserEntity> getAllDevelopers() {
-        return developerService.getAllDevelopers();
+    public ResponseEntity<?> getAllDevelopers() {
+        return developerService.getAllUsers();
+    }
+
+    @GetMapping("/myGames")
+    @ResponseBody
+    public ResponseEntity<?> getMyGames() {
+        return developerService.getGames();
     }
 
     @PutMapping("")
     @ResponseBody
-    public UserEntity updateLoggedDeveloper(@Valid @RequestBody DeveloperInput developerInput) {
-        if (authenticationService.hasAccess(UserEntity.Role.DEVELOPER)) {
-            return developerService.updateLoggedDeveloper(developerInput);
+    public ResponseEntity<?> updateLoggedDeveloper(@RequestBody Developer developer) {
+        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER) != null) {
+            return developerService.updateLoggedUser(developer);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
     }

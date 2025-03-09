@@ -1,0 +1,15 @@
+meta {
+  name: Out Of Stock
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{url}}/dlcs/{{dlcId}}/markOutOfStock
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}

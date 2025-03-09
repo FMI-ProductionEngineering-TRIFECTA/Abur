@@ -1,11 +1,21 @@
 meta {
   name: Update
   type: http
-  seq: 4
+  seq: 5
 }
 
 put {
-  url: {{url}}/games/{{id}}
-  body: none
-  auth: none
+  url: {{url}}/games/{{gameId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "discountPercentage": "20"
+  }
 }

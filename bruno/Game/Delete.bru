@@ -1,11 +1,15 @@
 meta {
   name: Delete
   type: http
-  seq: 5
+  seq: 8
 }
 
 delete {
-  url: {{url}}/games/{{id}}
+  url: {{url}}/games/{{gameId}}
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
 }

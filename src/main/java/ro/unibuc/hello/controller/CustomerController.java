@@ -3,43 +3,51 @@ package ro.unibuc.hello.controller;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.dto.CustomerInput;
-import ro.unibuc.hello.security.AuthenticationService;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.service.CustomerService;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
 
     @Autowired
-    CustomerService customerService;
-
-    @Autowired
-    AuthenticationService authenticationService;
+    private CustomerService customerService;
 
     @GetMapping("/{id}")
     @ResponseBody
-    public UserEntity getCustomerById(@PathVariable String id) {
-        return customerService.getCustomerById(id);
+    public ResponseEntity<?> getCustomerById(@PathVariable String id) {
+        return customerService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/games")
+    @ResponseBody
+    public ResponseEntity<?> getCustomerGames(@PathVariable String id) {
+        return customerService.getGames(id);
     }
 
     @GetMapping("")
     @ResponseBody
-    public List<UserEntity> getAllCustomers() {
-        return customerService.getAllCustomers();
+    public ResponseEntity<?> getAllCustomers() {
+        return customerService.getAllUsers();
+    }
+
+    @GetMapping("/myGames")
+    @ResponseBody
+    public ResponseEntity<?> getMyGames() {
+        return customerService.getGames();
     }
 
     @PutMapping("")
     @ResponseBody
-    public UserEntity updateLoggedCustomer(@Valid @RequestBody CustomerInput customerInput) {
-        if (authenticationService.hasAccess(UserEntity.Role.CUSTOMER)) {
-            return customerService.updateLoggedCustomer(customerInput);
+    public ResponseEntity<?> updateLoggedCustomer(@RequestBody Customer customer) {
+        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.CUSTOMER) != null) {
+            return customerService.updateLoggedUser(customer);
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");

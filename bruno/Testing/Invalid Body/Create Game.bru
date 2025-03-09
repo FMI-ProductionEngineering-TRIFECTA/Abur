@@ -1,0 +1,22 @@
+meta {
+  name: Create Game
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/games
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "title": "Te",
+    "price": "19.99"
+  }
+}

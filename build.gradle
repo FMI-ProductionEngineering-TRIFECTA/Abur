@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.asciidoctor.jvm.convert' version '2.4.0'
+	id 'io.freefair.lombok' version '8.12.2.1'
 	id 'java'
 	id 'jacoco'
 }
@@ -25,6 +26,9 @@ dependencies {
 	def cucumberVersion = "7.20.1"
 	def junitVersion = "5.11.4"
 	def testcontainersVersion = "1.20.4"
+	def jwtVersion = "0.12.6"
+	def lombokVersion = "1.18.36"
+	def aspectjVersion = "1.9.22.1"
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -45,10 +49,19 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
 
+	// AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation "org.aspectj:aspectjrt:$aspectjVersion"
+	implementation "org.aspectj:aspectjweaver:$aspectjVersion"
+
 	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+	implementation "io.jsonwebtoken:jjwt-api:$jwtVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:$jwtVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jwtVersion"
+
+	// Lombok dependency
+	compileOnly "org.projectlombok:lombok:$lombokVersion"
+	annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
 	// Integration tests - test containers dependencies
     testImplementation "org.testcontainers:testcontainers:$testcontainersVersion"

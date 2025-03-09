@@ -52,4 +52,3 @@ public class GreetingsController {
         greetingsService.deleteGreeting(id);
     }
 }
-

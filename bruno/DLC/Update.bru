@@ -5,7 +5,11 @@ meta {
 }
 
 put {
-  url: {{url}}/dlcs/{{id}}
+  url: {{url}}/dlcs/{{dlcId}}
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
 }

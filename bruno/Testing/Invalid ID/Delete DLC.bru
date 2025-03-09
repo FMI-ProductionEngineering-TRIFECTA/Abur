@@ -1,0 +1,15 @@
+meta {
+  name: Delete DLC
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{url}}/dlcs/{{invalidId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}

@@ -5,7 +5,19 @@ meta {
 }
 
 post {
-  url: {{url}}/dlcs
-  body: none
-  auth: none
+  url: {{url}}/games/{{gameId}}/addDLC
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenPlayStationStudios}}
+}
+
+body:json {
+  {
+    "title": "Test DLC",
+    "price": "19.99",
+    "keys": "10"
+  }
 }
