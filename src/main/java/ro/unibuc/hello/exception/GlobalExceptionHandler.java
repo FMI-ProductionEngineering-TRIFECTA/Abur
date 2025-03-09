@@ -10,6 +10,11 @@ import static ro.unibuc.hello.utils.ResponseUtils.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorString> handleValidationException(ValidationException ex) {
+        return badRequest(ex.getMessage());
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorString> handleNotFound(NotFoundException ex) {
         return badRequest(ex.getMessage());

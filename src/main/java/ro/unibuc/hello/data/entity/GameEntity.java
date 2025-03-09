@@ -45,11 +45,13 @@ public class GameEntity {
     private Date releaseDate;
 
     @DBRef
+    @JsonIgnore
     private UserEntity developer;
 
     private Type type;
 
     @DBRef
+    @JsonIgnore
     private GameEntity baseGame;
 
     @DBRef

@@ -2,6 +2,7 @@ package ro.unibuc.hello.service;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.dto.Game;
 
@@ -15,6 +16,7 @@ public class DLCService extends GameService {
         return GameEntity.Type.DLC;
     }
 
+    @DeveloperOnly
     public ResponseEntity<?> createDLC(String baseGameId, Game dlcInput) {
         GameEntity baseGame = gameRepository.findByIdAndType(baseGameId, GameEntity.Type.GAME);
         if (baseGame == null) return badRequest("No game found at id %s", baseGameId);
