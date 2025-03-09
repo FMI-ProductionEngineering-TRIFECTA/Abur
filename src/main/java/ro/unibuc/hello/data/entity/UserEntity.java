@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ro.unibuc.hello.security.AuthenticationUtils;
+import ro.unibuc.hello.utils.SeederUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,16 +39,11 @@ public class UserEntity {
         private String firstName;
         private String lastName;
 
-        @DBRef
-        @JsonIgnore
-        private List<GameEntity> games;
-
         public static UserDetails forCustomer(String firstName, String lastName) {
             return UserDetails
                     .builder()
                     .firstName(firstName)
                     .lastName(lastName)
-                    .games(new ArrayList<>())
                     .build();
         }
 
@@ -56,7 +52,6 @@ public class UserEntity {
                     .builder()
                     .studio(studio)
                     .website(website)
-                    .games(new ArrayList<>())
                     .build();
         }
     }
@@ -76,21 +71,27 @@ public class UserEntity {
 
     private UserDetails details;
 
+    @DBRef
+    @JsonIgnore
+    private List<GameEntity> games;
+
     public UserEntity(String username, String password, String email, Role role, UserDetails details) {
         this.username = username;
         this.password = AuthenticationUtils.encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
+        this.games = new ArrayList<>();
     }
 
-    public UserEntity(String id, String username, String password, String email, Role role, UserDetails details) {
+    public UserEntity(String id, String username, String password, String email, Role role, UserDetails details, List<GameEntity> games) {
         this.id = id;
         this.username = username;
         this.password = AuthenticationUtils.encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
+        this.games = games;
     }
 
     public void setPassword(String password) {
@@ -110,22 +111,23 @@ public class UserEntity {
                 .email(email)
                 .role(role)
                 .details(details)
+                .games(new ArrayList<>())
                 .build();
     }
 
-    public static UserEntity buildDeveloper(String id, String email, String studio, String website) {
+    public static UserEntity buildDeveloper(String studio, String website) {
         return buildUser(
-                id,
-                email,
+                SeederUtils.getNewId("developers"),
+                String.format("contact@%s.com", studio.split("\\s")[0].toLowerCase()),
                 Role.DEVELOPER,
                 UserDetails.forDeveloper(studio, website)
         );
     }
 
-    public static UserEntity buildCustomer(String id, String email, String firstName, String lastName) {
+    public static UserEntity buildCustomer(String firstName, String lastName) {
         return buildUser(
-                id,
-                email,
+                SeederUtils.getNewId("customers"),
+                String.format("%s%s@gmail.com", firstName.toLowerCase(), lastName.toLowerCase()),
                 Role.CUSTOMER,
                 UserDetails.forCustomer(firstName, lastName)
         );

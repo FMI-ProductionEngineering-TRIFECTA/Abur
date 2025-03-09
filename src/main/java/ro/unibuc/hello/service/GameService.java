@@ -95,7 +95,7 @@ public class GameService {
                 )
         );
 
-        user.getDetails().getGames().add(savedGame);
+        user.getGames().add(savedGame);
         userRepository.save(user);
 
         return created(savedGame);

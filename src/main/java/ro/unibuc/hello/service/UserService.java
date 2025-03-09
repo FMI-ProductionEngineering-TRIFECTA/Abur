@@ -35,12 +35,12 @@ public abstract class UserService<T extends User> {
         UserEntity user = AuthenticationUtils.getAuthorizedUser(getRole());
         if (user == null) return unauthorized();
 
-        return ok(user.getDetails().getGames());
+        return ok(user.getGames());
     }
 
     public ResponseEntity<?> getGames(String id) {
         UserEntity user = userRepository.findByIdAndRole(id, getRole());
-        return ok(user.getDetails().getGames());
+        return ok(user.getGames());
     }
 
     private void updateSpecificFields(T userInput, UserEntity user) {

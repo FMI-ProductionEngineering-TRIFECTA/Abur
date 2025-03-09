@@ -10,6 +10,7 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.InformationRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.utils.SeederUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -43,10 +44,44 @@ public class DatabaseSeeder {
     protected void seedDeveloper() {
         userRepository.saveAll(List.of(
                 buildDeveloper(
-                        "67c9f02a5582625f6c6639u1",
-                        "contact@sony.com",
                         "PlayStation Studios",
                         "https://www.playstation.com/playstation-studios/"
+                ),
+                buildDeveloper(
+                        "CD PROJEKT RED",
+                        "https://www.cdprojektred.com/en"
+                ),
+                buildDeveloper(
+                        "Square Enix",
+                        "https://www.square-enix.com/"
+                ),
+                buildDeveloper(
+                        "Nintendo",
+                        "https://www.nintendo.com/us/"
+                ),
+                buildDeveloper(
+                        "18Light Game",
+                        "https://www.18light.cc/en/"
+                ),
+                buildDeveloper(
+                        "Capcom",
+                        "https://www.capcom.com/"
+                ),
+                buildDeveloper(
+                        "FromSoftware",
+                        "https://www.fromsoftware.jp/ww/"
+                ),
+                buildDeveloper(
+                        "Kojima Productions",
+                        "https://www.kojimaproductions.jp/en"
+                ),
+                buildDeveloper(
+                        "Rockstar Games",
+                        "https://www.fromsoftware.jp/ww/"
+                ),
+                buildDeveloper(
+                        "Frictional Games",
+                        "https://frictionalgames.com/"
                 )
         ));
     }
@@ -55,10 +90,24 @@ public class DatabaseSeeder {
     protected void seedCustomer() {
         userRepository.saveAll(List.of(
                 buildCustomer(
-                        "67c9f02a5582625f6c6639u2",
-                        "fixbambucea@gmail.com",
-                        "Fix",
-                        "Bambucea"
+                        "Bambucea",
+                        "Fix"
+                ),
+                buildCustomer(
+                        "Bradea",
+                        "Codrin"
+                ),
+                buildCustomer(
+                        "Andrei",
+                        "Neculae"
+                ),
+                buildCustomer(
+                        "Sebi",
+                        "Mihalache"
+                ),
+                buildCustomer(
+                        "Giulian",
+                        "Buzatu"
                 )
         ));
     }
@@ -67,16 +116,15 @@ public class DatabaseSeeder {
     protected void seedGame() {
         gameRepository.saveAll(List.of(
                 buildGame(
-                        "67c9f02a5582625f6c6639g1",
                         "Horizon Zero Dawn",
                         59.99,
                         "18-02-2017",
-                        userRepository.findByIdAndRole("67c9f02a5582625f6c6639u1", UserEntity.Role.DEVELOPER)
+                        userRepository.findByIdAndRole(SeederUtils.getId("developers", 0), UserEntity.Role.DEVELOPER)
                 )
         ))
         .forEach(gameEntity -> {
             UserEntity developer = gameEntity.getDeveloper();
-            developer.getDetails().getGames().add(gameEntity);
+            developer.getGames().add(gameEntity);
             userRepository.save(developer);
         });
     }
@@ -85,17 +133,16 @@ public class DatabaseSeeder {
     protected void seedDLC() {
         gameRepository.saveAll(List.of(
                 buildDLC(
-                        "67c9f02a5582625f6c6639g2",
                         "Horizon Zero Dawn: The Frozen Wilds",
                         9.99,
                         "07-09-2017",
-                        userRepository.findByIdAndRole("67c9f02a5582625f6c6639u1", UserEntity.Role.DEVELOPER),
-                        gameRepository.findByIdAndType("67c9f02a5582625f6c6639g1", GameEntity.Type.GAME)
+                        userRepository.findByIdAndRole(SeederUtils.getId("developers", 0), UserEntity.Role.DEVELOPER),
+                        gameRepository.findByIdAndType(SeederUtils.getId("games", 0), GameEntity.Type.GAME)
                 )
         ))
         .forEach(dlcEntity -> {
             UserEntity developer = dlcEntity.getDeveloper();
-            developer.getDetails().getGames().add(dlcEntity);
+            developer.getGames().add(dlcEntity);
             userRepository.save(developer);
 
             GameEntity baseGame = dlcEntity.getBaseGame();
@@ -114,6 +161,11 @@ public class DatabaseSeeder {
 
     @PostConstruct
     public void seedData() {
+        SeederUtils.setTemplate("developers", "67c9f02a5582625f6c6639dev");
+        SeederUtils.setTemplate("customers", "67c9f02a5582625f6c6639cust");
+        SeederUtils.setTemplate("games", "67c9f02a5582625f6c6639game");
+        SeederUtils.setTemplate("dlcs", "67c9f02a5582625f6c6639dlc");
+
         executeAsync(List.of(
             informationRepository::deleteAll,
             userRepository::deleteAll,
