@@ -5,12 +5,11 @@ meta {
 }
 
 get {
-  url: {{url}}/library?sortOption=default&order=default
+  url: {{url}}/library/
   body: none
-  auth: none
+  auth: bearer
 }
 
-params:query {
-  sortOption: default
-  order: default
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }

@@ -6,9 +6,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.InformationEntity;
+import ro.unibuc.hello.data.entity.LibraryEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.InformationRepository;
+import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.utils.SeederUtils;
 
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
+import static ro.unibuc.hello.data.entity.LibraryEntity.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
 
 @Component
@@ -30,8 +33,15 @@ public class DatabaseSeeder {
     @Autowired
     private GameRepository gameRepository;
 
+    @Autowired
+    private LibraryRepository libraryRepository;
+
     private UserEntity getDeveloper(Integer id) {
         return userRepository.findByIdAndRole(SeederUtils.getId("developers", id), Role.DEVELOPER);
+    }
+
+    private UserEntity getCustomer(Integer id) {
+        return userRepository.findByIdAndRole(SeederUtils.getId("customers", id), Role.CUSTOMER);
     }
 
     private GameEntity getGame(Integer id) {
@@ -42,6 +52,12 @@ public class DatabaseSeeder {
         UserEntity developer = userRepository.findByIdAndRole(gameEntity.getDeveloper().getId(), Role.DEVELOPER);
         developer.getGames().add(gameEntity);
         userRepository.save(developer);
+    }
+
+    private void updateCustomer(LibraryEntity libraryEntity) {
+        UserEntity customer = userRepository.findByIdAndRole(libraryEntity.getCustomer().getId(), Role.CUSTOMER);
+        customer.getGames().add(libraryEntity.getGame());
+        userRepository.save(customer);
     }
 
     private void updateBaseGame(GameEntity dlcEntity) {
@@ -277,6 +293,24 @@ public class DatabaseSeeder {
             updateBaseGame(dlcEntity);
             updateDeveloper(dlcEntity);
         });
+    }
+
+    protected void seedLibrary() {
+        libraryRepository.saveAll(List.of(
+                    build(
+                         getGame(0),
+                         getCustomer(0)
+                    ),
+                    build(
+                         getGame(1),
+                         getCustomer(0)
+                    ),
+                    build(
+                         getGame(2),
+                         getCustomer(0)
+                    )
+                ))
+                .forEach(this::updateCustomer);
     }
 
     private CompletableFuture<Void> executeAsync(List<Runnable> actions) {
