@@ -10,6 +10,7 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
+import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
 
 import static ro.unibuc.hello.utils.ResponseUtils.*;
@@ -19,9 +20,10 @@ import static ro.unibuc.hello.utils.ValidationUtils.*;
 public abstract class UserService<T extends User> {
 
     @Autowired
-    private UserRepository userRepository;
+    protected UserRepository userRepository;
 
     protected abstract UserEntity.Role getRole();
+    protected abstract void validateDetails(User user);
 
     public ResponseEntity<?> getUserById(String id) {
         return ok(userRepository.findByIdAndRole(id, getRole()));
@@ -49,6 +51,7 @@ public abstract class UserService<T extends User> {
             validateAndUpdate("Last name", user.getDetails()::setLastName, customerInput.getLastName());
         }
         else if (userInput instanceof Developer developerInput) {
+            // TODO: check unique
             validateAndUpdate("Studio", user.getDetails()::setStudio, developerInput.getStudio());
             validateAndUpdate("Website", user.getDetails()::setWebsite, developerInput.getWebsite(), validWebsite());
         }
@@ -58,12 +61,31 @@ public abstract class UserService<T extends User> {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserEntity user = userRepository.findByIdAndRole((String) auth.getPrincipal(), getRole());
 
+        // TODO: check unique
         validateAndUpdate("Username", user::setUsername, userInput.getUsername());
+        // TODO: check unique
         validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword().and(validLength(5)));
+        // TODO: check unique
         validateAndUpdate("Email", user::setEmail, userInput.getEmail(), validEmail());
         updateSpecificFields(userInput, user);
 
         return ok(userRepository.save(user));
+    }
+
+    public void validateUser(User user) {
+        validate("Username", user.getUsername(), validLength(5));
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            throw new ValidationException("The username `%s` already exists", user.getUsername());
+        }
+
+        validate("Password", user.getUsername(), validPassword().and(validLength(5)));
+
+        validate("Email", user.getEmail());
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new ValidationException("The email `%s` already exists", user.getEmail());
+        }
+
+        validateDetails(user);
     }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.*;
+import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTService;
 
@@ -17,6 +18,12 @@ public class AuthenticationService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private DeveloperService developerService;
 
     @Autowired
     private JWTService jwtService;
@@ -35,7 +42,9 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> signupDeveloper(Developer developer) {
-        // TODO: Add validation
+        validateSignUp(developer);
+        exists("Studio", developer.getStudio());
+        developerService.validateUser(developer);
 
         return created(userRepository.save(new UserEntity(
                 developer.getUsername(),
@@ -50,7 +59,8 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<?> signupCustomer(Customer customer) {
-        // TODO: Add validation
+        validateSignUp(customer);
+        customerService.validateUser(customer);
 
         return created(userRepository.save(new UserEntity(
                 customer.getUsername(),
@@ -62,6 +72,12 @@ public class AuthenticationService {
                         customer.getLastName()
                 )
         )));
+    }
+
+    private void validateSignUp(User user) {
+        exists("Username", user.getUsername());
+        exists("Password", user.getPassword());
+        exists("Email", user.getEmail());
     }
 
 }

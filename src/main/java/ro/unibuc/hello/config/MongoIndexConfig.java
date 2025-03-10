@@ -22,5 +22,7 @@ public class MongoIndexConfig {
         gamesIndexOps.ensureIndex(new Index().on("title", Sort.Direction.ASC).unique());
         usersIndexOps.ensureIndex(new Index().on("username", Sort.Direction.ASC).unique());
         usersIndexOps.ensureIndex(new Index().on("email", Sort.Direction.ASC).unique());
+        // TODO: search if we can do this in mongo
+        // usersIndexOps.ensureIndex(new Index().on("details.studio", Sort.Direction.ASC).unique());
     }
 }

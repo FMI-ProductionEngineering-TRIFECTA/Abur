@@ -3,18 +3,16 @@ package ro.unibuc.hello.utils;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
-    private static final String missingFieldTemplate = "%s is required";
-    private static final String emptyFieldTemplate = "%s cannot be empty!";
-    private static final String negativeFieldTemplate = "%s cannot be negative!";
 
     @FunctionalInterface
     public interface ValidationRule<T> {
         String validate(T value);
 
-        default ValidationRule<T> and(ValidationRule<T> other) {
+        default <R> ValidationRule<T> and(ValidationRule<T> other) {
             return value -> {
                 String error = this.validate(value);
                 if (error != null) {
@@ -27,7 +25,7 @@ public class ValidationUtils {
 
     public static void exists(String fieldName, String value) {
         if (value == null) {
-            throw new ValidationException(missingFieldTemplate, fieldName);
+            throw new ValidationException("%s is required", fieldName);
         }
     }
 
@@ -36,15 +34,7 @@ public class ValidationUtils {
     }
 
     public static <T> void validate(String fieldName, T field) {
-        if (field instanceof String s && s.trim().isEmpty()) {
-            throw new ValidationException(emptyFieldTemplate, fieldName);
-        }
-        if (field instanceof Integer i && i < 0) {
-            throw new ValidationException(negativeFieldTemplate, fieldName);
-        }
-        if (field instanceof Double v && v < 0) {
-            throw new ValidationException(negativeFieldTemplate, fieldName);
-        }
+        validate(fieldName, field, defaultValidator());
     }
 
     public static <T> void validate(String fieldName, T field, ValidationRule<T> validator) {
@@ -74,6 +64,18 @@ public class ValidationUtils {
 
     private static boolean failsRegex(String regex, String value) {
         return !Pattern.compile(regex).matcher(value).find();
+    }
+
+    public static <T> ValidationRule<T> defaultValidator() {
+        return value -> {
+            if (value instanceof String s && s.trim().isEmpty()) {
+                return "%s cannot be empty!";
+            }
+            if ((value instanceof Integer i && i < 0) || (value instanceof Double v && v < 0)) {
+                return "%s cannot be negative!";
+            }
+            return null;
+        };
     }
 
     public static ValidationRule<String> validLength(int min) {
@@ -111,4 +113,11 @@ public class ValidationUtils {
                 ? "%s must be a valid website URL!"
                 : null;
     }
+
+//    public static <T, R> ValidationRule<String> validateUnique(Function<R, T> getter, R arg) {
+//        return value -> getter.apply(arg) != null
+//                ? "`%s` already exists!"
+//                : null;
+//    }
+
 }
