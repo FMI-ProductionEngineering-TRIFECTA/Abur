@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/developers/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/dlcs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/games/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/library/**").permitAll()
                         .requestMatchers("/store/**").permitAll()
                         .anyRequest().authenticated()
                 )
