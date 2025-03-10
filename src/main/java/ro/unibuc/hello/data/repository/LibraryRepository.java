@@ -15,8 +15,6 @@ import java.util.List;
 @Repository
 public interface LibraryRepository extends MongoRepository<LibraryEntity, String> {
 
-    List<GameEntity> findByGame(GameEntity game);
-    List<UserEntity> findByCustomer(UserEntity customer);
     List<GameEntity> findGamesByCustomer(UserEntity customer);
 
 }
