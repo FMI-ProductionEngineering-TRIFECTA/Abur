@@ -39,13 +39,13 @@ public class DatabaseSeeder {
     }
 
     private void updateDeveloper(GameEntity gameEntity) {
-        UserEntity developer = gameEntity.getDeveloper();
+        UserEntity developer = userRepository.findByIdAndRole(gameEntity.getDeveloper().getId(), Role.DEVELOPER);
         developer.getGames().add(gameEntity);
         userRepository.save(developer);
     }
 
     private void updateBaseGame(GameEntity dlcEntity) {
-        GameEntity baseGame = dlcEntity.getBaseGame();
+        GameEntity baseGame = gameRepository.findByIdAndType(dlcEntity.getBaseGame().getId(), Type.GAME);
         baseGame.getDlcs().add(dlcEntity);
         gameRepository.save(baseGame);
     }
