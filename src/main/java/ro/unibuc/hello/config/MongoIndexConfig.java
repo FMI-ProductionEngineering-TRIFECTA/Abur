@@ -1,12 +1,16 @@
 package ro.unibuc.hello.config;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import jakarta.annotation.PostConstruct;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexOperations;
+import com.mongodb.client.model.Filters;
+
+import java.util.List;
 
 @Configuration
 public class MongoIndexConfig {
@@ -14,13 +18,27 @@ public class MongoIndexConfig {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    private void uniqueIndexes(MongoCollection<Document> collection, List<String> fields) {
+        fields.forEach(field -> {
+            collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
+        });
+    }
+
+    private void partialIndexes(MongoCollection<Document> collection, List<String> fields) {
+        fields.forEach(field -> {
+            collection.createIndex(Indexes.ascending(field), new IndexOptions().partialFilterExpression(Filters.exists(field, true)));
+        });
+    }
+
     @PostConstruct
     public void createIndexes() {
-        IndexOperations gamesIndexOps = mongoTemplate.indexOps("games");
-        IndexOperations usersIndexOps = mongoTemplate.indexOps("users");
+        MongoCollection<Document> games = mongoTemplate.getCollection("games");
+        MongoCollection<Document> users = mongoTemplate.getCollection("users");
 
-        gamesIndexOps.ensureIndex(new Index().on("title", Sort.Direction.ASC).unique());
-        usersIndexOps.ensureIndex(new Index().on("username", Sort.Direction.ASC).unique());
-        usersIndexOps.ensureIndex(new Index().on("email", Sort.Direction.ASC).unique());
+        uniqueIndexes(games, List.of("title"));
+        uniqueIndexes(users, List.of("username", "email"));
+
+        partialIndexes(users, List.of("details.studio"));
     }
+
 }

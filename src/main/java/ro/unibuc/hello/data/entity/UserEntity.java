@@ -7,11 +7,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import ro.unibuc.hello.security.AuthenticationUtils;
-import ro.unibuc.hello.utils.SeederUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ro.unibuc.hello.utils.SeederUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
 @Getter
 @Setter
@@ -77,7 +78,7 @@ public class UserEntity {
 
     public UserEntity(String username, String password, String email, Role role, UserDetails details) {
         this.username = username;
-        this.password = AuthenticationUtils.encryptPassword(password);
+        this.password = encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
@@ -87,7 +88,7 @@ public class UserEntity {
     public UserEntity(String id, String username, String password, String email, Role role, UserDetails details, List<GameEntity> games) {
         this.id = id;
         this.username = username;
-        this.password = AuthenticationUtils.encryptPassword(password);
+        this.password = encryptPassword(password);
         this.email = email;
         this.role = role;
         this.details = details;
@@ -95,7 +96,7 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        this.password = AuthenticationUtils.encryptPassword(password);
+        this.password = encryptPassword(password);
     }
 
     private static UserEntity buildUser(String id, String email, Role role, UserDetails details) {
@@ -117,7 +118,7 @@ public class UserEntity {
 
     public static UserEntity buildDeveloper(String studio, String website) {
         return buildUser(
-                SeederUtils.generateId("developers"),
+                generateId("developers"),
                 String.format("contact@%s.com", studio.split("\\s")[0].toLowerCase()),
                 Role.DEVELOPER,
                 UserDetails.forDeveloper(studio, website)
@@ -126,7 +127,7 @@ public class UserEntity {
 
     public static UserEntity buildCustomer(String firstName, String lastName) {
         return buildUser(
-                SeederUtils.generateId("customers"),
+                generateId("customers"),
                 String.format("%s%s@gmail.com", firstName.toLowerCase(), lastName.toLowerCase()),
                 Role.CUSTOMER,
                 UserDetails.forCustomer(firstName, lastName)

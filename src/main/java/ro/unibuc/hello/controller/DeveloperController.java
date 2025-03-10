@@ -46,10 +46,7 @@ public class DeveloperController {
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedDeveloper(@RequestBody Developer developer) {
-        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.DEVELOPER) != null) {
-            return developerService.updateLoggedUser(developer);
-        }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
+        return developerService.updateLoggedUser(developer);
     }
 
 }

@@ -46,11 +46,7 @@ public class CustomerController {
     @PutMapping("")
     @ResponseBody
     public ResponseEntity<?> updateLoggedCustomer(@RequestBody Customer customer) {
-        if (AuthenticationUtils.getAuthorizedUser(UserEntity.Role.CUSTOMER) != null) {
-            return customerService.updateLoggedUser(customer);
-        }
-
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
+        return customerService.updateLoggedUser(customer);
     }
 
 }

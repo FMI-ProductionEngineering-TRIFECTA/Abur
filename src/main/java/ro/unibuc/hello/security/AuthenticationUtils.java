@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
 @Component
 public class AuthenticationUtils {
@@ -26,9 +27,10 @@ public class AuthenticationUtils {
     public static UserEntity getAuthorizedUser(UserEntity.Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
-            return userRepository.findByIdAndRole(userId, role);
+            UserEntity user = userRepository.findByIdAndRole(userId, role);
+            if (user != null) return user;
         }
-        return null;
+        throw new UnauthorizedAccessException();
     }
 
     public static boolean isPasswordValid(String providedPassword, String actualPassword) {

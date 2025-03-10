@@ -24,7 +24,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+        MongoClientSettings mongoClientSettings = MongoClientSettings
+                .builder()
                 .applyConnectionString(new ConnectionString(connectionURL))
                 .build();
 
@@ -35,4 +36,5 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     public Collection<String> getMappingBasePackages() {
         return Collections.singleton("ro.unibuc.hello.data");
     }
+
 }

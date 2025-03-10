@@ -5,21 +5,23 @@ import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.dto.Game;
+import ro.unibuc.hello.exception.ValidationException;
 
 import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.data.entity.GameEntity.*;
 
 @Service
 public class DLCService extends GameService {
 
     @Override
-    protected GameEntity.Type getType() {
-        return GameEntity.Type.DLC;
+    protected Type getType() {
+        return Type.DLC;
     }
 
     @DeveloperOnly
     public ResponseEntity<?> createDLC(String baseGameId, Game dlcInput) {
-        GameEntity baseGame = gameRepository.findByIdAndType(baseGameId, GameEntity.Type.GAME);
-        if (baseGame == null) return badRequest("No game found at id %s", baseGameId);
+        GameEntity baseGame = gameRepository.findByIdAndType(baseGameId, Type.GAME);
+        if (baseGame == null) throw new ValidationException("No game found at id %s", baseGameId);
 
         dlcInput.setBaseGame(baseGame);
         ResponseEntity<?> dlcBody = createGame(dlcInput);
