@@ -37,8 +37,8 @@ public class GameService {
         return game;
     }
 
-    protected GameEntity.Type getType() {
-        return GameEntity.Type.GAME;
+    protected Type getType() {
+        return Type.GAME;
     }
 
     public ResponseEntity<?> getGameById(String id) {
@@ -55,29 +55,24 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> createGame(Game gameInput) {
-        UserEntity user = Objects.requireNonNull(UserContext.getUser());
+        UserEntity user = UserContext.getUser();
 
         GameEntity baseGame = gameInput.getBaseGame();
-        if (getType() == GameEntity.Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) {
-            throw new UnauthorizedAccessException();
-        }
+        if (getType() == Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) throw new UnauthorizedAccessException();
 
         String title = gameInput.getTitle();
-        if (gameRepository.findByTitle(title) != null) {
-            return badRequest("The game %s already exists", title);
-        }
-
         Double price = fallback(gameInput.getPrice(), 0.0);
         Integer discountPercentage = fallback(gameInput.getDiscountPercentage(), 0);
         Integer keys = fallback(gameInput.getKeys(), 100);
 
         exists("Title", title);
         validate("Title", title, validLength(3));
+        validate(String.format("Title %s", title), title, isUnique(() -> gameRepository.findByTitle(title)));
         validate("Price", price);
         validate("Discount percentage", discountPercentage);
         validate("Number of keys", keys);
 
-        GameEntity savedGame = gameRepository.save(getType() == GameEntity.Type.GAME
+        GameEntity savedGame = gameRepository.save(getType() == Type.GAME
                 ? buildGame(
                         title,
                         price,
@@ -105,7 +100,10 @@ public class GameService {
     public ResponseEntity<?> updateGame(String id, Game gameInput) {
         GameEntity game = validateGameOwnership(id, UserContext.getUser());
 
+        String title = gameInput.getTitle();
+        validate(String.format("Title %s", title), title, isUnique(() -> gameRepository.findByTitle(title)));
         validateAndUpdate("Title", game::setTitle, gameInput.getTitle(), validLength(3));
+
         validateAndUpdate("Price", game::setPrice, gameInput.getPrice());
         validateAndUpdate("Discount percentage", game::setDiscountPercentage, gameInput.getDiscountPercentage());
 

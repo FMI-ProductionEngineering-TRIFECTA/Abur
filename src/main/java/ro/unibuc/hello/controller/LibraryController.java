@@ -21,9 +21,8 @@ public class LibraryController {
 
     @GetMapping("/")
     @ResponseBody
-    @CustomerOnly
     public ResponseEntity<?> getLibrary() {
-        return libraryService.getLibraryByCustomerId(getUser().getId());
+        return libraryService.getLibrary();
     }
 
     @GetMapping("/{customerId}")
@@ -31,4 +30,5 @@ public class LibraryController {
     public ResponseEntity<?> getLibraryByCustomerId(@PathVariable String customerId) {
         return libraryService.getLibraryByCustomerId(customerId);
     }
+
 }

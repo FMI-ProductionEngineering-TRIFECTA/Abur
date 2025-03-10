@@ -6,6 +6,8 @@ import ro.unibuc.hello.data.entity.GameEntity;
 
 import java.util.List;
 
+import static ro.unibuc.hello.data.entity.GameEntity.*;
+
 /**
  * No need to implement this interface.
  * Spring Data MongoDB automatically creates a class it implementing the interface when you run the application.
@@ -13,8 +15,8 @@ import java.util.List;
 @Repository
 public interface GameRepository extends MongoRepository<GameEntity, String> {
 
-    GameEntity findByIdAndType(String id, GameEntity.Type type);
+    GameEntity findByIdAndType(String id, Type type);
     GameEntity findByTitle(String title);
-    List<GameEntity> findByType(GameEntity.Type type);
+    List<GameEntity> findByType(Type type);
 
 }

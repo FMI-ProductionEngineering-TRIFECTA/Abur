@@ -3,7 +3,7 @@ package ro.unibuc.hello.utils;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
@@ -47,18 +47,16 @@ public class ValidationUtils {
         }
     }
 
-    public static <R> void validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue, ValidationRule<R> validator) {
+    public static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue, ValidationRule<T> validator) {
         if (validator == null) {
-            validate(fieldName, fieldValue);
-        }
-        else {
-            validate(fieldName, fieldValue, validator);
+            validator = defaultValidator();
         }
 
+        validate(fieldName, fieldValue, validator);
         if (fieldValue != null) setter.accept(fieldValue);
     }
 
-    public static <R> void validateAndUpdate(String fieldName, Consumer<R> setter, R fieldValue) {
+    public static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue) {
         validateAndUpdate(fieldName, setter, fieldValue, null);
     }
 
@@ -114,10 +112,10 @@ public class ValidationUtils {
                 : null;
     }
 
-//    public static <T, R> ValidationRule<String> validateUnique(Function<R, T> getter, R arg) {
-//        return value -> getter.apply(arg) != null
-//                ? "`%s` already exists!"
-//                : null;
-//    }
+    public static <T> ValidationRule<T> isUnique(Supplier<T> existsCheck) {
+        return value -> existsCheck.get() != null
+                ? "%s already exists!"
+                : null;
+    }
 
 }

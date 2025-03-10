@@ -38,7 +38,7 @@ public class AuthenticationService {
             return ok(new Token(jwtService.getToken(user.getId())));
         }
 
-        return badRequest("Invalid credentials");
+        throw new ValidationException("Invalid username or password");
     }
 
     public ResponseEntity<?> signupDeveloper(Developer developer) {

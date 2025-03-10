@@ -1,10 +1,16 @@
 package ro.unibuc.hello.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ro.unibuc.hello.annotation.CustomerOnly;
+import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
-import ro.unibuc.hello.exception.ValidationException;
+import ro.unibuc.hello.security.UserContext;
+
+import java.util.Objects;
 
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
@@ -19,14 +25,15 @@ public class DeveloperService extends UserService<Developer> {
     @Override
     protected void validateDetails(User user) {
         Developer developer = (Developer) user;
+        String studio = developer.getStudio();
 
-        // TODO
-        // validate("Studio", developer.getStudio(), defaultValidator().and(validateUnique(userRepository::findByDetailsStudio, developer.getStudio())));
-        if (userRepository.findByDetailsStudio(developer.getStudio()) != null) {
-            throw new ValidationException("The studio `%s` already exists", developer.getStudio());
-        }
-
+        validate("Studio", studio, defaultValidator().and(isUnique(() -> userRepository.findByDetailsStudio(studio))));
         validate("Website", developer.getWebsite(), validWebsite());
+    }
+
+    @DeveloperOnly
+    public ResponseEntity<?> updateLoggedUser(Developer developerInput) {
+        return super.updateLoggedUser(developerInput, UserContext.getUser());
     }
 
 }

@@ -15,12 +15,12 @@ public class UserContext {
         }
     }
 
-    public static UserEntity getUser() {
+    public static UserEntity getUser() throws SecurityException {
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             return (UserEntity) attributes.getAttribute(USER_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
         }
-        return null;
+        throw new SecurityException("No authenticated user found");
     }
 
 }

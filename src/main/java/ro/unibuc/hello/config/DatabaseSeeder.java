@@ -12,7 +12,6 @@ import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.InformationRepository;
 import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.utils.SeederUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.LibraryEntity.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
+import static ro.unibuc.hello.utils.SeederUtils.*;
 
 @Component
 public class DatabaseSeeder {
@@ -37,15 +37,15 @@ public class DatabaseSeeder {
     private LibraryRepository libraryRepository;
 
     private UserEntity getDeveloper(Integer id) {
-        return userRepository.findByIdAndRole(SeederUtils.getId("developers", id), Role.DEVELOPER);
+        return userRepository.findByIdAndRole(getId("developers", id), Role.DEVELOPER);
     }
 
     private UserEntity getCustomer(Integer id) {
-        return userRepository.findByIdAndRole(SeederUtils.getId("customers", id), Role.CUSTOMER);
+        return userRepository.findByIdAndRole(getId("customers", id), Role.CUSTOMER);
     }
 
     private GameEntity getGame(Integer id) {
-        return gameRepository.findByIdAndType(SeederUtils.getId("games", id), Type.GAME);
+        return gameRepository.findByIdAndType(getId("games", id), Type.GAME);
     }
 
     private void updateDeveloper(GameEntity gameEntity) {
@@ -126,8 +126,8 @@ public class DatabaseSeeder {
     protected void seedCustomer() {
         userRepository.saveAll(List.of(
                 buildCustomer(
-                        "Bambucea",
-                        "Fix"
+                        "Fix",
+                        "Bambucea"
                 ),
                 buildCustomer(
                         "Bradea",
@@ -323,10 +323,10 @@ public class DatabaseSeeder {
 
     @PostConstruct
     public void seedData() {
-        SeederUtils.setTemplate("developers", "67c9f02a5582625f6c6639dev");
-        SeederUtils.setTemplate("customers", "67c9f02a5582625f6c6639cust");
-        SeederUtils.setTemplate("games", "67c9f02a5582625f6c6639game");
-        SeederUtils.setTemplate("dlcs", "67c9f02a5582625f6c6639dlc");
+        setTemplate("developers", "67c9f02a5582625f6c6639dev");
+        setTemplate("customers", "67c9f02a5582625f6c6639cust");
+        setTemplate("games", "67c9f02a5582625f6c6639game");
+        setTemplate("dlcs", "67c9f02a5582625f6c6639dlc");
 
         executeAsync(List.of(
             informationRepository::deleteAll,

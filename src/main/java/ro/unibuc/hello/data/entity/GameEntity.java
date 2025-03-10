@@ -7,12 +7,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import ro.unibuc.hello.utils.SeederUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ro.unibuc.hello.utils.SeederUtils.*;
 import static ro.unibuc.hello.utils.DateUtils.*;
 
 @Getter
@@ -76,7 +76,7 @@ public class GameEntity {
     public static GameEntity buildGame(String title, Double price, String releaseDate, UserEntity developer) {
         return GameEntity
                 .builder()
-                .id(SeederUtils.generateId("games"))
+                .id(generateId("games"))
                 .title(title)
                 .price(price)
                 .discountPercentage(0)
@@ -111,7 +111,7 @@ public class GameEntity {
                 developer
         );
 
-        dlc.setId(SeederUtils.generateId("dlcs"));
+        dlc.setId(generateId("dlcs"));
         dlc.setType(Type.DLC);
         dlc.setBaseGame(baseGame);
         dlc.setDlcs(null);
