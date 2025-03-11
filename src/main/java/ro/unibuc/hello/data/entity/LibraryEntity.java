@@ -30,7 +30,7 @@ public class LibraryEntity {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
-    static class CompositeKey implements Serializable {
+    public static class CompositeKey implements Serializable {
         private String gameId;
         private String customerId;
 

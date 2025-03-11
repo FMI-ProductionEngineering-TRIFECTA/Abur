@@ -9,8 +9,6 @@ import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.exception.NotFoundException;
 
-import java.util.Objects;
-
 import static org.springframework.http.ResponseEntity.ok;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.UserContext.getUser;
@@ -27,8 +25,8 @@ public class LibraryService {
     public ResponseEntity<?> getLibraryByCustomerId(String customerId) {
         UserEntity customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER);
         if (customer == null) throw new NotFoundException("No customer found at id %s", customerId);
-        
-        return ok(libraryRepository.findGamesByCustomer(userRepository.findByIdAndRole(customerId, Role.CUSTOMER)));
+
+        return ok(libraryRepository.getGamesByCustomer(userRepository.findByIdAndRole(customerId, Role.CUSTOMER)));
     }
 
     @CustomerOnly
