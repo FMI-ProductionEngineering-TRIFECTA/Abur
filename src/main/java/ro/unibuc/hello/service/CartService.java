@@ -16,7 +16,7 @@ import java.util.Optional;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.CartEntity.build;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.security.UserContext.getUser;
+import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
 @Service
 public class CartService {

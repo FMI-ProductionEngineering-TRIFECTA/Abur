@@ -11,11 +11,11 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
-import ro.unibuc.hello.security.UserContext;
 
 import java.util.Objects;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.*;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
@@ -55,7 +55,7 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> createGame(Game gameInput) {
-        UserEntity user = UserContext.getUser();
+        UserEntity user = getUser();
 
         GameEntity baseGame = gameInput.getBaseGame();
         if (getType() == Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) throw new UnauthorizedAccessException();
@@ -98,7 +98,7 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> updateGame(String id, Game gameInput) {
-        GameEntity game = validateGameOwnership(id, UserContext.getUser());
+        GameEntity game = validateGameOwnership(id, getUser());
 
         String title = gameInput.getTitle();
         validate(String.format("Title %s", title), title, isUnique(() -> gameRepository.findByTitle(title)));
@@ -112,7 +112,7 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> addKeys(String id, Integer keys) {
-        GameEntity game = validateGameOwnership(id, UserContext.getUser());
+        GameEntity game = validateGameOwnership(id, getUser());
 
         validate("Number of keys", keys);
 
@@ -122,15 +122,16 @@ public class GameService {
 
     @DeveloperOnly
     public ResponseEntity<?> markOutOfStock(String id) {
-        GameEntity game = validateGameOwnership(id, UserContext.getUser());
+        GameEntity game = validateGameOwnership(id, getUser());
         game.setKeys(0);
         return ok(gameRepository.save(game));
     }
 
     @DeveloperOnly
     public ResponseEntity<?> deleteGame(String id) {
-        GameEntity game = validateGameOwnership(id, UserContext.getUser());
+        GameEntity game = validateGameOwnership(id, getUser());
         gameRepository.delete(game);
         return noContent();
     }
+
 }

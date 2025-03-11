@@ -9,6 +9,7 @@ import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
 
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
@@ -19,7 +20,7 @@ public abstract class UserService<T extends User> {
     @Autowired
     protected UserRepository userRepository;
 
-    protected abstract UserEntity.Role getRole();
+    protected abstract Role getRole();
 
     protected abstract void validateDetails(User user);
 

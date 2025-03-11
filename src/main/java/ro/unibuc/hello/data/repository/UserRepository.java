@@ -6,6 +6,8 @@ import ro.unibuc.hello.data.entity.UserEntity;
 
 import java.util.List;
 
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+
 /**
  * No need to implement this interface.
  * Spring Data MongoDB automatically creates a class it implementing the interface when you run the application.
@@ -15,8 +17,8 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
 
     UserEntity findByUsername(String username);
     UserEntity findByEmail(String email);
-    List<UserEntity> findByRole(UserEntity.Role role);
-    UserEntity findByIdAndRole(String id, UserEntity.Role role);
+    List<UserEntity> findByRole(Role role);
+    UserEntity findByIdAndRole(String id, Role role);
     UserEntity findByDetailsStudio(String studio);
 
 }
