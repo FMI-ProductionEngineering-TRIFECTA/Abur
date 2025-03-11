@@ -5,7 +5,11 @@ meta {
 }
 
 post {
-  url: {{url}}/cart/add/{{gameId}}
+  url: {{url}}/cart/{{gameId}}
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }

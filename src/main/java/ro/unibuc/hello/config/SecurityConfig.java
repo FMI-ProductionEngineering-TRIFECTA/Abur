@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/games/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/library/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/store/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cart/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

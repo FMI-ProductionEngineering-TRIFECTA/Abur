@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: {{url}}/cart/remove
+  url: {{url}}/cart/clear
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }
