@@ -36,4 +36,5 @@ public class CartController {
     public ResponseEntity<?> removeAllFromCart() {
         return cartService.removeAllFromCart();
     }
+
 }

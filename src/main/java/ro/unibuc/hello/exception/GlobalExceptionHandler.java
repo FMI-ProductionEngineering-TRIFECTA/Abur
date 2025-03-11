@@ -21,7 +21,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<ErrorString> handleUnauthorized(UnauthorizedAccessException ex) {
+    public ResponseEntity<ErrorString> handleUnauthorized() {
         return unauthorized();
     }
+
 }

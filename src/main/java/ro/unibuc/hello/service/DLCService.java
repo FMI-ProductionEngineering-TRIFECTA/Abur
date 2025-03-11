@@ -7,7 +7,6 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.ValidationException;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 
 @Service
@@ -33,4 +32,5 @@ public class DLCService extends GameService {
 
         return dlcBody;
     }
+
 }

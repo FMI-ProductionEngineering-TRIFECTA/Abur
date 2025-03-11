@@ -133,4 +133,5 @@ public class UserEntity {
                 UserDetails.forCustomer(firstName, lastName)
         );
     }
+
 }

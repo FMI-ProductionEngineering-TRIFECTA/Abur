@@ -1,6 +1,8 @@
 package ro.unibuc.hello.exception;
 
 public class NotFoundException extends RuntimeException {
+
+    @SuppressWarnings("unused")
     public NotFoundException(String message) {
         super(message);
     }

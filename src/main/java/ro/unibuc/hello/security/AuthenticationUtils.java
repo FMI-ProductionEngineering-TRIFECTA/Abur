@@ -49,4 +49,5 @@ public class AuthenticationUtils {
     public static boolean isPasswordValid(String providedPassword, String actualPassword) {
         return passwordEncoder.matches(providedPassword, actualPassword);
     }
+
 }

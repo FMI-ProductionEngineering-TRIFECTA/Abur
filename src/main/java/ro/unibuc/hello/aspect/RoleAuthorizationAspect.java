@@ -5,8 +5,8 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
+import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
 
 @Aspect
 @Component
@@ -27,4 +27,5 @@ public class RoleAuthorizationAspect {
             throw new UnauthorizedAccessException();
         }
     }
+
 }

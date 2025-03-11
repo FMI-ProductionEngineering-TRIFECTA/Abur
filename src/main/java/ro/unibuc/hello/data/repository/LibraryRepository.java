@@ -18,4 +18,5 @@ public interface LibraryRepository extends MongoRepository<LibraryEntity, Compos
                 .map(LibraryEntity::getGame)
                 .toList();
     }
+
 }

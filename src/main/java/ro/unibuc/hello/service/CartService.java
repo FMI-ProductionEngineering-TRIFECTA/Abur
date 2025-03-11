@@ -14,7 +14,7 @@ import ro.unibuc.hello.exception.NotFoundException;
 import java.util.Optional;
 
 import static ro.unibuc.hello.utils.ResponseUtils.*;
-import static ro.unibuc.hello.data.entity.CartEntity.build;
+import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
@@ -48,7 +48,7 @@ public class CartService {
         if(game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
 
         return created(cartRepository.save(
-                build(
+                buildCartEntry(
                      game.get(),
                      getUser()
                 )
@@ -61,7 +61,7 @@ public class CartService {
         if(game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
 
         cartRepository.delete(
-                build(
+                buildCartEntry(
                      game.get(),
                      getUser()
                 )
@@ -75,4 +75,5 @@ public class CartService {
 
         return noContent();
     }
+
 }

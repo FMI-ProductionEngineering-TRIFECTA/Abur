@@ -22,6 +22,7 @@ import static ro.unibuc.hello.utils.DateUtils.*;
 @Document("library")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LibraryEntity {
+
     @Id
     private CompositeKey id;
 
@@ -49,7 +50,7 @@ public class LibraryEntity {
     @JsonIgnore
     private UserEntity customer;
 
-    public static LibraryEntity build(GameEntity game, UserEntity customer) {
+    public static LibraryEntity buildLibraryEntry(GameEntity game, UserEntity customer) {
         return LibraryEntity
                 .builder()
                 .id(CompositeKey.build(game, customer))
@@ -58,4 +59,5 @@ public class LibraryEntity {
                 .customer(customer)
                 .build();
     }
+
 }

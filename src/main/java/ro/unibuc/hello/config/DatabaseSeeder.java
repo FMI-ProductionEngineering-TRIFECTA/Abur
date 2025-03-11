@@ -16,10 +16,10 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static ro.unibuc.hello.utils.SeederUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.LibraryEntity.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
-import static ro.unibuc.hello.utils.SeederUtils.*;
 
 @Component
 public class DatabaseSeeder {
@@ -297,20 +297,24 @@ public class DatabaseSeeder {
 
     protected void seedLibrary() {
         libraryRepository.saveAll(List.of(
-                    build(
-                         getGame(0),
-                         getCustomer(0)
-                    ),
-                    build(
-                         getGame(1),
-                         getCustomer(0)
-                    ),
-                    build(
-                         getGame(2),
-                         getCustomer(0)
-                    )
-                ))
-                .forEach(this::updateCustomer);
+                buildLibraryEntry(
+                        getGame(0),
+                        getCustomer(0)
+                ),
+                buildLibraryEntry(
+                        getGame(1),
+                        getCustomer(0)
+                ),
+                buildLibraryEntry(
+                        getGame(2),
+                        getCustomer(0)
+                ),
+                buildLibraryEntry(
+                        getGame(0),
+                        getCustomer(1)
+                )
+        ))
+        .forEach(this::updateCustomer);
     }
 
     private CompletableFuture<Void> executeAsync(List<Runnable> actions) {
@@ -340,6 +344,7 @@ public class DatabaseSeeder {
         )))
         .thenRunAsync(this::seedGame)
         .thenRunAsync(this::seedDLC)
+        .thenRunAsync(this::seedLibrary)
         .join();
     }
 
