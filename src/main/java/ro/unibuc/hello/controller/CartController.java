@@ -24,6 +24,7 @@ public class CartController {
     public ResponseEntity<?> addToCart(@PathVariable String gameId) {
         return cartService.addGameToCartById(gameId);
     }
+    //TODO: add checkout
 
     @DeleteMapping("/{gameId}")
     @ResponseBody

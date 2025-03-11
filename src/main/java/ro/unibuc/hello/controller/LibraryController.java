@@ -17,7 +17,7 @@ public class LibraryController {
     @Autowired
     private LibraryService libraryService;
 
-    @GetMapping("/")
+    @GetMapping("")
     @ResponseBody
     public ResponseEntity<?> getLibrary() {
         return libraryService.getLibrary();

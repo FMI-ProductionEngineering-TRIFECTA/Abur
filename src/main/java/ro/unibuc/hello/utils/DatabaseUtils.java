@@ -1,11 +1,30 @@
 package ro.unibuc.hello.utils;
 
+import lombok.*;
 import org.springframework.data.util.Pair;
+import ro.unibuc.hello.data.entity.GameEntity;
+import ro.unibuc.hello.data.entity.UserEntity;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface SeederUtils {
+public interface DatabaseUtils {
+
+    @Getter
+    @Setter
+    @ToString
+    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class CompositeKey implements Serializable { // TODO: move somewhere common
+        private String gameId;
+        private String customerId;
+
+        public static CompositeKey build(GameEntity game, UserEntity customer) {
+            return new CompositeKey(game.getId(), customer.getId());
+        }
+    }
 
     Map<String, Pair<String, Integer>> info = new HashMap<>();
 

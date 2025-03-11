@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import static ro.unibuc.hello.utils.DateUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
 
 @Getter
 @Setter
@@ -26,28 +27,18 @@ public class LibraryEntity {
     @Id
     private CompositeKey id;
 
-    @Getter
-    @Setter
-    @EqualsAndHashCode
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CompositeKey implements Serializable {
-        private String gameId;
-        private String customerId;
-
-        public static CompositeKey build(GameEntity game, UserEntity customer) {
-            return new CompositeKey(game.getId(), customer.getId());
-        }
-    }
-
     private Date purchaseDate;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private GameEntity game;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserEntity customer;
 
     public static LibraryEntity buildLibraryEntry(GameEntity game, UserEntity customer) {

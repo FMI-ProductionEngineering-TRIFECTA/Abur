@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static ro.unibuc.hello.utils.SeederUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
 import static ro.unibuc.hello.utils.DateUtils.*;
 
 @Getter
@@ -47,16 +47,22 @@ public class GameEntity {
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserEntity developer;
 
     private Type type;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private GameEntity baseGame;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<GameEntity> dlcs;
 
     public static GameEntity buildGame(String title, Double price, Integer discountPercentage, Integer keys, UserEntity developer) {

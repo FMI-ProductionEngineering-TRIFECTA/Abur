@@ -7,6 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
+
 @Getter
 @Setter
 @ToString
@@ -19,7 +21,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CartEntity {
 
     @Id
-    private LibraryEntity.CompositeKey id;
+    private CompositeKey id;
 
     @DBRef
     @JsonIgnore
@@ -32,7 +34,7 @@ public class CartEntity {
     public static CartEntity buildCartEntry(GameEntity game, UserEntity customer) {
         return CartEntity
                 .builder()
-                .id(LibraryEntity.CompositeKey.build(game, customer))
+                .id(CompositeKey.build(game, customer))
                 .game(game)
                 .customer(customer)
                 .build();
