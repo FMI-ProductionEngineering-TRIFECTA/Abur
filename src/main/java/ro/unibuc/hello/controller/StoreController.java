@@ -20,5 +20,4 @@ public class StoreController {
     public ResponseEntity<?> getStore() { //TODO: add hideOwned option
         return storeService.getStore();
     }
-
 }
