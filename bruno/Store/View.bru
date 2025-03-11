@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{url}}/store
+  url: {{url}}/store?hideOwned=true
   body: none
   auth: bearer
+}
+
+params:query {
+  hideOwned: true
 }
 
 auth:bearer {

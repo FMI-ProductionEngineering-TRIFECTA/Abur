@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.LibraryEntity.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
-import static ro.unibuc.hello.utils.SeederUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
 
 @Component
 public class DatabaseSeeder {
