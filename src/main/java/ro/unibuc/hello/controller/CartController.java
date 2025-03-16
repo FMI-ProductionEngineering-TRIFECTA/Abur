@@ -16,7 +16,13 @@ public class CartController {
     @GetMapping("")
     @ResponseBody
     public ResponseEntity<?> getCart() {
-        return cartService.getCart();
+        return cartService.getCart(); // TODO: add dto here
+    }
+
+    @PostMapping("/checkout")
+    @ResponseBody
+    public ResponseEntity<?> checkout() {
+        return cartService.checkout();
     }
 
     @PostMapping("/{gameId}")
@@ -24,7 +30,6 @@ public class CartController {
     public ResponseEntity<?> addToCart(@PathVariable String gameId) {
         return cartService.addGameToCartById(gameId);
     }
-    //TODO: add checkout
 
     @DeleteMapping("/{gameId}")
     @ResponseBody

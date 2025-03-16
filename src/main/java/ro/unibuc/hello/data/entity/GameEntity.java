@@ -124,4 +124,7 @@ public class GameEntity {
         return dlc;
     }
 
+    public double discountedPrice() {
+        return Math.round((1.00 - 1.0 * discountPercentage / 100) * price * 100.0) / 100.0;
+    }
 }
