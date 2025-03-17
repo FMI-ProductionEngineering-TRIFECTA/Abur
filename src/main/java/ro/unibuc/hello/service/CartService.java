@@ -66,7 +66,7 @@ public class CartService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> addGameToCart(String gameId) {
+    public ResponseEntity<?> addToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = getGame(gameId);
 
@@ -75,10 +75,10 @@ public class CartService {
         if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
 
         return created(cartRepository.save(
-                buildCartEntry(
-                     game,
-                     customer
-                )
+            buildCartEntry(
+                 game,
+                 customer
+            )
         ));
     }
 
@@ -106,10 +106,10 @@ public class CartService {
         UserEntity customer = getUser();
 
         cartRepository.delete(
-                buildCartEntry(
-                     game,
-                     customer
-                )
+            buildCartEntry(
+                 game,
+                 customer
+            )
         );
         return noContent();
     }

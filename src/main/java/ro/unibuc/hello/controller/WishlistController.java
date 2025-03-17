@@ -22,8 +22,20 @@ public class WishlistController {
 
     @PostMapping("/{gameId}")
     @ResponseBody
-    public ResponseEntity<?> getWishlist(@PathVariable String gameId) {
-        return wishlistService.addGameToWishlist(gameId);
+    public ResponseEntity<?> addToWishlist(@PathVariable String gameId) {
+        return wishlistService.addToWishlist(gameId);
+    }
+
+    @PostMapping("/moveToCart/{gameId}")
+    @ResponseBody
+    public ResponseEntity<?> moveToCart(@PathVariable String gameId) {
+        return wishlistService.moveToCart(gameId);
+    }
+
+    @PostMapping("/moveToCart")
+    @ResponseBody
+    public ResponseEntity<?> moveAllToCart() {
+        return wishlistService.moveAllToCart();
     }
 
     @DeleteMapping("/{gameId}")
