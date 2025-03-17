@@ -11,8 +11,11 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
+import ro.unibuc.hello.exception.ValidationException;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;

@@ -1,16 +1,15 @@
 meta {
   name: View
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
-  url: {{url}}/wishlist?sortOption=default&order=default
+  url: {{url}}/wishlist
   body: none
-  auth: none
+  auth: bearer
 }
 
-params:query {
-  sortOption: default
-  order: default
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }

@@ -26,7 +26,7 @@ public class LibraryService {
         UserEntity customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER);
         if (customer == null) throw new NotFoundException("No customer found at id %s", customerId);
 
-        return ok(libraryRepository.getGamesByCustomer(userRepository.findByIdAndRole(customerId, Role.CUSTOMER)));
+        return ok(libraryRepository.getGamesByCustomer(customer));
     }
 
     @CustomerOnly

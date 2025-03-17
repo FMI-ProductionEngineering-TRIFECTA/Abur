@@ -6,18 +6,15 @@ import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.CartRepository;
-import ro.unibuc.hello.data.repository.GameRepository;
-import ro.unibuc.hello.data.repository.LibraryRepository;
-import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.data.repository.*;
 import ro.unibuc.hello.dto.CartInfo;
-import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 import java.util.Optional;
 
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
@@ -36,6 +33,9 @@ public class CartService {
 
     @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private WishlistRepository wishlistRepository;
 
     private GameEntity getGame(String gameId) {
         Optional<GameEntity> game = gameRepository.findById(gameId);
@@ -66,7 +66,7 @@ public class CartService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> addGameToCartById(String gameId) {
+    public ResponseEntity<?> addGameToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = getGame(gameId);
 
@@ -94,13 +94,14 @@ public class CartService {
                 customer
             )
         ));
+        games.forEach(game -> wishlistRepository.deleteById(build(game, getUser())));
 
         removeAllFromCart();
-        return created(new CartInfo(totalPrice(games), games));
+        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeGameFromCart(String gameId) {
+    public ResponseEntity<?> removeFromCart(String gameId) {
         GameEntity game = getGame(gameId);
         UserEntity customer = getUser();
 

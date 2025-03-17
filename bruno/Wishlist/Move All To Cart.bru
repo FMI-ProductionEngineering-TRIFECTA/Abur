@@ -1,11 +1,15 @@
 meta {
   name: Move All To Cart
   type: http
-  seq: 6
+  seq: 4
 }
 
 post {
   url: {{url}}/wishlist/moveToCart
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }
