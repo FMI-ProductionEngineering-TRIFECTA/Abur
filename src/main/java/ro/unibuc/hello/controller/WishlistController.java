@@ -49,4 +49,5 @@ public class WishlistController {
     public ResponseEntity<?> removeAllFromWishlist() {
         return wishlistService.removeAllFromWishlist();
     }
+
 }

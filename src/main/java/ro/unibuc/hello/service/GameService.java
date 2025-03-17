@@ -8,13 +8,10 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
 import ro.unibuc.hello.dto.Game;
-import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
-import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
@@ -39,24 +36,9 @@ public class GameService {
     @Autowired
     private WishlistRepository wishlistRepository;
 
-    public static GameEntity getGame(GameRepository gameRepository, String gameId) {
-        Optional<GameEntity> game = gameRepository.findById(gameId);
-        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
-        return game.get();
-    }
-
-    public static void validateGame(List<GameEntity> list, String gameId, String errorMessage) {
-        if (list.stream().anyMatch(g -> g.getId().equals(gameId))) {
-            throw new ValidationException(errorMessage);
-        }
-    }
-
     private GameEntity validateGameOwnership(String id, UserEntity user) {
-        GameEntity game = gameRepository.findByIdAndType(id, getType());
-
-        if (game == null) throw new NotFoundException("No game found at id %s", id);
+        GameEntity game = gameRepository.getGame(id);
         if (user == null || !Objects.equals(user.getUsername(), game.getDeveloper().getUsername())) throw new UnauthorizedAccessException();
-
         return game;
     }
 
@@ -79,7 +61,6 @@ public class GameService {
     @DeveloperOnly
     public ResponseEntity<?> createGame(Game gameInput) {
         UserEntity user = getUser();
-
         GameEntity baseGame = gameInput.getBaseGame();
         if (getType() == Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) throw new UnauthorizedAccessException();
 
@@ -160,8 +141,8 @@ public class GameService {
     @DeveloperOnly
     public ResponseEntity<?> deleteGame(String id) {
         GameEntity game = validateGameOwnership(id, getUser());
-
         List<GameEntity> dlcs = game.getDlcs();
+
         dlcs.forEach(this::deleteGameDependencies);
         gameRepository.deleteAll(dlcs);
 

@@ -14,6 +14,16 @@ public interface ValidationUtils {
         return !Pattern.compile(regex).matcher(value).find();
     }
 
+    private static ValidationRule<String> checkPresence(Supplier<List<GameEntity>> listSupplier, String collectionName, boolean shouldBeIn) {
+        return gameId -> {
+            boolean exists = listSupplier.get().stream().anyMatch(g -> g.getId().equals(gameId));
+            if (exists == shouldBeIn) {
+                return null;
+            }
+            return String.format("%s %s %s", "%s", shouldBeIn ? "is not in" : "already in", collectionName);
+        };
+    }
+
     @FunctionalInterface
     interface ValidationRule<T> {
         String validate(T value);
@@ -121,22 +131,12 @@ public interface ValidationUtils {
                 : null;
     }
 
-    static <T> ValidationRule<T> isNotIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
-        return gameId -> listSupplier
-                    .get()
-                    .stream()
-                    .anyMatch(g -> g.getId().equals(gameId))
-                ? String.format("%s already in %s", "%s", collectionName)
-                : null;
+    static ValidationRule<String> isNotIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+        return checkPresence(listSupplier, collectionName, false);
     }
 
-    static <T> ValidationRule<T> isIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
-        return gameId -> listSupplier
-                    .get()
-                    .stream()
-                    .anyMatch(g -> g.getId().equals(gameId))
-                ? null
-                : String.format("%s is not in %s", "%s", collectionName);
+    static ValidationRule<String> isIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+        return checkPresence(listSupplier, collectionName, true);
     }
 
 }
