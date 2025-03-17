@@ -11,6 +11,7 @@ import java.util.Date;
 
 import static ro.unibuc.hello.utils.DateUtils.*;
 import static ro.unibuc.hello.utils.DatabaseUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 
 @Getter
 @Setter
@@ -43,7 +44,7 @@ public class LibraryEntity {
     public static LibraryEntity buildLibraryEntry(GameEntity game, UserEntity customer) {
         return LibraryEntity
                 .builder()
-                .id(CompositeKey.build(game, customer))
+                .id(build(game, customer))
                 .purchaseDate(dateNow())
                 .game(game)
                 .customer(customer)

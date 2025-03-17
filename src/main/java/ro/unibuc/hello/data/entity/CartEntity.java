@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import static ro.unibuc.hello.utils.DatabaseUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 
 @Getter
 @Setter
@@ -34,7 +35,7 @@ public class CartEntity {
     public static CartEntity buildCartEntry(GameEntity game, UserEntity customer) {
         return CartEntity
                 .builder()
-                .id(CompositeKey.build(game, customer))
+                .id(build(game, customer))
                 .game(game)
                 .customer(customer)
                 .build();

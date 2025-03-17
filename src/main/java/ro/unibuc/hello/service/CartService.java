@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
-import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
@@ -16,7 +15,6 @@ import ro.unibuc.hello.exception.ValidationException;
 import java.util.List;
 
 import static ro.unibuc.hello.service.GameService.getGame;
-import static ro.unibuc.hello.service.GameService.validateGame;
 import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
@@ -24,6 +22,7 @@ import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.LibraryEntity.buildLibraryEntry;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
+import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
 public class CartService {
@@ -39,16 +38,6 @@ public class CartService {
 
     @Autowired
     private WishlistRepository wishlistRepository;
-
-    public static void addToCartConditions(GameEntity game,
-                                    UserEntity customer,
-                                    LibraryRepository libraryRepository,
-                                    CartRepository cartRepository,
-                                    Boolean checkKeys) {
-        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
-        validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
-        if (checkKeys && game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
-    }
 
     @Autowired
     private LibraryRepository libraryRepository;
@@ -70,7 +59,11 @@ public class CartService {
     public ResponseEntity<?> addToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = getGame(gameRepository, gameId);
-        addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.TRUE);
+        String title = game.getTitle();
+
+        validate(title, gameId, isNotIn(() -> cartRepository.getGamesByCustomer(customer), "cart"));
+        validate(title, gameId, isNotIn(() -> libraryRepository.getGamesByCustomer(customer), "library"));
+        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
 
         return created(cartRepository.save(
             buildCartEntry(

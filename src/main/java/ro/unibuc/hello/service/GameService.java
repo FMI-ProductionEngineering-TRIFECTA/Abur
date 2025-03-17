@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.GameRepository;
-import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.data.repository.*;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
@@ -31,15 +30,24 @@ public class GameService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LibraryRepository libraryRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private WishlistRepository wishlistRepository;
+
     public static GameEntity getGame(GameRepository gameRepository, String gameId) {
         Optional<GameEntity> game = gameRepository.findById(gameId);
         if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
         return game.get();
     }
 
-    public static void validateGame(List<GameEntity> list, GameEntity game, String listName) {
-        if (list.stream().anyMatch(g -> g.getId().equals(game.getId()))) {
-            throw new ValidationException("%s already in %s", game.getTitle(), listName);
+    public static void validateGame(List<GameEntity> list, String gameId, String errorMessage) {
+        if (list.stream().anyMatch(g -> g.getId().equals(gameId))) {
+            throw new ValidationException(errorMessage);
         }
     }
 
@@ -142,10 +150,24 @@ public class GameService {
         return ok(gameRepository.save(game));
     }
 
+    private void deleteGameDependencies(GameEntity game) {
+        String gameId = game.getId();
+        libraryRepository.deleteById_GameId(gameId);
+        cartRepository.deleteById_GameId(gameId);
+        wishlistRepository.deleteById_GameId(gameId);
+    }
+
     @DeveloperOnly
     public ResponseEntity<?> deleteGame(String id) {
         GameEntity game = validateGameOwnership(id, getUser());
+
+        List<GameEntity> dlcs = game.getDlcs();
+        dlcs.forEach(this::deleteGameDependencies);
+        gameRepository.deleteAll(dlcs);
+
+        deleteGameDependencies(game);
         gameRepository.delete(game);
+
         return noContent();
     }
 

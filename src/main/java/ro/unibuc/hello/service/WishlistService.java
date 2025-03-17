@@ -7,17 +7,15 @@ import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
-import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
-import static ro.unibuc.hello.service.CartService.addToCartConditions;
 import static ro.unibuc.hello.service.GameService.getGame;
-import static ro.unibuc.hello.service.GameService.validateGame;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
+import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
 public class WishlistService {
@@ -31,12 +29,6 @@ public class WishlistService {
     @Autowired
     private CartRepository cartRepository;
 
-    private void validateGameInWishlist(List<GameEntity> list, GameEntity game) {
-        if (list.stream().noneMatch(g -> g.getId().equals(game.getId()))) {
-            throw new ValidationException("%s is not in wishlist", game.getTitle());
-        }
-    }
-
     @Autowired
     private LibraryRepository libraryRepository;
 
@@ -49,9 +41,10 @@ public class WishlistService {
     public ResponseEntity<?> addToWishlist(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = getGame(gameRepository, gameId);
+        String title = game.getTitle();
 
-        validateGame(wishlistRepository.getGamesByCustomer(customer), game, "wishlist");
-        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
+        validate(title, gameId, isNotIn(() -> wishlistRepository.getGamesByCustomer(customer), "wishlist"));
+        validate(title, gameId, isNotIn(() -> libraryRepository.getGamesByCustomer(customer), "library"));
 
         return created(wishlistRepository.save(
             buildWishlistEntry(
@@ -65,9 +58,10 @@ public class WishlistService {
     public ResponseEntity<?> moveToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = getGame(gameRepository, gameId);
+        String title = game.getTitle();
 
-        validateGameInWishlist(wishlistRepository.getGamesByCustomer(customer), game);
-        addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.TRUE);
+        validate(title, gameId, isIn(() -> wishlistRepository.getGamesByCustomer(customer), "wishlist"));
+        validate(title, gameId, isNotIn(() -> cartRepository.getGamesByCustomer(customer), "cart"));
 
         cartRepository.save(
             buildCartEntry(
@@ -75,12 +69,7 @@ public class WishlistService {
                 customer
             )
         );
-        wishlistRepository.delete(
-            buildWishlistEntry(
-                game,
-                customer
-            )
-        );
+
         return noContent();
     }
 
@@ -90,20 +79,12 @@ public class WishlistService {
         List<GameEntity> games = wishlistRepository.getGamesByCustomer(customer);
 
         games.forEach(game -> {
-            // If it has 0 keys, it just remains in Wishlist
-            addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.FALSE);
             if (game.getKeys() > 0) {
                 cartRepository.save(
                     buildCartEntry(
                         game,
                         customer
                     )
-                );
-                wishlistRepository.delete(
-                        buildWishlistEntry(
-                                game,
-                                customer
-                        )
                 );
             }
         });
@@ -113,15 +94,13 @@ public class WishlistService {
 
     @CustomerOnly
     public ResponseEntity<?> removeFromWishlist(String gameId) {
-        UserEntity customer = getUser();
-        GameEntity game = getGame(gameRepository, gameId);
-
         wishlistRepository.delete(
             buildWishlistEntry(
-                    game,
-                    customer
+                    getGame(gameRepository, gameId),
+                    getUser()
             )
         );
+
         return noContent();
     }
 

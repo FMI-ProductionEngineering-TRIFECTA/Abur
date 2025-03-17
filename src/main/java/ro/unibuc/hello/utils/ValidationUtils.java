@@ -1,7 +1,9 @@
 package ro.unibuc.hello.utils;
 
+import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.exception.ValidationException;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -117,6 +119,24 @@ public interface ValidationUtils {
         return value -> existsCheck.get() != null
                 ? "%s already exists!"
                 : null;
+    }
+
+    static <T> ValidationRule<T> isNotIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+        return gameId -> listSupplier
+                    .get()
+                    .stream()
+                    .anyMatch(g -> g.getId().equals(gameId))
+                ? String.format("%s already in %s", "%s", collectionName)
+                : null;
+    }
+
+    static <T> ValidationRule<T> isIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+        return gameId -> listSupplier
+                    .get()
+                    .stream()
+                    .anyMatch(g -> g.getId().equals(gameId))
+                ? null
+                : String.format("%s is not in %s", "%s", collectionName);
     }
 
 }
