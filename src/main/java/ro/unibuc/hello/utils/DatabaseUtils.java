@@ -17,7 +17,7 @@ public interface DatabaseUtils {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
-    class CompositeKey implements Serializable { // TODO: move somewhere common
+    class CompositeKey implements Serializable {
         private String gameId;
         private String customerId;
 

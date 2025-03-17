@@ -16,6 +16,7 @@ import java.util.List;
 
 import static ro.unibuc.hello.utils.DatabaseUtils.*;
 import static ro.unibuc.hello.utils.DateUtils.*;
+import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Getter
 @Setter
@@ -143,4 +144,27 @@ public class GameEntity {
         }
         keys--;
     }
+
+    private static ValidationRule<String> validate(List<GameEntity> games, String collectionName, boolean shouldBeIn) {
+        return shouldBeIn
+                ? isIn(() -> games, collectionName)
+                : isNotIn(() -> games, collectionName);
+    }
+
+    public static ValidationRule<String> notInWishlist(List<GameEntity> games) {
+        return validate(games, "wishlist", false);
+    }
+
+    public static ValidationRule<String> inWishlist(List<GameEntity> games) {
+        return validate(games, "wishlist", true);
+    }
+
+    public static ValidationRule<String> notInCart(List<GameEntity> games) {
+        return validate(games, "cart", false);
+    }
+
+    public static ValidationRule<String> notInLibrary(List<GameEntity> games) {
+        return validate(games, "library", false);
+    }
+
 }

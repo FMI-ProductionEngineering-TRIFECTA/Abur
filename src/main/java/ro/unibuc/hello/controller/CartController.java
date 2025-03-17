@@ -28,13 +28,13 @@ public class CartController {
     @PostMapping("/{gameId}")
     @ResponseBody
     public ResponseEntity<?> addToCart(@PathVariable String gameId) {
-        return cartService.addGameToCartById(gameId);
+        return cartService.addToCart(gameId);
     }
 
     @DeleteMapping("/{gameId}")
     @ResponseBody
     public ResponseEntity<?> removeFromCart(@PathVariable String gameId) {
-        return cartService.removeGameFromCart(gameId);
+        return cartService.removeFromCart(gameId);
     }
 
     @DeleteMapping("/clear")

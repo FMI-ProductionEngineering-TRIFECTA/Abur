@@ -17,23 +17,27 @@ import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document("cart")
+@Document("wishlist")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CartEntity {
+public class WishlistEntity {
 
     @Id
     private CompositeKey id;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private GameEntity game;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserEntity customer;
 
-    public static CartEntity buildCartEntry(GameEntity game, UserEntity customer) {
-        return CartEntity
+    public static WishlistEntity buildWishlistEntry(GameEntity game, UserEntity customer) {
+        return WishlistEntity
                 .builder()
                 .id(build(game, customer))
                 .game(game)

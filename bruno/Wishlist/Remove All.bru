@@ -1,11 +1,15 @@
 meta {
   name: Remove All
   type: http
-  seq: 5
+  seq: 6
 }
 
 delete {
-  url: {{url}}/wishlist/remove
+  url: {{url}}/wishlist/clear
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }
