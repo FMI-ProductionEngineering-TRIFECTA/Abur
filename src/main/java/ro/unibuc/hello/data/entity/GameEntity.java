@@ -138,11 +138,9 @@ public class GameEntity {
     }
 
     public synchronized void decreaseNoKeys() {
-        if (keys > 0) {
-            keys--;
+        if (keys <= 0) {
+            throw new ValidationException("There are no more keys for %s, please remove it from the cart!", title);
         }
-        else {
-            throw new ValidationException("There are no more keys for %s, please remove it from cart.", title);
-        }
+        keys--;
     }
 }

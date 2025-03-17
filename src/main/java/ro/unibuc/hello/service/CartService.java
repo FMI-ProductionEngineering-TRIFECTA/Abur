@@ -72,7 +72,7 @@ public class CartService {
 
         validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
         validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
-        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock.", game.getTitle());
+        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
 
         return created(cartRepository.save(
                 buildCartEntry(

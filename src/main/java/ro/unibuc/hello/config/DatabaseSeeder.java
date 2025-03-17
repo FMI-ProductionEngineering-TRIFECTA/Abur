@@ -345,7 +345,7 @@ public class DatabaseSeeder {
         )))
         .thenRunAsync(this::seedGame)
         .thenRunAsync(this::seedDLC)
-        //.thenRunAsync(this::seedLibrary)
+        .thenRunAsync(this::seedLibrary)
         .join();
     }
 
