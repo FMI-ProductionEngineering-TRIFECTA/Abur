@@ -8,10 +8,12 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
 import ro.unibuc.hello.dto.Game;
+import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
@@ -37,13 +39,19 @@ public class GameService {
     private WishlistRepository wishlistRepository;
 
     private GameEntity validateGameOwnership(String id, UserEntity user) {
-        GameEntity game = gameRepository.getGame(id);
+        GameEntity game = getGame(id);
         if (user == null || !Objects.equals(user.getUsername(), game.getDeveloper().getUsername())) throw new UnauthorizedAccessException();
         return game;
     }
 
     protected Type getType() {
         return Type.GAME;
+    }
+
+    public GameEntity getGame(String gameId) {
+        Optional<GameEntity> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        return game.get();
     }
 
     public ResponseEntity<?> getGameById(String id) {

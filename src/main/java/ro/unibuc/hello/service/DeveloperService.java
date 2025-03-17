@@ -3,11 +3,12 @@ package ro.unibuc.hello.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.DeveloperOnly;
+import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.dto.User;
 
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
@@ -27,9 +28,14 @@ public class DeveloperService extends UserService<Developer> {
         validate("Website", developer.getWebsite(), validWebsite());
     }
 
+    @SuppressWarnings("unused")
+    public UserEntity getDeveloper(String developerId) {
+        return getUser(developerId);
+    }
+
     @DeveloperOnly
     public ResponseEntity<?> updateLoggedUser(Developer developerInput) {
-        return super.updateLoggedUser(developerInput, getUser());
+        return super.updateLoggedUser(developerInput, AuthenticationUtils.getUser());
     }
 
 }

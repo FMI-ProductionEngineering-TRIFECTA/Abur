@@ -3,11 +3,12 @@ package ro.unibuc.hello.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
+import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.dto.User;
 
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
@@ -26,9 +27,13 @@ public class CustomerService extends UserService<Customer> {
         validate("Last name", customer.getLastName());
     }
 
+    public UserEntity getCustomer(String customerId) {
+        return getUser(customerId);
+    }
+
     @CustomerOnly
     public ResponseEntity<?> updateLoggedUser(Customer customerInput) {
-        return super.updateLoggedUser(customerInput, getUser());
+        return super.updateLoggedUser(customerInput, AuthenticationUtils.getUser());
     }
 
 }

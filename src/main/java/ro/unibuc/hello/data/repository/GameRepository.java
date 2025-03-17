@@ -17,10 +17,4 @@ public interface GameRepository extends MongoRepository<GameEntity, String> {
     GameEntity findByTitle(String title);
     List<GameEntity> findByType(Type type);
 
-    default GameEntity getGame(String gameId) {
-        Optional<GameEntity> game = findById(gameId);
-        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
-        return game.get();
-    }
-
 }

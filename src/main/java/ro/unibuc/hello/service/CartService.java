@@ -27,10 +27,7 @@ public class CartService {
     protected CartRepository cartRepository;
 
     @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
-    private GameRepository gameRepository;
+    private CustomerService customerService;
 
     @Autowired
     private WishlistRepository wishlistRepository;
@@ -38,8 +35,12 @@ public class CartService {
     @Autowired
     private LibraryRepository libraryRepository;
 
+    @Autowired
+    private GameService gameService;
+
+
     private ResponseEntity<?> getCartByCustomerId(String customerId) {
-        List<GameEntity> games = cartRepository.getGamesByCustomer(userRepository.getCustomer(customerId));
+        List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return ok(new CartInfo(totalPrice(games), games));
     }
 
@@ -51,7 +52,7 @@ public class CartService {
     @CustomerOnly
     public ResponseEntity<?> addToCart(String gameId) {
         UserEntity customer = getUser();
-        GameEntity game = gameRepository.getGame(gameId);
+        GameEntity game = gameService.getGame(gameId);
 
         validate(
                 game.getTitle(),
@@ -91,7 +92,7 @@ public class CartService {
     public ResponseEntity<?> removeFromCart(String gameId) {
         cartRepository.delete(
             buildCartEntry(
-                gameRepository.getGame(gameId),
+                gameService.getGame(gameId),
                 getUser()
             )
         );

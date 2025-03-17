@@ -22,13 +22,12 @@ public class WishlistService {
     protected WishlistRepository wishlistRepository;
 
     @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
     private CartRepository cartRepository;
 
     @Autowired
     private LibraryRepository libraryRepository;
+    @Autowired
+    private GameService gameService;
 
     @CustomerOnly
     public ResponseEntity<?> getWishlist() {
@@ -38,7 +37,7 @@ public class WishlistService {
     @CustomerOnly
     public ResponseEntity<?> addToWishlist(String gameId) {
         UserEntity customer = getUser();
-        GameEntity game = gameRepository.getGame(gameId);
+        GameEntity game = gameService.getGame(gameId);
 
         validate(
                 game.getTitle(),
@@ -58,7 +57,7 @@ public class WishlistService {
     @CustomerOnly
     public ResponseEntity<?> moveToCart(String gameId) {
         UserEntity customer = getUser();
-        GameEntity game = gameRepository.getGame(gameId);
+        GameEntity game = gameService.getGame(gameId);
 
         validate(
                 game.getTitle(),
@@ -98,7 +97,7 @@ public class WishlistService {
     public ResponseEntity<?> removeFromWishlist(String gameId) {
         wishlistRepository.delete(
             buildWishlistEntry(
-                    gameRepository.getGame(gameId),
+                    gameService.getGame(gameId),
                     getUser()
             )
         );

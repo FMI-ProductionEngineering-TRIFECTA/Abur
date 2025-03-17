@@ -8,6 +8,7 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
+import ro.unibuc.hello.exception.NotFoundException;
 
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
@@ -21,6 +22,12 @@ public abstract class UserService<T extends User> {
     protected UserRepository userRepository;
 
     protected abstract Role getRole();
+
+    protected UserEntity getUser(String userId) {
+        UserEntity user = userRepository.findByIdAndRole(userId, getRole());
+        if (user == null) throw new NotFoundException("No %s found at id %s", getRole().toString().toLowerCase(), userId);
+        return user;
+    }
 
     protected abstract void validateDetails(User user);
 
