@@ -1,9 +1,11 @@
 package ro.unibuc.hello.service;
 
+import org.apache.tomcat.jni.Library;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
+import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
@@ -12,8 +14,9 @@ import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
-import java.util.Optional;
 
+import static ro.unibuc.hello.service.GameService.getGame;
+import static ro.unibuc.hello.service.GameService.validateGame;
 import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
@@ -37,16 +40,14 @@ public class CartService {
     @Autowired
     private WishlistRepository wishlistRepository;
 
-    private GameEntity getGame(String gameId) {
-        Optional<GameEntity> game = gameRepository.findById(gameId);
-        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
-        return game.get();
-    }
-
-    private void validateGame(List<GameEntity> list, GameEntity game, String listName) {
-        if (list.stream().anyMatch(g -> g.getId().equals(game.getId()))) {
-            throw new ValidationException("%s already in %s", game.getTitle(), listName);
-        }
+    public static void addToCartConditions(GameEntity game,
+                                    UserEntity customer,
+                                    LibraryRepository libraryRepository,
+                                    CartRepository cartRepository,
+                                    Boolean checkKeys) {
+        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
+        validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
+        if (checkKeys && game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
     }
 
     @Autowired
@@ -68,11 +69,8 @@ public class CartService {
     @CustomerOnly
     public ResponseEntity<?> addToCart(String gameId) {
         UserEntity customer = getUser();
-        GameEntity game = getGame(gameId);
-
-        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
-        validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
-        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
+        GameEntity game = getGame(gameRepository, gameId);
+        addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.TRUE);
 
         return created(cartRepository.save(
             buildCartEntry(
@@ -102,8 +100,8 @@ public class CartService {
 
     @CustomerOnly
     public ResponseEntity<?> removeFromCart(String gameId) {
-        GameEntity game = getGame(gameId);
         UserEntity customer = getUser();
+        GameEntity game = getGame(gameRepository, gameId);
 
         cartRepository.delete(
             buildCartEntry(

@@ -31,6 +31,18 @@ public class GameService {
     @Autowired
     private UserRepository userRepository;
 
+    public static GameEntity getGame(GameRepository gameRepository, String gameId) {
+        Optional<GameEntity> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        return game.get();
+    }
+
+    public static void validateGame(List<GameEntity> list, GameEntity game, String listName) {
+        if (list.stream().anyMatch(g -> g.getId().equals(game.getId()))) {
+            throw new ValidationException("%s already in %s", game.getTitle(), listName);
+        }
+    }
+
     private GameEntity validateGameOwnership(String id, UserEntity user) {
         GameEntity game = gameRepository.findByIdAndType(id, getType());
 

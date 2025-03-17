@@ -7,14 +7,15 @@ import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
-import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
+import static ro.unibuc.hello.service.CartService.addToCartConditions;
+import static ro.unibuc.hello.service.GameService.getGame;
+import static ro.unibuc.hello.service.GameService.validateGame;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
@@ -25,23 +26,14 @@ public class WishlistService {
     protected WishlistRepository wishlistRepository;
 
     @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
     private GameRepository gameRepository;
 
     @Autowired
     private CartRepository cartRepository;
 
-    private GameEntity getGame(String gameId) {
-        Optional<GameEntity> game = gameRepository.findById(gameId);
-        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
-        return game.get();
-    }
-
-    private void validateGame(List<GameEntity> list, GameEntity game, String listName, Boolean reverseCondition) {
-        if (reverseCondition && list.stream().anyMatch(g -> g.getId().equals(game.getId()))) {
-            throw new ValidationException("%s already in %s", game.getTitle(), listName);
+    private void validateGameInWishlist(List<GameEntity> list, GameEntity game) {
+        if (list.stream().noneMatch(g -> g.getId().equals(game.getId()))) {
+            throw new ValidationException("%s is not in wishlist", game.getTitle());
         }
     }
 
@@ -56,10 +48,10 @@ public class WishlistService {
     @CustomerOnly
     public ResponseEntity<?> addToWishlist(String gameId) {
         UserEntity customer = getUser();
-        GameEntity game = getGame(gameId);
+        GameEntity game = getGame(gameRepository, gameId);
 
-        validateGame(wishlistRepository.getGamesByCustomer(customer), game, "wishlist", Boolean.TRUE);
-        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library", Boolean.TRUE);
+        validateGame(wishlistRepository.getGamesByCustomer(customer), game, "wishlist");
+        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
 
         return created(wishlistRepository.save(
             buildWishlistEntry(
@@ -71,15 +63,11 @@ public class WishlistService {
 
     @CustomerOnly
     public ResponseEntity<?> moveToCart(String gameId) {
-        GameEntity game = getGame(gameId);
         UserEntity customer = getUser();
+        GameEntity game = getGame(gameRepository, gameId);
 
-        validateGame(wishlistRepository.getGamesByCustomer(customer), game, "wishlist", Boolean.FALSE);
-
-        // add to cart
-        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library", Boolean.TRUE);
-        validateGame(cartRepository.getGamesByCustomer(customer), game, "cart", Boolean.TRUE);
-        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock!", game.getTitle());
+        validateGameInWishlist(wishlistRepository.getGamesByCustomer(customer), game);
+        addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.TRUE);
 
         cartRepository.save(
             buildCartEntry(
@@ -101,11 +89,9 @@ public class WishlistService {
         UserEntity customer = getUser();
         List<GameEntity> games = wishlistRepository.getGamesByCustomer(customer);
 
-        // add to cart
         games.forEach(game -> {
-            validateGame(libraryRepository.getGamesByCustomer(customer), game, "library", Boolean.TRUE);
-            validateGame(cartRepository.getGamesByCustomer(customer), game, "cart", Boolean.TRUE);
             // If it has 0 keys, it just remains in Wishlist
+            addToCartConditions(game, customer, libraryRepository, cartRepository, Boolean.FALSE);
             if (game.getKeys() > 0) {
                 cartRepository.save(
                     buildCartEntry(
@@ -127,8 +113,8 @@ public class WishlistService {
 
     @CustomerOnly
     public ResponseEntity<?> removeFromWishlist(String gameId) {
-        GameEntity game = getGame(gameId);
         UserEntity customer = getUser();
+        GameEntity game = getGame(gameRepository, gameId);
 
         wishlistRepository.delete(
             buildWishlistEntry(
