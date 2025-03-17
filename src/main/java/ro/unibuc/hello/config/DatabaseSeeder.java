@@ -335,7 +335,8 @@ public class DatabaseSeeder {
         executeAsync(List.of(
             informationRepository::deleteAll,
             userRepository::deleteAll,
-            gameRepository::deleteAll
+            gameRepository::deleteAll,
+            libraryRepository::deleteAll
         ))
         .thenCompose(ignored -> executeAsync(List.of(
             this::seedInformation,
@@ -344,7 +345,7 @@ public class DatabaseSeeder {
         )))
         .thenRunAsync(this::seedGame)
         .thenRunAsync(this::seedDLC)
-        .thenRunAsync(this::seedLibrary)
+        //.thenRunAsync(this::seedLibrary)
         .join();
     }
 

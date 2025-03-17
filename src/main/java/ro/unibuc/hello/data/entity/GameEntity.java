@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import ro.unibuc.hello.exception.ValidationException;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -134,5 +135,14 @@ public class GameEntity {
                 .stream()
                 .mapToDouble(GameEntity::discountedPrice)
                 .sum();
+    }
+
+    public synchronized void decreaseNoKeys() {
+        if (keys > 0) {
+            keys--;
+        }
+        else {
+            throw new ValidationException("There are no more keys for %s, please remove it from cart.", title);
+        }
     }
 }

@@ -72,6 +72,7 @@ public class CartService {
 
         validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
         validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
+        if (game.getKeys() == 0) throw new ValidationException("The game %s is not in stock.", game.getTitle());
 
         return created(cartRepository.save(
                 buildCartEntry(
@@ -82,15 +83,12 @@ public class CartService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> checkout() {
+    public synchronized ResponseEntity<?> checkout() {
         UserEntity customer = getUser();
-        List<GameEntity> valid_games = cartRepository
-                .getGamesByCustomer(customer)
-                .stream()
-                .filter(game -> game.getKeys() > 0)
-                .toList();
+        List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 
-        valid_games.forEach(game -> libraryRepository.save(
+        games.forEach(GameEntity::decreaseNoKeys);
+        games.forEach(game -> libraryRepository.save(
             buildLibraryEntry(
                 game,
                 customer
@@ -98,7 +96,7 @@ public class CartService {
         ));
 
         removeAllFromCart();
-        return created(new CartInfo(totalPrice(valid_games), valid_games));
+        return created(new CartInfo(totalPrice(games), games));
     }
 
     @CustomerOnly
