@@ -19,15 +19,11 @@ public class MongoIndexConfig {
     private MongoTemplate mongoTemplate;
 
     private void uniqueIndexes(MongoCollection<Document> collection, List<String> fields) {
-        fields.forEach(field -> {
-            collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true));
-        });
+        fields.forEach(field -> collection.createIndex(Indexes.ascending(field), new IndexOptions().unique(true)));
     }
 
     private void partialIndexes(MongoCollection<Document> collection, List<String> fields) {
-        fields.forEach(field -> {
-            collection.createIndex(Indexes.ascending(field), new IndexOptions().partialFilterExpression(Filters.exists(field, true)));
-        });
+        fields.forEach(field -> collection.createIndex(Indexes.ascending(field), new IndexOptions().partialFilterExpression(Filters.exists(field, true))));
     }
 
     @PostConstruct

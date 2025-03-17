@@ -5,10 +5,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class DateUtils {
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
+public interface DateUtils {
 
-    public static Date parseDate(String dateStr) {
+    String DATE_FORMAT = "dd-MM-yyyy";
+
+    static Date parseDate(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) {
             return null;
         }
@@ -22,7 +23,8 @@ public class DateUtils {
         }
     }
 
-    public static Date dateNow() {
+    static Date dateNow() {
         return Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     }
+
 }

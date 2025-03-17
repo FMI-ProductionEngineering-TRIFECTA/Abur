@@ -7,10 +7,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import static ro.unibuc.hello.utils.DateUtils.*;
 import static ro.unibuc.hello.utils.DatabaseUtils.*;
 
 @Getter
@@ -20,32 +16,25 @@ import static ro.unibuc.hello.utils.DatabaseUtils.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document("library")
+@Document("cart")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LibraryEntity {
+public class CartEntity {
 
     @Id
     private CompositeKey id;
 
-    private Date purchaseDate;
-
     @DBRef
     @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private GameEntity game;
 
     @DBRef
     @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private UserEntity customer;
 
-    public static LibraryEntity buildLibraryEntry(GameEntity game, UserEntity customer) {
-        return LibraryEntity
+    public static CartEntity buildCartEntry(GameEntity game, UserEntity customer) {
+        return CartEntity
                 .builder()
                 .id(CompositeKey.build(game, customer))
-                .purchaseDate(dateNow())
                 .game(game)
                 .customer(customer)
                 .build();

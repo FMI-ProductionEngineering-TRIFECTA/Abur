@@ -23,4 +23,5 @@ public class InformationEntity {
         this.title = title;
         this.description = description;
     }
+
 }

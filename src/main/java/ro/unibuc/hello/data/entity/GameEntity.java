@@ -7,12 +7,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import ro.unibuc.hello.exception.ValidationException;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static ro.unibuc.hello.utils.SeederUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
 import static ro.unibuc.hello.utils.DateUtils.*;
 
 @Getter
@@ -47,16 +49,22 @@ public class GameEntity {
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private UserEntity developer;
 
     private Type type;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private GameEntity baseGame;
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<GameEntity> dlcs;
 
     public static GameEntity buildGame(String title, Double price, Integer discountPercentage, Integer keys, UserEntity developer) {
@@ -116,5 +124,23 @@ public class GameEntity {
         dlc.setBaseGame(baseGame);
         dlc.setDlcs(null);
         return dlc;
+    }
+
+    public double discountedPrice() {
+        return Double.parseDouble(new DecimalFormat("#.##").format(price - price * discountPercentage / 100));
+    }
+
+    public static double totalPrice(List <GameEntity> games) {
+        return games
+                .stream()
+                .mapToDouble(GameEntity::discountedPrice)
+                .sum();
+    }
+
+    public synchronized void decreaseNoKeys() {
+        if (keys <= 0) {
+            throw new ValidationException("There are no more keys for %s, please remove it from the cart!", title);
+        }
+        keys--;
     }
 }

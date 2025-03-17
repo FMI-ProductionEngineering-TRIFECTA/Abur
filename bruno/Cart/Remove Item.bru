@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: {{url}}/cart/remove/{{gameId}}
+  url: {{url}}/cart/{{gameId}}
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }

@@ -5,13 +5,15 @@ meta {
 }
 
 get {
-  url: {{url}}/store?sortOption=default&order=default&hideOwned=false
+  url: {{url}}/store?hideOwned=true
   body: none
-  auth: none
+  auth: bearer
 }
 
 params:query {
-  sortOption: default
-  order: default
-  hideOwned: false
+  hideOwned: true
+}
+
+auth:bearer {
+  token: {{tokenFixBambucea}}
 }

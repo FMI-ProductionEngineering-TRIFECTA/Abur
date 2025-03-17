@@ -9,6 +9,9 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
+import java.util.Optional;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+
 @Component
 public class AuthenticationUtils {
 
@@ -24,7 +27,17 @@ public class AuthenticationUtils {
         return passwordEncoder.encode(password);
     }
 
-    public static UserEntity getAuthorizedUser(UserEntity.Role role) {
+    public static UserEntity getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof String userId) {
+            Optional<UserEntity> user = userRepository.findById(userId);
+            if (user.isEmpty()) throw new UnauthorizedAccessException();
+            return user.get();
+        }
+        throw new UnauthorizedAccessException();
+    }
+
+    public static UserEntity getAuthorizedUser(Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof String userId) {
             UserEntity user = userRepository.findByIdAndRole(userId, role);
@@ -36,4 +49,5 @@ public class AuthenticationUtils {
     public static boolean isPasswordValid(String providedPassword, String actualPassword) {
         return passwordEncoder.matches(providedPassword, actualPassword);
     }
+
 }

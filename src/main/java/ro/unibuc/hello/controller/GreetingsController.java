@@ -51,4 +51,5 @@ public class GreetingsController {
     public void deleteGreeting(@PathVariable String id) throws EntityNotFoundException {
         greetingsService.deleteGreeting(id);
     }
+
 }

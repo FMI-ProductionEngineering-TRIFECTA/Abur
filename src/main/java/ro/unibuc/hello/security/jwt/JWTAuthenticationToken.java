@@ -46,4 +46,5 @@ public class JWTAuthenticationToken implements Authentication {
     public String getName() {
         return "JWTAuthenticationToken";
     }
+
 }

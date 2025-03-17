@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ro.unibuc.hello.utils.SeederUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
 @Getter
@@ -30,6 +30,8 @@ public class UserEntity {
 
     @Getter
     @Setter
+    @ToString
+    @EqualsAndHashCode
     @AllArgsConstructor
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -74,6 +76,8 @@ public class UserEntity {
 
     @DBRef
     @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<GameEntity> games;
 
     public UserEntity(String username, String password, String email, Role role, UserDetails details) {
@@ -133,4 +137,5 @@ public class UserEntity {
                 UserDetails.forCustomer(firstName, lastName)
         );
     }
+
 }
