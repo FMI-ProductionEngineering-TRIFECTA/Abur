@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -125,6 +126,13 @@ public class GameEntity {
     }
 
     public double discountedPrice() {
-        return Math.round((1.00 - 1.0 * discountPercentage / 100) * price * 100.0) / 100.0;
+        return Double.parseDouble(new DecimalFormat("#.##").format(price - price * discountPercentage / 100));
+    }
+
+    public static double totalPrice(List <GameEntity> games) {
+        return games
+                .stream()
+                .mapToDouble(GameEntity::discountedPrice)
+                .sum();
     }
 }

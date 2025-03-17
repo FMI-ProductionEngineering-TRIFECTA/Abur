@@ -5,21 +5,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
-import ro.unibuc.hello.data.entity.LibraryEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.CartInfo;
-import ro.unibuc.hello.exception.GameAlreadyInListException;
+import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.exception.NotFoundException;
+import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
+import static ro.unibuc.hello.data.entity.LibraryEntity.buildLibraryEntry;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.security.AuthenticationUtils.*;
 
@@ -35,6 +37,18 @@ public class CartService {
     @Autowired
     private GameRepository gameRepository;
 
+    private GameEntity getGame(String gameId) {
+        Optional<GameEntity> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        return game.get();
+    }
+
+    private void validateGame(List<GameEntity> list, GameEntity game, String listName) {
+        if (list.stream().anyMatch(g -> g.getId().equals(game.getId()))) {
+            throw new ValidationException("%s already in %s", game.getTitle(), listName);
+        }
+    }
+
     @Autowired
     private LibraryRepository libraryRepository;
 
@@ -42,12 +56,8 @@ public class CartService {
         UserEntity customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER);
         if (customer == null) throw new NotFoundException("No customer found at id %s", customerId);
 
-        List<GameEntity> games = cartRepository.getGamesByCustomer(userRepository.findByIdAndRole(customerId, Role.CUSTOMER));
-        double price = games.stream()
-                            .mapToDouble(GameEntity::discountedPrice)
-                            .sum();
-
-        return ok(new CartInfo(price, games));
+        List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
+        return ok(new CartInfo(totalPrice(games), games));
     }
 
     @CustomerOnly
@@ -57,63 +67,49 @@ public class CartService {
 
     @CustomerOnly
     public ResponseEntity<?> addGameToCartById(String gameId) {
-        Optional<GameEntity> game = gameRepository.findById(gameId);
-        if(game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        UserEntity customer = getUser();
+        GameEntity game = getGame(gameId);
 
-        // check if the game is already in library
-        if (libraryRepository.getGamesByCustomer(getUser())
-                .stream()
-                .anyMatch(g -> g.getId().equals(gameId))) {
-            throw new GameAlreadyInListException(game.get().getTitle(),"library");
-        }
-
-        // check if the game is already in cart
-        if (cartRepository.getGamesByCustomer(getUser())
-                .stream()
-                .anyMatch(g -> g.getId().equals(gameId))) {
-            throw new GameAlreadyInListException(game.get().getTitle(),"cart");
-        }
+        validateGame(libraryRepository.getGamesByCustomer(customer), game, "library");
+        validateGame(cartRepository.getGamesByCustomer(customer), game, "cart");
 
         return created(cartRepository.save(
                 buildCartEntry(
-                     game.get(),
-                     getUser()
+                     game,
+                     customer
                 )
         ));
     }
 
     @CustomerOnly
     public ResponseEntity<?> checkout() {
+        UserEntity customer = getUser();
         List<GameEntity> valid_games = cartRepository
-                .getGamesByCustomer(getUser())
+                .getGamesByCustomer(customer)
                 .stream()
                 .filter(game -> game.getKeys() > 0)
                 .toList();
 
         valid_games.forEach(game -> libraryRepository.save(
-            LibraryEntity.buildLibraryEntry(
+            buildLibraryEntry(
                 game,
-                getUser()
+                customer
             )
         ));
 
-        double price = valid_games.stream()
-                .mapToDouble(GameEntity::discountedPrice)
-                .sum();
-
         removeAllFromCart();
-        return created(new CartInfo(price,valid_games));
+        return created(new CartInfo(totalPrice(valid_games), valid_games));
     }
 
     @CustomerOnly
     public ResponseEntity<?> removeGameFromCart(String gameId) {
-        Optional<GameEntity> game = gameRepository.findById(gameId);
-        if(game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        GameEntity game = getGame(gameId);
+        UserEntity customer = getUser();
 
         cartRepository.delete(
                 buildCartEntry(
-                     game.get(),
-                     getUser()
+                     game,
+                     customer
                 )
         );
         return noContent();
@@ -122,7 +118,6 @@ public class CartService {
     @CustomerOnly
     public ResponseEntity<?> removeAllFromCart() {
         cartRepository.deleteById_CustomerId(getUser().getId());
-
         return noContent();
     }
 }

@@ -16,7 +16,7 @@ public class CartController {
     @GetMapping("")
     @ResponseBody
     public ResponseEntity<?> getCart() {
-        return cartService.getCart(); // TODO: add dto here
+        return cartService.getCart();
     }
 
     @PostMapping("/checkout")
