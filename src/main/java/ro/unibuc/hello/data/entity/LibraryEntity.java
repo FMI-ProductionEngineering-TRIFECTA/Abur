@@ -27,6 +27,7 @@ public class LibraryEntity {
     @Id
     private CompositeKey id;
 
+    @EqualsAndHashCode.Exclude
     private Date purchaseDate;
 
     @DBRef
