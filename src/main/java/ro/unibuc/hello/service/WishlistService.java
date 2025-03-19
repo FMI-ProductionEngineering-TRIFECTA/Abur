@@ -6,7 +6,10 @@ import org.springframework.http.ResponseEntity;
 import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.entity.WishlistEntity;
 import ro.unibuc.hello.data.repository.*;
+
+import java.util.List;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
@@ -30,12 +33,12 @@ public class WishlistService {
     private GameService gameService;
 
     @CustomerOnly
-    public ResponseEntity<?> getWishlist() {
+    public ResponseEntity<List<GameEntity>> getWishlist() {
         return ok(wishlistRepository.getGamesByCustomer(getUser()));
     }
 
     @CustomerOnly
-    public ResponseEntity<?> addToWishlist(String gameId) {
+    public ResponseEntity<WishlistEntity> addToWishlist(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -55,7 +58,7 @@ public class WishlistService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> moveToCart(String gameId) {
+    public ResponseEntity<Void> moveToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -77,7 +80,7 @@ public class WishlistService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> moveAllToCart() {
+    public ResponseEntity<Void> moveAllToCart() {
         UserEntity customer = getUser();
         wishlistRepository.getGamesByCustomer(customer).forEach(game -> {
             if (game.getKeys() > 0) {
@@ -94,7 +97,7 @@ public class WishlistService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeFromWishlist(String gameId) {
+    public ResponseEntity<Void> removeFromWishlist(String gameId) {
         wishlistRepository.delete(
             buildWishlistEntry(
                     gameService.getGame(gameId),
@@ -106,7 +109,7 @@ public class WishlistService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeAllFromWishlist() {
+    public ResponseEntity<Void> removeAllFromWishlist() {
         wishlistRepository.deleteById_CustomerId(getUser().getId());
         return noContent();
     }

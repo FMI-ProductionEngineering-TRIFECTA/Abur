@@ -28,7 +28,13 @@ public class AuthenticationService {
     @Autowired
     private JWTService jwtService;
 
-    public ResponseEntity<?> login(Credentials credentials) {
+    private void validateSignUp(User user) {
+        exists("Username", user.getUsername());
+        exists("Password", user.getPassword());
+        exists("Email", user.getEmail());
+    }
+
+    public ResponseEntity<Token> login(Credentials credentials) {
         exists("Username", credentials.getUsername());
         exists("Password", credentials.getPassword());
 
@@ -41,7 +47,7 @@ public class AuthenticationService {
         throw new ValidationException("Invalid username or password");
     }
 
-    public ResponseEntity<?> signupDeveloper(Developer developer) {
+    public ResponseEntity<UserEntity> signupDeveloper(Developer developer) {
         validateSignUp(developer);
         exists("Studio", developer.getStudio());
         developerService.validateUser(developer);
@@ -58,7 +64,7 @@ public class AuthenticationService {
         )));
     }
 
-    public ResponseEntity<?> signupCustomer(Customer customer) {
+    public ResponseEntity<UserEntity> signupCustomer(Customer customer) {
         validateSignUp(customer);
         customerService.validateUser(customer);
 
@@ -72,12 +78,6 @@ public class AuthenticationService {
                         customer.getLastName()
                 )
         )));
-    }
-
-    private void validateSignUp(User user) {
-        exists("Username", user.getUsername());
-        exists("Password", user.getPassword());
-        exists("Email", user.getEmail());
     }
 
 }

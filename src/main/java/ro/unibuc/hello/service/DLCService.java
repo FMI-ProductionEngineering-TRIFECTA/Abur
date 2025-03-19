@@ -24,10 +24,10 @@ public class DLCService extends GameService {
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> createDLC(String baseGameId, Game dlcInput) {
+    public ResponseEntity<GameEntity> createDLC(String baseGameId, Game dlcInput) {
         GameEntity baseGame = gameService.getGame(baseGameId);
         dlcInput.setBaseGame(baseGame);
-        ResponseEntity<?> dlcBody = createGame(dlcInput);
+        ResponseEntity<GameEntity> dlcBody = createGame(dlcInput);
 
         if (dlcBody.getBody() instanceof GameEntity dlc) {
             baseGame.getDlcs().add(dlc);

@@ -5,7 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import ro.unibuc.hello.data.entity.GameEntity;
+import ro.unibuc.hello.data.entity.WishlistEntity;
 import ro.unibuc.hello.service.WishlistService;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/wishlist")
@@ -16,37 +20,37 @@ public class WishlistController {
 
     @GetMapping("")
     @ResponseBody
-    public ResponseEntity<?> getWishlist() {
+    public ResponseEntity<List<GameEntity>> getWishlist() {
         return wishlistService.getWishlist();
     }
 
     @PostMapping("/{gameId}")
     @ResponseBody
-    public ResponseEntity<?> addToWishlist(@PathVariable String gameId) {
+    public ResponseEntity<WishlistEntity> addToWishlist(@PathVariable String gameId) {
         return wishlistService.addToWishlist(gameId);
     }
 
     @PostMapping("/moveToCart/{gameId}")
     @ResponseBody
-    public ResponseEntity<?> moveToCart(@PathVariable String gameId) {
+    public ResponseEntity<Void> moveToCart(@PathVariable String gameId) {
         return wishlistService.moveToCart(gameId);
     }
 
     @PostMapping("/moveToCart")
     @ResponseBody
-    public ResponseEntity<?> moveAllToCart() {
+    public ResponseEntity<Void> moveAllToCart() {
         return wishlistService.moveAllToCart();
     }
 
     @DeleteMapping("/{gameId}")
     @ResponseBody
-    public ResponseEntity<?> removeFromWishlist(@PathVariable String gameId) {
+    public ResponseEntity<Void> removeFromWishlist(@PathVariable String gameId) {
         return wishlistService.removeFromWishlist(gameId);
     }
 
     @DeleteMapping("/clear")
     @ResponseBody
-    public ResponseEntity<?> removeAllFromWishlist() {
+    public ResponseEntity<Void> removeAllFromWishlist() {
         return wishlistService.removeAllFromWishlist();
     }
 

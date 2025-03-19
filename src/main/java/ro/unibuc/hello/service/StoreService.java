@@ -7,6 +7,7 @@ import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.LibraryRepository;
+import ro.unibuc.hello.dto.Game;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class StoreService {
     private LibraryRepository libraryRepository;
 
     @CustomerOnly
-    public ResponseEntity<?> getStore(Boolean hideOwned) {
+    public ResponseEntity<List<GameEntity>> getStore(Boolean hideOwned) {
         List<GameEntity> gamesAndDlcs = gameRepository.findAll();
         if (hideOwned) gamesAndDlcs.removeAll(libraryRepository.getGamesByCustomer(getUser()));
 

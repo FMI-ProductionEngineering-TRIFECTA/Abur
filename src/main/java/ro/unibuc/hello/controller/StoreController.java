@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.service.StoreService;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/store")
@@ -18,7 +21,7 @@ public class StoreController {
 
     @GetMapping("")
     @ResponseBody
-    public ResponseEntity<?> getStore(@RequestParam Boolean hideOwned) {
+    public ResponseEntity<List<GameEntity>> getStore(@RequestParam Boolean hideOwned) {
         return storeService.getStore(hideOwned);
     }
 

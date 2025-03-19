@@ -32,7 +32,7 @@ public class CustomerService extends UserService<Customer> {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> updateLoggedUser(Customer customerInput) {
+    public ResponseEntity<UserEntity> updateLoggedUser(Customer customerInput) {
         return super.updateLoggedUser(customerInput, AuthenticationUtils.getUser());
     }
 

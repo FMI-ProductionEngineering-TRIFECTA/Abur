@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Credentials;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.Token;
 import ro.unibuc.hello.service.AuthenticationService;
 
 @Controller
@@ -21,19 +23,19 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<?> login(@RequestBody Credentials credentials) {
+    public ResponseEntity<Token> login(@RequestBody Credentials credentials) {
         return authenticationService.login(credentials);
     }
 
     @PostMapping("/signup/developer")
     @ResponseBody
-    public ResponseEntity<?> signupDeveloper(@RequestBody Developer developer) {
+    public ResponseEntity<UserEntity> signupDeveloper(@RequestBody Developer developer) {
         return authenticationService.signupDeveloper(developer);
     }
 
     @PostMapping("/signup/customer")
     @ResponseBody
-    public ResponseEntity<?> signupCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<UserEntity> signupCustomer(@RequestBody Customer customer) {
         return authenticationService.signupCustomer(customer);
     }
 

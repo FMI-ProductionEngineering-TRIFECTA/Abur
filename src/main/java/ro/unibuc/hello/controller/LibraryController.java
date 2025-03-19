@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.service.LibraryService;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/library")
@@ -19,13 +22,13 @@ public class LibraryController {
 
     @GetMapping("")
     @ResponseBody
-    public ResponseEntity<?> getLibrary() {
+    public ResponseEntity<List<GameEntity>> getLibrary() {
         return libraryService.getLibrary();
     }
 
     @GetMapping("/{customerId}")
     @ResponseBody
-    public ResponseEntity<?> getLibraryByCustomerId(@PathVariable String customerId) {
+    public ResponseEntity<List<GameEntity>> getLibraryByCustomerId(@PathVariable String customerId) {
         return libraryService.getLibraryByCustomerId(customerId);
     }
 

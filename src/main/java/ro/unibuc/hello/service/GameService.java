@@ -38,10 +38,12 @@ public class GameService {
     @Autowired
     private WishlistRepository wishlistRepository;
 
-    private GameEntity validateGameOwnership(String id, UserEntity user) {
-        GameEntity game = getGame(id);
-        if (user == null || !Objects.equals(user.getUsername(), game.getDeveloper().getUsername())) throw new UnauthorizedAccessException();
-        return game;
+    private void deleteGameDependencies(GameEntity game) {
+        String gameId = game.getId();
+        libraryRepository.deleteById_GameId(gameId);
+        cartRepository.deleteById_GameId(gameId);
+        wishlistRepository.deleteById_GameId(gameId);
+        userRepository.findByIdAndRole(game.getDeveloper().getId(), UserEntity.Role.DEVELOPER).getGames().remove(game);
     }
 
     protected Type getType() {
@@ -54,20 +56,32 @@ public class GameService {
         return game.get();
     }
 
-    public ResponseEntity<?> getGameById(String id) {
-        return ok(gameRepository.findByIdAndType(id, getType()));
+    private GameEntity getAndValidateOwnership(String id, UserEntity user) {
+        GameEntity game = getGame(id);
+        if (!Objects.equals(user.getUsername(), game.getDeveloper().getUsername())) throw new UnauthorizedAccessException();
+        return game;
     }
 
-    public ResponseEntity<?> getAllGames() {
+    private GameEntity getAndAssureType(String gameId) {
+        GameEntity game = getGame(gameId);
+        if (game.getType() != getType()) throw new NotFoundException("%s is not a", game.getTitle(), getType().toString());
+        return game;
+    }
+
+    public ResponseEntity<GameEntity> getGameById(String id) {
+        return ok(getAndAssureType(id));
+    }
+
+    public ResponseEntity<List<GameEntity>> getAllGames() {
         return ok(gameRepository.findByType(getType()));
     }
 
-    public ResponseEntity<?> getGameDLCs(String id) {
-        return ok(gameRepository.findByIdAndType(id, getType()).getDlcs());
+    public ResponseEntity<List<GameEntity>> getGameDLCs(String id) {
+        return ok(getAndAssureType(id).getDlcs());
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> createGame(Game gameInput) {
+    public ResponseEntity<GameEntity> createGame(Game gameInput) {
         UserEntity user = getUser();
         GameEntity baseGame = gameInput.getBaseGame();
         if (getType() == Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) throw new UnauthorizedAccessException();
@@ -109,8 +123,8 @@ public class GameService {
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> updateGame(String id, Game gameInput) {
-        GameEntity game = validateGameOwnership(id, getUser());
+    public ResponseEntity<GameEntity> updateGame(String id, Game gameInput) {
+        GameEntity game = getAndValidateOwnership(id, getUser());
 
         String title = gameInput.getTitle();
         validate(String.format("Title %s", title), title, isUnique(() -> gameRepository.findByTitle(title)));
@@ -123,8 +137,8 @@ public class GameService {
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> addKeys(String id, Integer keys) {
-        GameEntity game = validateGameOwnership(id, getUser());
+    public ResponseEntity<GameEntity> addKeys(String id, Integer keys) {
+        GameEntity game = getAndValidateOwnership(id, getUser());
 
         validate("Number of keys", keys);
 
@@ -133,22 +147,15 @@ public class GameService {
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> markOutOfStock(String id) {
-        GameEntity game = validateGameOwnership(id, getUser());
+    public ResponseEntity<GameEntity> markOutOfStock(String id) {
+        GameEntity game = getAndValidateOwnership(id, getUser());
         game.setKeys(0);
         return ok(gameRepository.save(game));
     }
 
-    private void deleteGameDependencies(GameEntity game) {
-        String gameId = game.getId();
-        libraryRepository.deleteById_GameId(gameId);
-        cartRepository.deleteById_GameId(gameId);
-        wishlistRepository.deleteById_GameId(gameId);
-    }
-
     @DeveloperOnly
-    public ResponseEntity<?> deleteGame(String id) {
-        GameEntity game = validateGameOwnership(id, getUser());
+    public ResponseEntity<Void> deleteGame(String id) {
+        GameEntity game = getAndValidateOwnership(id, getUser());
         List<GameEntity> dlcs = game.getDlcs();
 
         dlcs.forEach(this::deleteGameDependencies);

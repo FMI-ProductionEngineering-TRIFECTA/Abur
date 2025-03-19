@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
+import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
@@ -39,18 +40,18 @@ public class CartService {
     private GameService gameService;
 
 
-    private ResponseEntity<?> getCartByCustomerId(String customerId) {
+    private ResponseEntity<CartInfo> getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return ok(new CartInfo(totalPrice(games), games));
     }
 
     @CustomerOnly
-    public ResponseEntity<?> getCart() {
+    public ResponseEntity<CartInfo> getCart() {
         return getCartByCustomerId(getUser().getId());
     }
 
     @CustomerOnly
-    public ResponseEntity<?> addToCart(String gameId) {
+    public ResponseEntity<CartEntity> addToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -71,7 +72,7 @@ public class CartService {
     }
 
     @CustomerOnly
-    public synchronized ResponseEntity<?> checkout() {
+    public synchronized ResponseEntity<Void> checkout() {
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 
@@ -89,7 +90,7 @@ public class CartService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeFromCart(String gameId) {
+    public ResponseEntity<Void> removeFromCart(String gameId) {
         cartRepository.delete(
             buildCartEntry(
                 gameService.getGame(gameId),
@@ -101,7 +102,7 @@ public class CartService {
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeAllFromCart() {
+    public ResponseEntity<Void> removeAllFromCart() {
         cartRepository.deleteById_CustomerId(getUser().getId());
         return noContent();
     }

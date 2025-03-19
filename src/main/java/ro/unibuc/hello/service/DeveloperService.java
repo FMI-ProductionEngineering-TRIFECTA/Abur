@@ -34,7 +34,7 @@ public class DeveloperService extends UserService<Developer> {
     }
 
     @DeveloperOnly
-    public ResponseEntity<?> updateLoggedUser(Developer developerInput) {
+    public ResponseEntity<UserEntity> updateLoggedUser(Developer developerInput) {
         return super.updateLoggedUser(developerInput, AuthenticationUtils.getUser());
     }
 
