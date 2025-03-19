@@ -18,7 +18,7 @@ public interface ResponseUtils {
         return response(obj, HttpStatus.CREATED);
     }
 
-    static <T> ResponseEntity<T> noContent() {
+    static ResponseEntity<Void> noContent() {
         return response(null, HttpStatus.NO_CONTENT);
     }
 

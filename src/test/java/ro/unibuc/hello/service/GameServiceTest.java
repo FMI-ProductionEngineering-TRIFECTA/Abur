@@ -5,13 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.context.SecurityContext;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.NotFoundException;
+import ro.unibuc.hello.exception.UnauthorizedAccessException;
+import ro.unibuc.hello.exception.ValidationException;
 
-import java.util.Optional;
+import java.util.*;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,13 +26,68 @@ class GameServiceTest {
     protected GameRepository gameRepository;
 
     @Mock
-    private UserRepository userRepository;
+    protected UserRepository userRepository;
 
     @Mock
-    private SecurityContext securityContext;
+    @SuppressWarnings("unused")
+    protected LibraryRepository libraryRepository;
+
+    @Mock
+    @SuppressWarnings("unused")
+    protected CartRepository cartRepository;
+
+    @Mock
+    @SuppressWarnings("unused")
+    protected WishlistRepository wishlistRepository;
 
     @InjectMocks
     private GameService gameService = new GameService();
+
+    private static final Integer keysToAdd = 10;
+    private static final Integer discountPercentage = 50;
+    private static final Double price = 59.99;
+
+    private List<GameEntity> buildGames(Integer total) {
+        List<GameEntity> games = new ArrayList<>();
+        for (int id = 1; id <= total; ++id) {
+            games.add(GameEntity
+                    .builder()
+                    .id(String.valueOf(id))
+                    .title(String.format("Game %d", id))
+                    .price(0.0)
+                    .discountPercentage(0)
+                    .keys(100)
+                    .type(Type.GAME)
+                    .dlcs(new ArrayList<>())
+                    .build()
+            );
+        }
+        return games;
+    }
+
+    private List<GameEntity> buildDLCs(Integer total, GameEntity baseGame) {
+        List<GameEntity> dlcs = new ArrayList<>();
+        for (int id = 1; id <= total; ++id) {
+            dlcs.add(GameEntity
+                    .builder()
+                    .title(String.format("%s DLC %d", baseGame.getTitle(), id))
+                    .type(Type.DLC)
+                    .build()
+            );
+        }
+        baseGame.getDlcs().addAll(dlcs);
+        return dlcs;
+    }
+
+    private GameEntity buildGame() {
+        return buildGames(1).getFirst();
+    }
+
+    private GameEntity buildGame(UserEntity developer) {
+        GameEntity game = buildGame();
+        game.setDeveloper(developer);
+        return game;
+    }
 
     @BeforeEach
     void setUp() {
@@ -47,65 +104,240 @@ class GameServiceTest {
 
     @Test
     void testGetGame_ExistingGame() {
-        GameEntity game = GameEntity
-                .builder()
-                .id("1")
-                .title("I am a game")
-                .build();
-        when(gameRepository.findById(game.getId())).thenReturn(Optional.of(game));
+        GameEntity entity = buildGame();
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        GameEntity result = gameService.getGame(game.getId());
+        GameEntity game = gameService.getGame(entity.getId());
 
-        assertNotNull(result);
-        assertEquals(result, game);
+        assertNotNull(game);
+        assertEquals(entity, game);
     }
 
     @Test
     void testGetGame_NonExistingGame() {
-        String gameId = "game123";
+        String gameId = "1";
         when(gameRepository.findById(gameId)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class, () -> gameService.getGame(gameId));
     }
 
     @Test
-    void getGameById() {
-        // TODO
+    void getGameById_ExistingGame() {
+        GameEntity entity = buildGame();
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+
+        GameEntity game = gameService.getGameById(entity.getId()).getBody();
+
+        assertNotNull(game);
+        assertEquals(entity, game);
     }
 
     @Test
-    void getAllGames() {
-        // TODO
+    void getGameById_DLCId() {
+        GameEntity entity = buildGame();
+        GameEntity dlc = buildDLCs(1, entity).getFirst();
+        when(gameRepository.findById(dlc.getId())).thenReturn(Optional.of(dlc));
+
+        assertThrows(NotFoundException.class, () -> gameService.getGameById(dlc.getId()));
     }
 
     @Test
-    void getGameDLCs() {
-        // TODO
+    void getGameById_NonExistingGame() {
+        String gameId = "1";
+        when(gameRepository.findByIdAndType(gameId, Type.GAME)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> gameService.getGameById(gameId));
     }
 
     @Test
-    void createGame() {
+    void testGetAllGames() {
+        List<GameEntity> entities = buildGames(2);
+        when(gameRepository.findByType(Type.GAME)).thenReturn(entities);
+
+        List<GameEntity> games = gameService.getAllGames().getBody();
+
+        assertNotNull(games);
+        assertEquals(entities.size(), games.size());
+        assertEquals(entities, games);
+    }
+
+    @Test
+    void testGetGameDLCs_HasDLCs() {
+        GameEntity baseGameEntity = buildGame();
+        List<GameEntity> dlcEntities = buildDLCs(2, baseGameEntity);
+        when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
+
+        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId()).getBody();
+
+        assertNotNull(dlcs);
+        assertEquals(dlcEntities.size(), dlcs.size());
+        assertEquals(dlcEntities, dlcs);
+    }
+
+    @Test
+    void testGetGameDLCs_NoDLCs() {
+        GameEntity baseGameEntity = buildGame();
+        when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
+
+        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId()).getBody();
+
+        assertNotNull(dlcs);
+        assertEquals(0, dlcs.size());
+    }
+
+    @Test
+    void testCreateGame_ValidBody() {
         UserEntity developer = mockDeveloperAuth();
-        // TODO
-        assertNotNull(developer);
+        int initialSize = developer.getGames().size();
+        GameEntity entity = buildGame(developer);
+        when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
+
+        Game gameInput = Game.builder().title(entity.getTitle()).build();
+        GameEntity game = gameService.createGame(gameInput).getBody();
+
+        assertNotNull(game);
+        assertEquals(entity, game);
+        assertEquals(developer, game.getDeveloper());
+        assertEquals(developer.getGames().size(), initialSize + 1);
+        assert(developer.getGames().contains(game));
     }
 
     @Test
-    void updateGame() {
-        // TODO
+    void testCreateGame_InvalidBody() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        when(gameRepository.findByTitle(entity.getTitle())).thenReturn(entity);
+
+        Game gameInput = Game.builder().title(entity.getTitle()).build();
+        assertThrows(ValidationException.class, () -> gameService.createGame(gameInput));
     }
 
     @Test
-    void addKeys() {
-        // TODO
+    void testUpdateGame_ExistingEntityValidBody() {
+        UserEntity developer = mockDeveloperAuth();
+        GameEntity entity = buildGame(developer);
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        entity.setDiscountPercentage(discountPercentage);
+        when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
+
+        Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
+        GameEntity game = gameService.updateGame(entity.getId(), gameInput).getBody();
+
+        assertNotNull(game);
+        assertEquals(entity, game);
+        assertEquals(developer, game.getDeveloper());
     }
 
     @Test
-    void markOutOfStock() {
-        // TODO
+    void testUpdateGame_ExistingEntityInvalidTitle() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        when(gameRepository.findByTitle(entity.getTitle())).thenReturn(entity);
+
+        Game gameInput = Game.builder().title(entity.getTitle()).build();
+        assertThrows(ValidationException.class, () -> gameService.updateGame(entity.getId(), gameInput));
     }
 
     @Test
-    void deleteGame() {
-        // TODO
+    void testUpdateGame_ExistingEntityInvalidPrice() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+
+        Game gameInput = Game.builder().price(-price).build();
+        assertThrows(ValidationException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+    }
+
+    @Test
+    void testUpdateGame_ExistingEntityInvalidDeveloper() {
+        mockDeveloperAuth();
+        UserEntity realDeveloper = UserEntity
+                .builder()
+                .username("Dev")
+                .password("Dev123")
+                .role(UserEntity.Role.DEVELOPER)
+                .build();
+        GameEntity entity = buildGame(realDeveloper);
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+
+        Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
+        assertThrows(UnauthorizedAccessException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+    }
+
+    @Test
+    void testUpdateGame_NonExistingEntity() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+
+        Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
+        assertThrows(NotFoundException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+    }
+
+    @Test
+    void testAddKeys_ExistingEntityValidBody() {
+        UserEntity developer = mockDeveloperAuth();
+        GameEntity entity = buildGame(developer);
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        entity.setKeys(entity.getKeys() + keysToAdd);
+        when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
+
+        GameEntity game = gameService.addKeys(entity.getId(), keysToAdd).getBody();
+
+        assertNotNull(game);
+        assertEquals(entity, game);
+        assertEquals(developer, game.getDeveloper());
+    }
+
+    @Test
+    void testAddKeys_ExistingEntityInvalidKeys() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+
+        assertThrows(ValidationException.class, () -> gameService.addKeys(entity.getId(), -keysToAdd).getBody());
+    }
+
+    @Test
+    void testAddKeys_NonExistingEntity() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        assertThrows(NotFoundException.class, () -> gameService.addKeys(entity.getId(), keysToAdd));
+    }
+
+    @Test
+    void testMarkOutOfStock_ExistingEntity() {
+        UserEntity developer = mockDeveloperAuth();
+        GameEntity entity = buildGame(developer);
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        entity.setKeys(0);
+        when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
+
+        GameEntity game = gameService.markOutOfStock(entity.getId()).getBody();
+
+        assertNotNull(game);
+        assertEquals(entity, game);
+        assertEquals(developer, game.getDeveloper());
+    }
+
+    @Test
+    void testMarkOutOfStock_NonExistingEntity() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        assertThrows(NotFoundException.class, () -> gameService.markOutOfStock(entity.getId()));
+    }
+
+    @Test
+    void testDeleteGame_ExistingEntity() {
+        UserEntity developer = mockDeveloperAuth();
+        GameEntity entity = buildGame(developer);
+        when(userRepository.findByIdAndRole(developer.getId(), UserEntity.Role.DEVELOPER)).thenReturn(developer);
+        when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
+        when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
+
+        Game gameInput = Game.builder().title(entity.getTitle()).build();
+        GameEntity game = gameService.createGame(gameInput).getBody();
+        assertTrue(developer.getGames().contains(game));
+
+        gameService.deleteGame(entity.getId()).getBody();
+        assertTrue(developer.getGames().isEmpty());
+    }
+
+    @Test
+    void testDeleteGame_NonExistingEntity() {
+        GameEntity entity = buildGame(mockDeveloperAuth());
+        assertThrows(NotFoundException.class, () -> gameService.deleteGame(entity.getId()));
     }
 }

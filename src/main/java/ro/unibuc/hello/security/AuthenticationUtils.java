@@ -1,5 +1,6 @@
 package ro.unibuc.hello.security;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ import static ro.unibuc.hello.data.entity.UserEntity.Role;
 @Component
 public class AuthenticationUtils {
 
+    @Setter
     private static UserRepository userRepository;
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
