@@ -2,21 +2,21 @@ package ro.unibuc.hello.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.http.ResponseEntity;
 import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.entity.WishlistEntity;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.repository.CartRepository;
+import ro.unibuc.hello.data.repository.LibraryRepository;
+import ro.unibuc.hello.data.repository.WishlistRepository;
 
 import java.util.List;
 
-import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
+import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
-import static ro.unibuc.hello.utils.ResponseUtils.*;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
-import static ro.unibuc.hello.utils.ValidationUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
+import static ro.unibuc.hello.utils.ValidationUtils.validate;
 
 @Service
 public class WishlistService {
@@ -33,12 +33,12 @@ public class WishlistService {
     private GameService gameService;
 
     @CustomerOnly
-    public ResponseEntity<List<GameEntity>> getWishlist() {
-        return ok(wishlistRepository.getGamesByCustomer(getUser()));
+    public List<GameEntity> getWishlist() {
+        return wishlistRepository.getGamesByCustomer(getUser());
     }
 
     @CustomerOnly
-    public ResponseEntity<WishlistEntity> addToWishlist(String gameId) {
+    public WishlistEntity addToWishlist(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -49,16 +49,16 @@ public class WishlistService {
                 .and(notInLibrary(libraryRepository.getGamesByCustomer(customer)))
         );
 
-        return created(wishlistRepository.save(
+        return wishlistRepository.save(
             buildWishlistEntry(
                     game,
                     customer
             )
-        ));
+        );
     }
 
     @CustomerOnly
-    public ResponseEntity<Void> moveToCart(String gameId) {
+    public void moveToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -75,12 +75,10 @@ public class WishlistService {
                 customer
             )
         );
-
-        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<Void> moveAllToCart() {
+    public void moveAllToCart() {
         UserEntity customer = getUser();
         wishlistRepository.getGamesByCustomer(customer).forEach(game -> {
             if (game.getKeys() > 0) {
@@ -92,25 +90,20 @@ public class WishlistService {
                 );
             }
         });
-
-        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<Void> removeFromWishlist(String gameId) {
+    public void removeFromWishlist(String gameId) {
         wishlistRepository.delete(
             buildWishlistEntry(
                     gameService.getGame(gameId),
                     getUser()
             )
         );
-
-        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<Void> removeAllFromWishlist() {
+    public void removeAllFromWishlist() {
         wishlistRepository.deleteById_CustomerId(getUser().getId());
-        return noContent();
     }
 }

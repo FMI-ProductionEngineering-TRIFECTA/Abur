@@ -1,7 +1,6 @@
 package ro.unibuc.hello.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -14,8 +13,7 @@ import ro.unibuc.hello.exception.NotFoundException;
 import java.util.List;
 
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.getAuthorizedUser;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
@@ -62,25 +60,25 @@ public abstract class UserService<T extends User> {
         validateDetails(user);
     }
 
-    public ResponseEntity<UserEntity> getUserById(String id) {
-        return ok(userRepository.findByIdAndRole(id, getRole()));
+    public UserEntity getUserById(String id) {
+        return userRepository.findByIdAndRole(id, getRole());
     }
 
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return ok(userRepository.findByRole(getRole()));
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findByRole(getRole());
     }
 
-    public ResponseEntity<List<GameEntity>> getGames() {
+    public List<GameEntity> getGames() {
         UserEntity user = getAuthorizedUser(getRole());
-        return ok(user.getGames());
+        return user.getGames();
     }
 
-    public ResponseEntity<List<GameEntity>> getGames(String id) {
+    public List<GameEntity> getGames(String id) {
         UserEntity user = userRepository.findByIdAndRole(id, getRole());
-        return ok(user.getGames());
+        return user.getGames();
     }
 
-    public ResponseEntity<UserEntity> updateLoggedUser(T userInput, UserEntity user) {
+    public UserEntity updateLoggedUser(T userInput, UserEntity user) {
         String username = userInput.getUsername();
         validate(String.format("Username %s", username), username, isUnique(() -> userRepository.findByUsername(username)));
         validateAndUpdate("Username", user::setUsername, username);
@@ -92,7 +90,7 @@ public abstract class UserService<T extends User> {
         validateAndUpdate("Email", user::setEmail, email, validEmail());
 
         updateSpecificFields(userInput, user);
-        return ok(userRepository.save(user));
+        return userRepository.save(user);
     }
 
 }

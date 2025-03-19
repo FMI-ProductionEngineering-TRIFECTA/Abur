@@ -14,6 +14,8 @@ import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.Token;
 import ro.unibuc.hello.service.AuthenticationService;
 
+import static ro.unibuc.hello.utils.ResponseUtils.*;
+
 @Controller
 @RequestMapping("/auth")
 public class AuthenticationController {
@@ -24,19 +26,19 @@ public class AuthenticationController {
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<Token> login(@RequestBody Credentials credentials) {
-        return authenticationService.login(credentials);
+        return ok(authenticationService.login(credentials));
     }
 
     @PostMapping("/signup/developer")
     @ResponseBody
     public ResponseEntity<UserEntity> signupDeveloper(@RequestBody Developer developer) {
-        return authenticationService.signupDeveloper(developer);
+        return created(authenticationService.signupDeveloper(developer));
     }
 
     @PostMapping("/signup/customer")
     @ResponseBody
     public ResponseEntity<UserEntity> signupCustomer(@RequestBody Customer customer) {
-        return authenticationService.signupCustomer(customer);
+        return created(authenticationService.signupCustomer(customer));
     }
 
 }

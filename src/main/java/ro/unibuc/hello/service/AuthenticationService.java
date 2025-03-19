@@ -1,7 +1,6 @@
 package ro.unibuc.hello.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
@@ -10,9 +9,9 @@ import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTService;
 
-import static ro.unibuc.hello.utils.ValidationUtils.*;
-import static ro.unibuc.hello.utils.ResponseUtils.*;
-import static ro.unibuc.hello.data.entity.UserEntity.*;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+import static ro.unibuc.hello.data.entity.UserEntity.UserDetails;
+import static ro.unibuc.hello.utils.ValidationUtils.exists;
 
 @Service
 public class AuthenticationService {
@@ -35,25 +34,25 @@ public class AuthenticationService {
         exists("Email", user.getEmail());
     }
 
-    public ResponseEntity<Token> login(Credentials credentials) {
+    public Token login(Credentials credentials) {
         exists("Username", credentials.getUsername());
         exists("Password", credentials.getPassword());
 
         UserEntity user = userRepository.findByUsername(credentials.getUsername());
 
         if (user != null && AuthenticationUtils.isPasswordValid(credentials.getPassword(), user.getPassword())) {
-            return ok(new Token(jwtService.getToken(user.getId())));
+            return new Token(jwtService.getToken(user.getId()));
         }
 
         throw new ValidationException("Invalid username or password");
     }
 
-    public ResponseEntity<UserEntity> signupDeveloper(Developer developer) {
+    public UserEntity signupDeveloper(Developer developer) {
         validateSignUp(developer);
         exists("Studio", developer.getStudio());
         developerService.validateUser(developer);
 
-        return created(userRepository.save(new UserEntity(
+        return userRepository.save(new UserEntity(
                 developer.getUsername(),
                 developer.getPassword(),
                 developer.getEmail(),
@@ -62,14 +61,14 @@ public class AuthenticationService {
                         developer.getStudio(),
                         developer.getWebsite()
                 )
-        )));
+        ));
     }
 
-    public ResponseEntity<UserEntity> signupCustomer(Customer customer) {
+    public UserEntity signupCustomer(Customer customer) {
         validateSignUp(customer);
         customerService.validateUser(customer);
 
-        return created(userRepository.save(new UserEntity(
+        return userRepository.save(new UserEntity(
                 customer.getUsername(),
                 customer.getPassword(),
                 customer.getEmail(),
@@ -78,7 +77,7 @@ public class AuthenticationService {
                         customer.getFirstName(),
                         customer.getLastName()
                 )
-        )));
+        ));
     }
 
 }

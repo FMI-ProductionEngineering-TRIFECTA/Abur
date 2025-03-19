@@ -1,7 +1,6 @@
 package ro.unibuc.hello.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
@@ -16,8 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static ro.unibuc.hello.data.entity.GameEntity.*;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Service
@@ -68,20 +66,20 @@ public class GameService {
         return game;
     }
 
-    public ResponseEntity<GameEntity> getGameById(String id) {
-        return ok(getAndAssureType(id));
+    public GameEntity getGameById(String id) {
+        return getAndAssureType(id);
     }
 
-    public ResponseEntity<List<GameEntity>> getAllGames() {
-        return ok(gameRepository.findByType(getType()));
+    public List<GameEntity> getAllGames() {
+        return gameRepository.findByType(getType());
     }
 
-    public ResponseEntity<List<GameEntity>> getGameDLCs(String id) {
-        return ok(getAndAssureType(id).getDlcs());
+    public List<GameEntity> getGameDLCs(String id) {
+        return getAndAssureType(id).getDlcs();
     }
 
     @DeveloperOnly
-    public ResponseEntity<GameEntity> createGame(Game gameInput) {
+    public GameEntity createGame(Game gameInput) {
         UserEntity user = getUser();
         GameEntity baseGame = gameInput.getBaseGame();
         if (getType() == Type.DLC && !baseGame.getDeveloper().getUsername().equals(user.getUsername())) throw new UnauthorizedAccessException();
@@ -119,11 +117,11 @@ public class GameService {
         user.getGames().add(savedGame);
         userRepository.save(user);
 
-        return created(savedGame);
+        return savedGame;
     }
 
     @DeveloperOnly
-    public ResponseEntity<GameEntity> updateGame(String id, Game gameInput) {
+    public GameEntity updateGame(String id, Game gameInput) {
         GameEntity game = getAndValidateOwnership(id, getUser());
 
         String title = gameInput.getTitle();
@@ -133,28 +131,28 @@ public class GameService {
         validateAndUpdate("Price", game::setPrice, gameInput.getPrice());
         validateAndUpdate("Discount percentage", game::setDiscountPercentage, gameInput.getDiscountPercentage());
 
-        return ok(gameRepository.save(game));
+        return gameRepository.save(game);
     }
 
     @DeveloperOnly
-    public ResponseEntity<GameEntity> addKeys(String id, Integer keys) {
+    public GameEntity addKeys(String id, Integer keys) {
         GameEntity game = getAndValidateOwnership(id, getUser());
 
         validate("Number of keys", keys);
 
         game.setKeys(keys + game.getKeys());
-        return ok(gameRepository.save(game));
+        return gameRepository.save(game);
     }
 
     @DeveloperOnly
-    public ResponseEntity<GameEntity> markOutOfStock(String id) {
+    public GameEntity markOutOfStock(String id) {
         GameEntity game = getAndValidateOwnership(id, getUser());
         game.setKeys(0);
-        return ok(gameRepository.save(game));
+        return gameRepository.save(game);
     }
 
     @DeveloperOnly
-    public ResponseEntity<Void> deleteGame(String id) {
+    public void deleteGame(String id) {
         GameEntity game = getAndValidateOwnership(id, getUser());
         List<GameEntity> dlcs = game.getDlcs();
 
@@ -163,8 +161,6 @@ public class GameService {
 
         deleteGameDependencies(game);
         gameRepository.delete(game);
-
-        return noContent();
     }
 
 }

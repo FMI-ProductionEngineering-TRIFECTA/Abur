@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import ro.unibuc.hello.annotation.CustomerOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.service.CustomerService;
 
 import java.util.List;
+
+import static ro.unibuc.hello.utils.ResponseUtils.*;
 
 @Controller
 @RequestMapping("/customers")
@@ -21,31 +24,33 @@ public class CustomerController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<UserEntity> getCustomerById(@PathVariable String id) {
-        return customerService.getUserById(id);
+        return ok(customerService.getUserById(id));
     }
 
     @GetMapping("/{id}/games")
     @ResponseBody
     public ResponseEntity<List<GameEntity>> getCustomerGames(@PathVariable String id) {
-        return customerService.getGames(id);
+        return ok(customerService.getGames(id));
     }
 
     @GetMapping("")
     @ResponseBody
     public ResponseEntity<List<UserEntity>> getAllCustomers() {
-        return customerService.getAllUsers();
+        return ok(customerService.getAllUsers());
     }
 
     @GetMapping("/myGames")
     @ResponseBody
+    @CustomerOnly
     public ResponseEntity<List<GameEntity>> getMyGames() {
-        return customerService.getGames();
+        return ok(customerService.getGames());
     }
 
     @PutMapping("")
     @ResponseBody
+    @CustomerOnly
     public ResponseEntity<UserEntity> updateLoggedCustomer(@RequestBody Customer customer) {
-        return customerService.updateLoggedUser(customer);
+        return ok(customerService.updateLoggedUser(customer));
     }
 
 }
