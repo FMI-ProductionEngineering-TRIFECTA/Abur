@@ -23,7 +23,7 @@ public interface AuthenticationTestUtils {
 
     SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-    JWTService jwtService = new JWTService();
+    JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
 
     static <B> B buildCommonFields(B builder, Role role) {
         String username = role.toString().toLowerCase();
@@ -74,7 +74,7 @@ public interface AuthenticationTestUtils {
     }
 
     static String getAccessToken(Role role) {
-        UserEntity user = buildCommonFields(UserEntity.builder(), role).build();
+        UserEntity user = mockUserAuth(role);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userRepository.findByIdAndRole(user.getId(), role)).thenReturn(user);
         return jwtService.getToken(user.getId());

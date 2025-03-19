@@ -19,6 +19,7 @@ import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
+import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 class GameServiceTest {
 
@@ -46,48 +47,6 @@ class GameServiceTest {
     private static final Integer keysToAdd = 10;
     private static final Integer discountPercentage = 50;
     private static final Double price = 59.99;
-
-    private List<GameEntity> buildGames(Integer total) {
-        List<GameEntity> games = new ArrayList<>();
-        for (int id = 1; id <= total; ++id) {
-            games.add(GameEntity
-                    .builder()
-                    .id(String.valueOf(id))
-                    .title(String.format("Game %d", id))
-                    .price(0.0)
-                    .discountPercentage(0)
-                    .keys(100)
-                    .type(Type.GAME)
-                    .dlcs(new ArrayList<>())
-                    .build()
-            );
-        }
-        return games;
-    }
-
-    private List<GameEntity> buildDLCs(Integer total, GameEntity baseGame) {
-        List<GameEntity> dlcs = new ArrayList<>();
-        for (int id = 1; id <= total; ++id) {
-            dlcs.add(GameEntity
-                    .builder()
-                    .title(String.format("%s DLC %d", baseGame.getTitle(), id))
-                    .type(Type.DLC)
-                    .build()
-            );
-        }
-        baseGame.getDlcs().addAll(dlcs);
-        return dlcs;
-    }
-
-    private GameEntity buildGame() {
-        return buildGames(1).getFirst();
-    }
-
-    private GameEntity buildGame(UserEntity developer) {
-        GameEntity game = buildGame();
-        game.setDeveloper(developer);
-        return game;
-    }
 
     @BeforeEach
     void setUp() {
@@ -125,7 +84,7 @@ class GameServiceTest {
         GameEntity entity = buildGame();
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        GameEntity game = gameService.getGameById(entity.getId()).getBody();
+        GameEntity game = gameService.getGameById(entity.getId());
 
         assertNotNull(game);
         assertEquals(entity, game);
@@ -153,7 +112,7 @@ class GameServiceTest {
         List<GameEntity> entities = buildGames(2);
         when(gameRepository.findByType(Type.GAME)).thenReturn(entities);
 
-        List<GameEntity> games = gameService.getAllGames().getBody();
+        List<GameEntity> games = gameService.getAllGames();
 
         assertNotNull(games);
         assertEquals(entities.size(), games.size());
@@ -166,7 +125,7 @@ class GameServiceTest {
         List<GameEntity> dlcEntities = buildDLCs(2, baseGameEntity);
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
-        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId()).getBody();
+        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId());
 
         assertNotNull(dlcs);
         assertEquals(dlcEntities.size(), dlcs.size());
@@ -178,7 +137,7 @@ class GameServiceTest {
         GameEntity baseGameEntity = buildGame();
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
-        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId()).getBody();
+        List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId());
 
         assertNotNull(dlcs);
         assertEquals(0, dlcs.size());
@@ -192,7 +151,7 @@ class GameServiceTest {
         when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
 
         Game gameInput = Game.builder().title(entity.getTitle()).build();
-        GameEntity game = gameService.createGame(gameInput).getBody();
+        GameEntity game = gameService.createGame(gameInput);
 
         assertNotNull(game);
         assertEquals(entity, game);
@@ -219,7 +178,7 @@ class GameServiceTest {
         when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
 
         Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
-        GameEntity game = gameService.updateGame(entity.getId(), gameInput).getBody();
+        GameEntity game = gameService.updateGame(entity.getId(), gameInput);
 
         assertNotNull(game);
         assertEquals(entity, game);
@@ -277,7 +236,7 @@ class GameServiceTest {
         entity.setKeys(entity.getKeys() + keysToAdd);
         when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
 
-        GameEntity game = gameService.addKeys(entity.getId(), keysToAdd).getBody();
+        GameEntity game = gameService.addKeys(entity.getId(), keysToAdd);
 
         assertNotNull(game);
         assertEquals(entity, game);
@@ -289,7 +248,7 @@ class GameServiceTest {
         GameEntity entity = buildGame(mockDeveloperAuth());
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        assertThrows(ValidationException.class, () -> gameService.addKeys(entity.getId(), -keysToAdd).getBody());
+        assertThrows(ValidationException.class, () -> gameService.addKeys(entity.getId(), -keysToAdd));
     }
 
     @Test
@@ -306,7 +265,7 @@ class GameServiceTest {
         entity.setKeys(0);
         when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
 
-        GameEntity game = gameService.markOutOfStock(entity.getId()).getBody();
+        GameEntity game = gameService.markOutOfStock(entity.getId());
 
         assertNotNull(game);
         assertEquals(entity, game);
@@ -328,10 +287,10 @@ class GameServiceTest {
         when(gameRepository.save(any(GameEntity.class))).thenReturn(entity);
 
         Game gameInput = Game.builder().title(entity.getTitle()).build();
-        GameEntity game = gameService.createGame(gameInput).getBody();
+        GameEntity game = gameService.createGame(gameInput);
         assertTrue(developer.getGames().contains(game));
 
-        gameService.deleteGame(entity.getId()).getBody();
+        gameService.deleteGame(entity.getId());
         assertTrue(developer.getGames().isEmpty());
     }
 
