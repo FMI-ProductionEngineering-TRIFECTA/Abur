@@ -12,6 +12,7 @@ import ro.unibuc.hello.security.jwt.JWTService;
 
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.data.entity.UserEntity.*;
 
 @Service
 public class AuthenticationService {
@@ -56,8 +57,8 @@ public class AuthenticationService {
                 developer.getUsername(),
                 developer.getPassword(),
                 developer.getEmail(),
-                UserEntity.Role.DEVELOPER,
-                UserEntity.UserDetails.forDeveloper(
+                Role.DEVELOPER,
+                UserDetails.forDeveloper(
                         developer.getStudio(),
                         developer.getWebsite()
                 )
@@ -72,8 +73,8 @@ public class AuthenticationService {
                 customer.getUsername(),
                 customer.getPassword(),
                 customer.getEmail(),
-                UserEntity.Role.CUSTOMER,
-                UserEntity.UserDetails.forCustomer(
+                Role.CUSTOMER,
+                UserDetails.forCustomer(
                         customer.getFirstName(),
                         customer.getLastName()
                 )
