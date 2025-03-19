@@ -5,32 +5,23 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import ro.unibuc.hello.aspect.RoleAuthorizationAspect;
 import ro.unibuc.hello.data.entity.GameEntity;
-import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Game;
-import ro.unibuc.hello.exception.GlobalExceptionHandler;
+import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.service.GameService;
+import ro.unibuc.hello.utils.GenericControllerTest;
 
-import static org.mockito.Mockito.*;
-import static ro.unibuc.hello.data.entity.UserEntity.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.addToken;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
 
 @EnableAspectJAutoProxy
-class GameControllerTest {
+class GameControllerTest extends GenericControllerTest<GameController> {
 
     @Mock
     private GameService gameService;
@@ -38,34 +29,41 @@ class GameControllerTest {
     @InjectMocks
     private GameController gameController;
 
-    private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        AspectJProxyFactory factory = new AspectJProxyFactory(gameController);
-        factory.addAspect(new RoleAuthorizationAspect());
-
-        mockMvc = MockMvcBuilders
-                .standaloneSetup((GameController) factory.getProxy())
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+    @Override
+    protected String getEndpoint() {
+        return "games";
     }
 
-    private ResultActions mockPost(Object requestBody, String token) throws Exception {
-        return mockMvc.perform(post("/games")
-                .content(new ObjectMapper().writeValueAsString(requestBody))
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(addToken(token)));
+    @Override
+    protected GameController getController() {
+        return gameController;
+    }
+
+    @BeforeEach
+    protected void setUp() {
+        MockitoAnnotations.openMocks(this);
+        super.setUp();
     }
 
     @Test
-    void getGameById() throws Exception {
+    void testGetGameById_ValidId() throws Exception {
         GameEntity entity = buildGame();
         when(gameService.getGameById(entity.getId())).thenReturn(entity);
 
-        mockMvc.perform(get("/games"))
-               .andExpect(status().isOk());
+        performGet("/{id}", entity.getId())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(entity.getId()))
+            .andExpect(jsonPath("$.title").value(entity.getTitle()));
+    }
+
+    @Test
+    void testGetGameById_InvalidId() throws Exception {
+        String gameId = "1";
+        when(gameService.getGameById(gameId)).thenThrow(new ValidationException("Invalid id"));
+
+        performGet("/{id}", gameId)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Invalid id"));
     }
 
     @Test
@@ -84,24 +82,20 @@ class GameControllerTest {
         Game gameInput = Game.builder().title(entity.getTitle()).build();
         when(gameService.createGame(any(Game.class))).thenReturn(entity);
 
-        mockPost(gameInput, getAccessToken(Role.DEVELOPER))
+        performPost(gameInput, getAccessToken(Role.DEVELOPER))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.title").value(entity.getTitle()));
     }
 
     @Test
     void testCreateGame_InvalidRole() throws Exception {
-        Game gameInput = Game.builder().title(buildGame().getTitle()).build();
-
-        mockPost(gameInput, getAccessToken(Role.CUSTOMER))
+        performPost(Game.builder().title(buildGame().getTitle()).build(), getAccessToken(Role.CUSTOMER))
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testCreateGame_NoAuth() throws Exception {
-        Game gameInput = Game.builder().title(buildGame().getTitle()).build();
-
-        mockPost(gameInput, null)
+        performPost(Game.builder().title(buildGame().getTitle()).build(), null)
             .andExpect(status().isUnauthorized());
     }
 
