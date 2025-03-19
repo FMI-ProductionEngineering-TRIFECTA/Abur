@@ -21,7 +21,7 @@ class GameControllerTest {
     private String customerToken;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(gameController).build();
         developerToken = getAccessToken(UserEntity.Role.DEVELOPER);
@@ -30,12 +30,12 @@ class GameControllerTest {
 
     @Test
     void getGameById() {
-        // TODO
+        System.out.println(developerToken);
     }
 
     @Test
     void getGameDLCs() {
-        // TODO
+        System.out.println(customerToken);
     }
 
     @Test
@@ -44,8 +44,8 @@ class GameControllerTest {
     }
 
     @Test
-    void createGame() {
-        // TODO
+    void testCreateGame() {
+
     }
 
     @Test
