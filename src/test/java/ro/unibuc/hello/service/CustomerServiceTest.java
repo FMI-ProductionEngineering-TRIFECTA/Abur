@@ -275,7 +275,17 @@ public class CustomerServiceTest {
     }
 
     @Test
+    void testUpdateCustomer_Authenticated_NullFirstName() {
+        // TODO
+    }
+
+    @Test
     void testUpdateCustomer_Authenticated_BlankFirstName() {
+        // TODO
+    }
+
+    @Test
+    void testUpdateCustomer_Authenticated_NullLastName() {
         // TODO
     }
 
