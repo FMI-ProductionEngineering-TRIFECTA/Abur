@@ -123,6 +123,7 @@ class GameServiceTest {
     void testGetGameDLCs_HasDLCs() {
         GameEntity baseGameEntity = buildGame();
         List<GameEntity> dlcEntities = buildDLCsForGame(2, baseGameEntity);
+        baseGameEntity.setDlcs(dlcEntities);
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
         List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId());

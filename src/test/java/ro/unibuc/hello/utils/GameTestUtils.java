@@ -52,7 +52,6 @@ public final class GameTestUtils {
                     .build()
             );
         }
-        baseGame.getDlcs().addAll(dlcs);
         return dlcs;
     }
 
