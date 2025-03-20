@@ -8,7 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-public interface ValidationUtils {
+public final class ValidationUtils {
+
+    private ValidationUtils() {}
 
     private static boolean failsRegex(String regex, String value) {
         return !Pattern.compile(regex).matcher(value).find();
@@ -25,7 +27,7 @@ public interface ValidationUtils {
     }
 
     @FunctionalInterface
-    interface ValidationRule<T> {
+    public interface ValidationRule<T> {
         String validate(T value);
 
         default ValidationRule<T> and(ValidationRule<T> other) {
@@ -39,21 +41,21 @@ public interface ValidationUtils {
         }
     }
 
-    static void exists(String fieldName, String value) {
+    public static void exists(String fieldName, String value) {
         if (value == null) {
             throw new ValidationException("%s is required", fieldName);
         }
     }
 
-    static <T> T fallback(T value, T defaultValue) {
+    public static <T> T fallback(T value, T defaultValue) {
         return value == null ? defaultValue : value;
     }
 
-    static <T> void validate(String fieldName, T field) {
+    public static <T> void validate(String fieldName, T field) {
         validate(fieldName, field, defaultValidator());
     }
 
-    static <T> void validate(String fieldName, T field, ValidationRule<T> validator) {
+    public static <T> void validate(String fieldName, T field, ValidationRule<T> validator) {
         if (field == null) {
             return;
         }
@@ -63,7 +65,7 @@ public interface ValidationUtils {
         }
     }
 
-    static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue, ValidationRule<T> validator) {
+    public static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue, ValidationRule<T> validator) {
         if (validator == null) {
             validator = defaultValidator();
         }
@@ -72,11 +74,11 @@ public interface ValidationUtils {
         if (fieldValue != null) setter.accept(fieldValue);
     }
 
-    static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue) {
+    public static <T> void validateAndUpdate(String fieldName, Consumer<T> setter, T fieldValue) {
         validateAndUpdate(fieldName, setter, fieldValue, null);
     }
 
-    static <T> ValidationRule<T> defaultValidator() {
+    public static <T> ValidationRule<T> defaultValidator() {
         return value -> {
             if (value instanceof String s && s.trim().isEmpty()) {
                 return "%s cannot be empty!";
@@ -88,20 +90,20 @@ public interface ValidationUtils {
         };
     }
 
-    static ValidationRule<String> validLength(int min) {
+    public static ValidationRule<String> validLength(int min) {
         return value -> value.length() < min
                 ? "%s must be at least " + min + " characters long!"
                 : null;
     }
 
     @SuppressWarnings("unused")
-    static ValidationRule<String> validLength(int min, int max) {
+    public static ValidationRule<String> validLength(int min, int max) {
         return value -> value.length() < min || value.length() > max
                 ? "%s must be between " + min + " and " + max + " characters long!"
                 : null;
     }
 
-    static ValidationRule<String> validPassword() {
+    public static ValidationRule<String> validPassword() {
         return value -> {
             if (failsRegex("[A-Z]", value)) {
                 return "%s must contain at least one uppercase letter!";
@@ -113,29 +115,29 @@ public interface ValidationUtils {
         };
     }
 
-    static ValidationRule<String> validEmail() {
+    public static ValidationRule<String> validEmail() {
         return value -> failsRegex("^[A-Za-z0-9+_.-]+@(.+)$", value)
                 ? "%s must be a valid email address!"
                 : null;
     }
 
-    static ValidationRule<String> validWebsite() {
+    public static ValidationRule<String> validWebsite() {
         return value -> failsRegex("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$", value)
                 ? "%s must be a valid website URL!"
                 : null;
     }
 
-    static <T> ValidationRule<T> isUnique(Supplier<T> existsCheck) {
+    public static <T> ValidationRule<T> isUnique(Supplier<T> existsCheck) {
         return value -> existsCheck.get() != null
                 ? "%s already exists!"
                 : null;
     }
 
-    static ValidationRule<String> isNotIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+    public static ValidationRule<String> isNotIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
         return checkPresence(listSupplier, collectionName, false);
     }
 
-    static ValidationRule<String> isIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
+    public static ValidationRule<String> isIn(Supplier<List<GameEntity>> listSupplier, String collectionName) {
         return checkPresence(listSupplier, collectionName, true);
     }
 

@@ -17,15 +17,17 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
 
-public interface AuthenticationTestUtils {
+public final class AuthenticationTestUtils {
 
-    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    private AuthenticationTestUtils() {}
 
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    private static final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
-    JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
+    private static final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-    static <B> B buildCommonFields(B builder, Role role) {
+    private static final JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
+
+    public static <B> B buildCommonFields(B builder, Role role) {
         String username = role.toString().toLowerCase();
         String userId = String.format("%s_id", username);
         String password = String.format("%s123", username);
@@ -64,23 +66,28 @@ public interface AuthenticationTestUtils {
         return user;
     }
 
-    static UserEntity mockDeveloperAuth() {
+    public static UserEntity mockDeveloperAuth() {
         return mockUserAuth(UserEntity.Role.DEVELOPER);
     }
 
     @SuppressWarnings("unused")
-    static UserEntity mockCustomerAuth() {
+    public static UserEntity mockCustomerAuth() {
         return mockUserAuth(UserEntity.Role.CUSTOMER);
     }
 
-    static String getAccessToken(Role role) {
+    public static String getAccessToken(Role role) {
         UserEntity user = mockUserAuth(role);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userRepository.findByIdAndRole(user.getId(), role)).thenReturn(user);
         return jwtService.getToken(user.getId());
     }
 
-    static RequestPostProcessor addToken(String token) {
+    public static void resetAccessToken() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+        when(userRepository.findByIdAndRole(any(), any())).thenReturn(null);
+    }
+
+    public static RequestPostProcessor addToken(String token) {
         return request -> {
             request.addHeader("Authorization", "Bearer " + token);
             return request;

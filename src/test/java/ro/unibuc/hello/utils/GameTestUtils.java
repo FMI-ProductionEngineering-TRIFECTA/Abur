@@ -6,8 +6,11 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface GameTestUtils {
-    static List<GameEntity> buildGames(Integer total) {
+public final class GameTestUtils {
+
+    private GameTestUtils() {}
+
+    public static List<GameEntity> buildGames(Integer total) {
         List<GameEntity> games = new ArrayList<>();
         for (int id = 1; id <= total; ++id) {
             games.add(GameEntity
@@ -25,7 +28,17 @@ public interface GameTestUtils {
         return games;
     }
 
-    static List<GameEntity> buildDLCs(Integer total, GameEntity baseGame) {
+    public static GameEntity buildGame() {
+        return buildGames(1).getFirst();
+    }
+
+    public static GameEntity buildGame(UserEntity developer) {
+        GameEntity game = buildGame();
+        game.setDeveloper(developer);
+        return game;
+    }
+
+    public static List<GameEntity> buildDLCsForGame(Integer total, GameEntity baseGame) {
         List<GameEntity> dlcs = new ArrayList<>();
         for (int id = 1; id <= total; ++id) {
             dlcs.add(GameEntity
@@ -39,13 +52,8 @@ public interface GameTestUtils {
         return dlcs;
     }
 
-    static GameEntity buildGame() {
-        return buildGames(1).getFirst();
+    public static GameEntity buildDLCForGame(GameEntity baseGame) {
+        return buildDLCsForGame(1, baseGame).getFirst();
     }
 
-    static GameEntity buildGame(UserEntity developer) {
-        GameEntity game = buildGame();
-        game.setDeveloper(developer);
-        return game;
-    }
 }
