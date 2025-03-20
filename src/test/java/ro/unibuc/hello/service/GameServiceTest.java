@@ -93,7 +93,7 @@ class GameServiceTest {
     @Test
     void getGameById_DLCId() {
         GameEntity entity = buildGame();
-        GameEntity dlc = buildDLCs(1, entity).getFirst();
+        GameEntity dlc = buildDLCsForGame(1, entity).getFirst();
         when(gameRepository.findById(dlc.getId())).thenReturn(Optional.of(dlc));
 
         assertThrows(NotFoundException.class, () -> gameService.getGameById(dlc.getId()));
@@ -122,7 +122,7 @@ class GameServiceTest {
     @Test
     void testGetGameDLCs_HasDLCs() {
         GameEntity baseGameEntity = buildGame();
-        List<GameEntity> dlcEntities = buildDLCs(2, baseGameEntity);
+        List<GameEntity> dlcEntities = buildDLCsForGame(2, baseGameEntity);
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
         List<GameEntity> dlcs = gameService.getGameDLCs(baseGameEntity.getId());

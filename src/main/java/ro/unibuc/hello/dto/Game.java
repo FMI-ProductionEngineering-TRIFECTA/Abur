@@ -6,6 +6,8 @@ import ro.unibuc.hello.data.entity.GameEntity;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Game {
 
     private String title;
