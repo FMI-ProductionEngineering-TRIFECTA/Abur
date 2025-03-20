@@ -1,11 +1,13 @@
 package ro.unibuc.hello.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ro.unibuc.hello.data.entity.GameEntity;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Game {
 
     private String title;

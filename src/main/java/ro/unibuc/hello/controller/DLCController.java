@@ -4,8 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import ro.unibuc.hello.annotation.DeveloperOnly;
+import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.service.DLCService;
+
+import java.util.List;
+
+import static ro.unibuc.hello.utils.ResponseUtils.*;
 
 @Controller
 @RequestMapping("/dlcs")
@@ -16,38 +22,43 @@ public class DLCController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<?> getDLCyId(@PathVariable String id) {
-        return dlcService.getGameById(id);
+    public ResponseEntity<GameEntity> getDLCyId(@PathVariable String id) {
+        return ok(dlcService.getGameById(id));
     }
 
     @GetMapping("")
     @ResponseBody
-    public ResponseEntity<?> getDLCs() {
-        return dlcService.getAllGames();
+    public ResponseEntity<List<GameEntity>> getDLCs() {
+        return ok(dlcService.getAllGames());
     }
 
     @PutMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<?> updateGame(@PathVariable String id, @RequestBody Game game) {
-        return dlcService.updateGame(id, game);
+    @DeveloperOnly
+    public ResponseEntity<GameEntity> updateGame(@PathVariable String id, @RequestBody Game game) {
+        return ok(dlcService.updateGame(id, game));
     }
 
     @PutMapping("/{id}/addKeys")
     @ResponseBody
-    public ResponseEntity<?> addKeys(@PathVariable String id, @RequestParam("quantity") Integer quantity) {
-        return dlcService.addKeys(id, quantity);
+    @DeveloperOnly
+    public ResponseEntity<GameEntity> addKeys(@PathVariable String id, @RequestParam("quantity") Integer quantity) {
+        return ok(dlcService.addKeys(id, quantity));
     }
 
     @PutMapping("/{id}/markOutOfStock")
     @ResponseBody
-    public ResponseEntity<?> markOutOfStock(@PathVariable String id) {
-        return dlcService.markOutOfStock(id);
+    @DeveloperOnly
+    public ResponseEntity<GameEntity> markOutOfStock(@PathVariable String id) {
+        return ok(dlcService.markOutOfStock(id));
     }
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<?> deleteGame(@PathVariable String id) {
-        return dlcService.deleteGame(id);
+    @DeveloperOnly
+    public ResponseEntity<Void> deleteGame(@PathVariable String id) {
+        dlcService.deleteGame(id);
+        return noContent();
     }
 
 }

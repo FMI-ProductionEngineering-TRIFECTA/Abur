@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface DatabaseUtils {
+public final class DatabaseUtils {
 
     @Getter
     @Setter
@@ -17,7 +17,7 @@ public interface DatabaseUtils {
     @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
-    class CompositeKey implements Serializable {
+    public static class CompositeKey implements Serializable {
         private String gameId;
         private String customerId;
 
@@ -26,17 +26,19 @@ public interface DatabaseUtils {
         }
     }
 
-    Map<String, Pair<String, Integer>> info = new HashMap<>();
+    private DatabaseUtils() {}
 
-    static void setTemplate(String key, String template) {
+    private static final Map<String, Pair<String, Integer>> info = new HashMap<>();
+
+    public static void setTemplate(String key, String template) {
         info.put(key, Pair.of(template + "%s", 0));
     }
 
-    static String getId(String key, Integer at) {
+    public static String getId(String key, Integer at) {
         return String.format(info.get(key).getFirst(), at);
     }
 
-    static String generateId(String key) {
+    public static String generateId(String key) {
         if (!info.containsKey(key)) {
             throw new RuntimeException(String.format("%s not found", key));
         }

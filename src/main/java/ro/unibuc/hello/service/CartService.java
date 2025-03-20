@@ -1,24 +1,25 @@
 package ro.unibuc.hello.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
+import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.repository.CartRepository;
+import ro.unibuc.hello.data.repository.LibraryRepository;
+import ro.unibuc.hello.data.repository.WishlistRepository;
 import ro.unibuc.hello.dto.CartInfo;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 
-import static ro.unibuc.hello.data.entity.GameEntity.*;
-import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
-import static ro.unibuc.hello.utils.ResponseUtils.*;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
+import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.data.entity.LibraryEntity.buildLibraryEntry;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
-import static ro.unibuc.hello.utils.ValidationUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
+import static ro.unibuc.hello.utils.ValidationUtils.validate;
 
 @Service
 public class CartService {
@@ -39,18 +40,18 @@ public class CartService {
     private GameService gameService;
 
 
-    private ResponseEntity<?> getCartByCustomerId(String customerId) {
+    private CartInfo getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
-        return ok(new CartInfo(totalPrice(games), games));
+        return new CartInfo(totalPrice(games), games);
     }
 
     @CustomerOnly
-    public ResponseEntity<?> getCart() {
+    public CartInfo getCart() {
         return getCartByCustomerId(getUser().getId());
     }
 
     @CustomerOnly
-    public ResponseEntity<?> addToCart(String gameId) {
+    public CartEntity addToCart(String gameId) {
         UserEntity customer = getUser();
         GameEntity game = gameService.getGame(gameId);
 
@@ -62,16 +63,16 @@ public class CartService {
         );
         if (game.getKeys() == 0) throw new ValidationException("%s is not in stock!", game.getTitle());
 
-        return created(cartRepository.save(
+        return cartRepository.save(
             buildCartEntry(
                  game,
                  customer
             )
-        ));
+        );
     }
 
     @CustomerOnly
-    public synchronized ResponseEntity<?> checkout() {
+    public synchronized void checkout() {
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 
@@ -85,24 +86,20 @@ public class CartService {
         games.forEach(game -> wishlistRepository.deleteById(build(game, getUser())));
 
         removeAllFromCart();
-        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeFromCart(String gameId) {
+    public void removeFromCart(String gameId) {
         cartRepository.delete(
             buildCartEntry(
                 gameService.getGame(gameId),
                 getUser()
             )
         );
-
-        return noContent();
     }
 
     @CustomerOnly
-    public ResponseEntity<?> removeAllFromCart() {
+    public void removeAllFromCart() {
         cartRepository.deleteById_CustomerId(getUser().getId());
-        return noContent();
     }
 }

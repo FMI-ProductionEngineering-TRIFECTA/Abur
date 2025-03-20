@@ -3,6 +3,7 @@ package ro.unibuc.hello.security.jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,12 @@ import javax.crypto.SecretKey;
 @Service
 public class JWTService {
 
-    @Value("${security.jwt.secret-key}")
-    private String secretKey;
+    private final String secretKey;
+
+    @Autowired
+    public JWTService(@Value("${security.jwt.secret-key}") String secretKey) {
+        this.secretKey = secretKey;
+    }
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));

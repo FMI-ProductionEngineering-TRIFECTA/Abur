@@ -46,6 +46,7 @@ public class GameEntity {
 
     private Integer keys;
 
+    @EqualsAndHashCode.Exclude
     private Date releaseDate;
 
     @DBRef
