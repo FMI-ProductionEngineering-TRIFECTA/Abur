@@ -6,6 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTAuthenticationToken;
@@ -25,12 +27,12 @@ public final class AuthenticationTestUtils {
 
     private static final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-    private static final JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
+    public static final JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
 
     public static <B> B buildCommonFields(B builder, Role role) {
         String username = role.toString().toLowerCase();
         String userId = String.format("%s_id", username);
-        String password = String.format("%s123", username);
+        String password = String.format("%s123-PASSWORD", username);
         String email = String.format("%s@gmail.com", username.toLowerCase());
 
         if (builder instanceof User.UserBuilder) {
@@ -39,13 +41,26 @@ public final class AuthenticationTestUtils {
                     .password(password)
                     .email(email);
         }
-        else if (builder instanceof UserEntity.UserEntityBuilder) {
-            ((UserEntity.UserEntityBuilder) builder)
+        else if (builder instanceof UserEntityBuilder userBuilder) {
+            userBuilder
                     .id(userId)
                     .username(username)
                     .password(password)
                     .email(email)
                     .role(role);
+
+            // TODO: probabil trebuie mutate de aici
+            if (role == Role.DEVELOPER) {
+                userBuilder.details(UserDetails.forDeveloper(
+                        "developer-studio",
+                        "https://developer-website.com"
+                ));
+            } else if (role == Role.CUSTOMER) {
+                userBuilder.details(UserDetails.forCustomer(
+                        "customer-firstName",
+                        "customer-lastName"
+                ));
+            }
         }
         else {
             throw new IllegalArgumentException("Unsupported builder type: " + builder.getClass());
@@ -73,6 +88,20 @@ public final class AuthenticationTestUtils {
     @SuppressWarnings("unused")
     public static UserEntity mockCustomerAuth() {
         return mockUserAuth(UserEntity.Role.CUSTOMER);
+    }
+
+    public static Developer mockDeveloper() {
+        return buildCommonFields(Developer.builder(), Role.DEVELOPER)
+                .studio("developer-studio")
+                .website("https://developer-website.com")
+                .build();
+    }
+
+    public static Customer mockCustomer() {
+        return buildCommonFields(Customer.builder(), Role.CUSTOMER)
+                .firstName("customer-firstName")
+                .lastName("customer-lastName")
+                .build();
     }
 
     public static String getAccessToken(Role role) {

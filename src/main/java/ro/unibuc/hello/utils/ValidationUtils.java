@@ -45,6 +45,9 @@ public final class ValidationUtils {
         if (value == null) {
             throw new ValidationException("%s is required", fieldName);
         }
+        if (value.isBlank()) {
+            throw new ValidationException("%s cannot be blank", fieldName);
+        }
     }
 
     public static <T> T fallback(T value, T defaultValue) {
@@ -107,6 +110,9 @@ public final class ValidationUtils {
         return value -> {
             if (failsRegex("[A-Z]", value)) {
                 return "%s must contain at least one uppercase letter!";
+            }
+            if (failsRegex("[a-z]", value)) {
+                return "%s must contain at least one lowercase letter!";
             }
             if (failsRegex("[0-9]", value)) {
                 return "%s must contain at least one digit!";

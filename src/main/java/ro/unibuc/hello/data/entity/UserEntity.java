@@ -65,6 +65,7 @@ public class UserEntity {
     @Indexed(unique = true)
     private String username;
 
+    @EqualsAndHashCode.Exclude
     private String password;
 
     @Indexed(unique = true)
