@@ -297,10 +297,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
     @Test
     void testDeleteGame_Valid() throws Exception {
-        GameEntity game = buildGame();
-        game.setKeys(0);
-
-        performDelete(getAccessToken(Role.DEVELOPER), "/{id}", game.getId())
+        performDelete(getAccessToken(Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isNoContent());
     }
 
