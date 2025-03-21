@@ -169,7 +169,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
     @Test
     void testUpdateLoggedDeveloper_Authenticated() throws Exception {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         UserEntity mockUpdatedDeveloper = mockUpdatedDeveloperAuth();
         when(developerService.updateLoggedUser(argThat(devInput -> devInput.equals(developerInput))))
                 .thenReturn(mockUpdatedDeveloper);
@@ -188,33 +188,14 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
     @Test
     void testUpdateLoggedDeveloper_AuthenticatedCustomer() throws Exception {
-        performPut(mockDeveloper(), getAccessToken(UserEntity.Role.CUSTOMER), "")
+        performPut(mockDeveloperInput(), getAccessToken(UserEntity.Role.CUSTOMER), "")
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testUpdateLoggedDeveloper_Unauthenticated() throws Exception {
-        performPut(mockDeveloper(), null, "")
+        performPut(mockDeveloperInput(), null, "")
                 .andExpect(status().isUnauthorized());
     }
-
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NullUsername
-    // TODO: testUpdateLoggedDeveloper_Authenticated_BlankUsername
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NonUniqueUsername
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoMinLengthUsername
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NullPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_BlankPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoUppercaseLetterPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoLowercaseLetterPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoDigitPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoMinLengthPassword
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NullEmail
-    // TODO: testUpdateLoggedDeveloper_Authenticated_BlankEmail
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NonUniqueEmail
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoFormatEmail
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NullStudio
-    // TODO: testUpdateLoggedDeveloper_Authenticated_BlankStudio
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NonUniqueStudio
-    // TODO: testUpdateLoggedDeveloper_Authenticated_NoFormatWebsite
 
 }

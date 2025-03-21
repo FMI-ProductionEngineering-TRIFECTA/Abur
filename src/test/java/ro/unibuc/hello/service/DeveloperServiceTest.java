@@ -9,6 +9,8 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.Developer;
+import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
@@ -104,16 +106,8 @@ public class DeveloperServiceTest {
     }
 
     @Test
-    void testDeveloperGetMyGames_Unauthenticated() {
-        // SecurityContextHolder.getContext().setAuthentication(null);
-
-        // TODO: UnauthorizedAccessException not thrown
-        // assertThrows(UnauthorizedAccessException.class, () -> developerService.getGames());
-    }
-
-    @Test
     void testUpdateDeveloper_AuthenticatedValid() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         mockDeveloperAuth();
 
         developerService.updateLoggedUser(developerInput);
@@ -134,15 +128,15 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NullUsername() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setUsername(null);
-        mockDeveloperAuth();
+        UserEntity mockDeveloper = mockDeveloperAuth();
 
         developerService.updateLoggedUser(developerInput);
 
         verify(userRepository, times(1)).save(
                 argThat(dev
-                        -> dev.getUsername().equals(mockDeveloper().getUsername())
+                        -> dev.getUsername().equals(mockDeveloper.getUsername())
                         && AuthenticationUtils.isPasswordValid(developerInput.getPassword(), dev.getPassword())
                         && dev.getEmail().equals(developerInput.getEmail())
                         && dev.getRole().equals(UserEntity.Role.DEVELOPER)
@@ -156,21 +150,21 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NonUniqueUsername() {
-        Developer developerInput = mockUpdatedDeveloper();
-        developerInput.setUsername(mockDeveloper().getUsername());
-        UserEntity developer = mockDeveloperAuth();
+        UserEntity mockDeveloper = mockDeveloperAuth();
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setUsername(mockDeveloper.getUsername());
 
-        when(userRepository.findByUsername(developer.getUsername())).thenReturn(developer);
+        when(userRepository.findByUsername(mockDeveloper.getUsername())).thenReturn(mockDeveloper);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
-        assertEquals("Username developer already exists!", exception.getMessage());
+        assertEquals("Username " + developerInput.getUsername() + " already exists!", exception.getMessage());
 
         verify(userRepository, times(0)).save(any());
     }
 
     @Test
     void testUpdateDeveloper_Authenticated_BlankUsername() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setUsername("        ");
         mockDeveloperAuth();
 
@@ -182,7 +176,7 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NoMinLengthUsername() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setUsername("dev");
         mockDeveloperAuth();
 
@@ -194,7 +188,7 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NullPassword() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setPassword(null);
         mockDeveloperAuth();
 
@@ -203,7 +197,7 @@ public class DeveloperServiceTest {
         verify(userRepository, times(1)).save(
                 argThat(dev
                         -> dev.getUsername().equals(developerInput.getUsername())
-                        && AuthenticationUtils.isPasswordValid(mockDeveloper().getPassword(), dev.getPassword())
+                        && AuthenticationUtils.isPasswordValid(mockDeveloperInput().getPassword(), dev.getPassword())
                         && dev.getEmail().equals(developerInput.getEmail())
                         && dev.getRole().equals(UserEntity.Role.DEVELOPER)
                         && dev.getDetails().getStudio().equals(developerInput.getStudio())
@@ -216,7 +210,7 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NoUppercaseLetterPassword() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setPassword("pass");
         mockDeveloperAuth();
 
@@ -227,25 +221,10 @@ public class DeveloperServiceTest {
     }
 
     @Test
-    void testUpdateDeveloper_Authenticated_NoLowercaseLetterPassword() {
-        // TODO
-    }
-
-    @Test
-    void testUpdateDeveloper_Authenticated_NoDigitPassword() {
-        // TODO
-    }
-
-    @Test
-    void testUpdateDeveloper_Authenticated_NoMinLengthPassword() {
-        // TODO
-    }
-
-    @Test
     void testUpdateDeveloper_Authenticated_NullEmail() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         developerInput.setEmail(null);
-        mockDeveloperAuth();
+        UserEntity mockDeveloper = mockDeveloperAuth();
 
         developerService.updateLoggedUser(developerInput);
 
@@ -253,7 +232,7 @@ public class DeveloperServiceTest {
                 argThat(dev
                         -> dev.getUsername().equals(developerInput.getUsername())
                         && AuthenticationUtils.isPasswordValid(developerInput.getPassword(), dev.getPassword())
-                        && dev.getEmail().equals(mockDeveloper().getEmail())
+                        && dev.getEmail().equals(mockDeveloper.getEmail())
                         && dev.getRole().equals(UserEntity.Role.DEVELOPER)
                         && dev.getDetails().getStudio().equals(developerInput.getStudio())
                         && dev.getDetails().getWebsite().equals(developerInput.getWebsite())
@@ -265,41 +244,28 @@ public class DeveloperServiceTest {
 
     @Test
     void testUpdateDeveloper_Authenticated_NonUniqueEmail() {
-        // TODO
+        UserEntity mockDeveloper = mockDeveloperAuth();
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setEmail(mockDeveloper.getEmail());
+
+        when(userRepository.findByEmail(mockDeveloper.getEmail())).thenReturn(mockDeveloper);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
+        assertEquals("Email " + developerInput.getEmail() + " already exists!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
     }
 
     @Test
     void testUpdateDeveloper_Authenticated_NoFormatEmail() {
-        // TODO
-    }
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setEmail("invalid-format");
+        mockDeveloperAuth();
 
-    @Test
-    void testUpdateCustomer_Authenticated_NullStudio() {
-        // TODO
-    }
+        ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
+        assertEquals("Email must be a valid email address!", exception.getMessage());
 
-    @Test
-    void testUpdateDeveloper_Authenticated_BlankStudio() {
-        // TODO
-    }
-
-    @Test
-    void testUpdateDeveloper_Authenticated_NullWebsite() {
-        // TODO
-    }
-
-    @Test
-    void testUpdateDeveloper_Authenticated_InvalidFormatWebsite() {
-        // TODO
-    }
-
-    @Test
-    void testUpdateDeveloper_Unauthenticated() {
-        // Developer developerInput = mockDeveloper();
-        // SecurityContextHolder.getContext().setAuthentication(null);
-
-        // TODO: UnauthorizedAccessException not thrown
-        // assertThrows(UnauthorizedAccessException.class, () -> developerService.updateLoggedUser(developerInput));
+        verify(userRepository, times(0)).save(any());
     }
 
 }

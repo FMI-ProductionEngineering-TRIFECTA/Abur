@@ -170,7 +170,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
     @Test
     void testUpdateLoggedCustomer_Authenticated() throws Exception {
-        Customer customerInput = mockUpdatedCustomer();
+        Customer customerInput = mockUpdatedCustomerInput();
         UserEntity mockUpdatedCustomer = mockUpdatedCustomerAuth();
         when(customerService.updateLoggedUser(argThat(devInput -> devInput.equals(customerInput))))
                 .thenReturn(mockUpdatedCustomer);
@@ -189,33 +189,14 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
     @Test
     void testUpdateLoggedCustomer_AuthenticatedCustomer() throws Exception {
-        performPut(mockCustomer(), getAccessToken(UserEntity.Role.DEVELOPER), "")
+        performPut(mockCustomerInput(), getAccessToken(UserEntity.Role.DEVELOPER), "")
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testUpdateLoggedCustomer_Unauthenticated() throws Exception {
-        performPut(mockCustomer(), null, "")
+        performPut(mockCustomerInput(), null, "")
                 .andExpect(status().isUnauthorized());
     }
-
-    // TODO: testUpdateLoggedCustomer_Authenticated_NullUsername
-    // TODO: testUpdateLoggedCustomer_Authenticated_BlankUsername
-    // TODO: testUpdateLoggedCustomer_Authenticated_NonUniqueUsername
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoMinLengthUsername
-    // TODO: testUpdateLoggedCustomer_Authenticated_NullPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_BlankPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoUppercaseLetterPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoLowercaseLetterPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoDigitPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoMinLengthPassword
-    // TODO: testUpdateLoggedCustomer_Authenticated_NullEmail
-    // TODO: testUpdateLoggedCustomer_Authenticated_BlankEmail
-    // TODO: testUpdateLoggedCustomer_Authenticated_NonUniqueEmail
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoFormatEmail
-    // TODO: testUpdateLoggedCustomer_Authenticated_NullStudio
-    // TODO: testUpdateLoggedCustomer_Authenticated_BlankStudio
-    // TODO: testUpdateLoggedCustomer_Authenticated_NonUniqueStudio
-    // TODO: testUpdateLoggedCustomer_Authenticated_NoFormatWebsite
 
 }
