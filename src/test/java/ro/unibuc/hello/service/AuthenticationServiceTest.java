@@ -141,7 +141,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_ValidInput() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         UserEntity mockDeveloper = mockDeveloperAuth();
         when(userRepository.save(any(UserEntity.class))).thenReturn(mockDeveloper);
 
@@ -172,7 +172,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NullUsername() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setUsername(null);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -183,7 +183,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_BlankUsername() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setUsername("           ");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -194,7 +194,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NonUniqueUsername() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         UserEntity developer = mockDeveloperAuth();
         when(userRepository.findByUsername(developerInput.getUsername())).thenReturn(developer);
 
@@ -206,7 +206,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoMinLengthUsername() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setUsername("dev");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -217,7 +217,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NullPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword(null);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -228,7 +228,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_BlankPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword("");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -239,7 +239,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoUppercaseLetterPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword("pass");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -250,7 +250,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoLowercaseLetterPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword("PASS");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -261,7 +261,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoDigitPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword("Pass");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -272,7 +272,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoMinLengthPassword() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setPassword("Pa1");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -283,7 +283,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NullEmail() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setEmail(null);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -294,7 +294,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_BlankEmail() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setEmail(" \n\t");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -305,7 +305,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NonUniqueEmail() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         UserEntity developer = mockDeveloperAuth();
         when(userRepository.findByEmail(developerInput.getEmail())).thenReturn(developer);
 
@@ -317,7 +317,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoFormatEmail() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setEmail("mail");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -328,7 +328,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NullStudio() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setStudio(null);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -339,7 +339,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_BlankStudio() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setStudio("\n");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -350,7 +350,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NonUniqueStudio() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         UserEntity developer = mockDeveloperAuth();
         when(userRepository.findByDetailsStudio(developerInput.getStudio())).thenReturn(developer);
 
@@ -362,7 +362,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupDeveloper_NoFormatWebsite() {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         developerInput.setWebsite("developer-website");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
@@ -373,7 +373,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupCustomer_ValidInput() {
-        Customer customerInput = mockCustomer();
+        Customer customerInput = mockCustomerInput();
         UserEntity mockCustomer = mockCustomerAuth();
         when(userRepository.save(any(UserEntity.class))).thenReturn(mockCustomer);
 
@@ -404,7 +404,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupCustomer_BlankFirstName() {
-        Customer customerInput = mockCustomer();
+        Customer customerInput = mockCustomerInput();
         customerInput.setFirstName("  \n");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupCustomer(customerInput));
@@ -415,7 +415,7 @@ public class AuthenticationServiceTest {
 
     @Test
     void testSignupCustomer_BlankLastName() {
-        Customer customerInput = mockCustomer();
+        Customer customerInput = mockCustomerInput();
         customerInput.setLastName("\n  \n");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupCustomer(customerInput));

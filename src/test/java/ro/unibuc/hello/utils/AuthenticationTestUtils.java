@@ -41,30 +41,18 @@ public final class AuthenticationTestUtils {
                     .password(password)
                     .email(email);
         }
-        else if (builder instanceof UserEntityBuilder userBuilder) {
-            userBuilder
+        else if (builder instanceof UserEntity.UserEntityBuilder) {
+            ((UserEntity.UserEntityBuilder) builder)
                     .id(userId)
                     .username(username)
                     .password(password)
                     .email(email)
                     .role(role);
-
-            // TODO: probabil trebuie mutate de aici
-            if (role == Role.DEVELOPER) {
-                userBuilder.details(UserDetails.forDeveloper(
-                        "developer-studio",
-                        "https://developer-website.com"
-                ));
-            } else if (role == Role.CUSTOMER) {
-                userBuilder.details(UserDetails.forCustomer(
-                        "customer-firstName",
-                        "customer-lastName"
-                ));
-            }
         }
         else {
             throw new IllegalArgumentException("Unsupported builder type: " + builder.getClass());
         }
+
         return builder;
     }
 
@@ -82,22 +70,34 @@ public final class AuthenticationTestUtils {
     }
 
     public static UserEntity mockDeveloperAuth() {
-        return mockUserAuth(UserEntity.Role.DEVELOPER);
+        UserEntity mockDeveloper = mockUserAuth(UserEntity.Role.DEVELOPER);
+        mockDeveloper.setDetails(UserDetails.forDeveloper(
+                "developer-studio",
+                "https://developer-website.com"
+        ));
+
+        return mockDeveloper;
     }
 
     @SuppressWarnings("unused")
     public static UserEntity mockCustomerAuth() {
-        return mockUserAuth(UserEntity.Role.CUSTOMER);
+        UserEntity mockCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
+        mockCustomer.setDetails(UserDetails.forCustomer(
+                "customer-firstName",
+                "customer-lastName"
+        ));
+
+        return mockCustomer;
     }
 
-    public static Developer mockDeveloper() {
+    public static Developer mockDeveloperInput() {
         return buildCommonFields(Developer.builder(), Role.DEVELOPER)
                 .studio("developer-studio")
                 .website("https://developer-website.com")
                 .build();
     }
 
-    public static Customer mockCustomer() {
+    public static Customer mockCustomerInput() {
         return buildCommonFields(Customer.builder(), Role.CUSTOMER)
                 .firstName("customer-firstName")
                 .lastName("customer-lastName")

@@ -48,7 +48,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
 
     @Test
     void testLogin_ValidCredentials() throws Exception {
-        Developer mockDeveloper = mockDeveloper();
+        Developer mockDeveloper = mockDeveloperInput();
         Credentials credentials = new Credentials(mockDeveloper.getUsername(), mockDeveloper.getPassword());
         Token token = new Token(getAccessToken(UserEntity.Role.DEVELOPER));
         when(authenticationService.login(argThat(cred -> cred.equals(credentials))))
@@ -77,8 +77,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
         Credentials credentials = new Credentials(null, "customer123-PASSWORD");
 
         String errorMessage = "Username is required";
-        when(authenticationService.login(argThat(cred -> cred.equals(credentials))))
-                .thenThrow(new ValidationException(errorMessage));
+        when(authenticationService.login(credentials)).thenThrow(new ValidationException(errorMessage));
 
         performPost(credentials, null, "/login")
                 .andExpect(status().isBadRequest())
@@ -139,7 +138,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
 
     @Test
     void testSignupDeveloper_ValidInput() throws Exception {
-        Developer developerInput = mockDeveloper();
+        Developer developerInput = mockDeveloperInput();
         UserEntity mockDeveloper = mockDeveloperAuth();
         when(authenticationService.signupDeveloper(argThat(devInput -> devInput.equals(developerInput))))
                 .thenReturn(mockDeveloper);
@@ -158,98 +157,8 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
     }
 
     @Test
-    void testSignupDeveloper_NullUsername() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_BlankUsername() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NonUniqueUsername() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoMinLengthUsername() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NullPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_BlankPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoUppercaseLetterPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoLowercaseLetterPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoDigitPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoMinLengthPassword() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NullEmail() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_BlankEmail() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NonUniqueEmail() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoFormatEmail() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NullStudio() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_BlankStudio() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NonUniqueStudio() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupDeveloper_NoFormatWebsite() throws Exception {
-        // TODO
-    }
-
-    @Test
     void testSignupCustomer_ValidInput() throws Exception {
-        Customer customerInput = mockCustomer();
+        Customer customerInput = mockCustomerInput();
         UserEntity mockCustomer = mockCustomerAuth();
         when(authenticationService.signupCustomer(argThat(custInput -> custInput.equals(customerInput))))
                 .thenReturn(mockCustomer);
@@ -265,16 +174,6 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
                 .andExpect(jsonPath("$.details.lastName").value(mockCustomer.getDetails().getLastName()))
                 .andExpect(jsonPath("$.details.studio").doesNotExist())
                 .andExpect(jsonPath("$.details.website").doesNotExist());
-    }
-
-    @Test
-    void testSignupCustomer_BlankFirstName() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void testSignupCustomer_BlankLastName() throws Exception {
-        // TODO
     }
 
 }
