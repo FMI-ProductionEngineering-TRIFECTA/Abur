@@ -70,6 +70,9 @@ class DLCServiceTest {
         assert(baseGameEntity.getDlcs().contains(dlc));
         assertEquals(baseGameEntity.getDlcs().size(), initialBaseGameSize + 1);
         assert(developer.getGames().contains(dlc));
+
+        verify(gameRepository, times(1)).findById(any());
+        verify(gameRepository, times(2)).save(any());
     }
 
     @Test
@@ -82,7 +85,15 @@ class DLCServiceTest {
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
         Game dlcInput = Game.builder().title(entity.getTitle()).baseGame(baseGameEntity).build();
-        assertThrows(UnauthorizedAccessException.class, () -> dlcService.createDLC(baseGameEntity.getId(), dlcInput));
+        UnauthorizedAccessException exception = assertThrows(
+                UnauthorizedAccessException.class,
+                () -> dlcService.createDLC(baseGameEntity.getId(), dlcInput)
+        );
+        assertNotNull(exception);
+        assertNull(exception.getMessage());
+
+        verify(gameRepository, times(1)).findById(any());
+        verify(gameRepository, times(0)).save(any());
     }
 
     @Test
@@ -93,7 +104,16 @@ class DLCServiceTest {
         when(gameRepository.findById(baseGameEntity.getId())).thenReturn(Optional.of(baseGameEntity));
 
         Game dlcInput = Game.builder().title(entity.getTitle()).baseGame(baseGameEntity).build();
-        assertThrows(ValidationException.class, () -> dlcService.createDLC(baseGameEntity.getId(), dlcInput));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> dlcService.createDLC(baseGameEntity.getId(), dlcInput)
+        );
+        assertNotNull(exception);
+        assertEquals(String.format("Title %s already exists!", entity.getTitle()), exception.getMessage());
+
+        verify(gameRepository, times(1)).findById(any());
+        verify(gameRepository, times(1)).findByTitle(any());
+        verify(gameRepository, times(0)).save(any());
     }
 
 }
