@@ -81,7 +81,7 @@ public final class AuthenticationTestUtils {
     }
 
     public static UserEntity mockUpdatedDeveloperAuth() {
-        Developer developerInput = mockUpdatedDeveloper();
+        Developer developerInput = mockUpdatedDeveloperInput();
         UserEntity updatedDeveloper = mockUserAuth(UserEntity.Role.DEVELOPER);
 
         updatedDeveloper.setUsername(developerInput.getUsername());
@@ -104,6 +104,21 @@ public final class AuthenticationTestUtils {
         ));
 
         return mockCustomer;
+    }
+
+    public static UserEntity mockUpdatedCustomerAuth() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        UserEntity updatedCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
+
+        updatedCustomer.setUsername(customerInput.getUsername());
+        updatedCustomer.setPassword(customerInput.getPassword());
+        updatedCustomer.setEmail(customerInput.getEmail());
+        updatedCustomer.setDetails(UserDetails.forCustomer(
+                customerInput.getFirstName(),
+                customerInput.getLastName()
+        ));
+
+        return updatedCustomer;
     }
 
     public static Developer mockDeveloperInput() {
