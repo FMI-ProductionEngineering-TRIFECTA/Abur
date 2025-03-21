@@ -47,6 +47,7 @@ class GameServiceTest {
     private static final Integer keysToAdd = 10;
     private static final Integer discountPercentage = 50;
     private static final Double price = 59.99;
+    private static final String notFoundFormat = "No game found at id %s!";
 
     @BeforeEach
     void setUp() {
@@ -74,9 +75,15 @@ class GameServiceTest {
 
     @Test
     void testGetGame_NonExistingGame() {
-        String gameId = "1";
+        String gameId = "invalid-id";
         when(gameRepository.findById(gameId)).thenReturn(Optional.empty());
-        assertThrows(NotFoundException.class, () -> gameService.getGame(gameId));
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.getGame(gameId)
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, gameId), exception.getMessage());
     }
 
     @Test
@@ -96,15 +103,26 @@ class GameServiceTest {
         GameEntity dlc = buildDLCsForGame(1, entity).getFirst();
         when(gameRepository.findById(dlc.getId())).thenReturn(Optional.of(dlc));
 
-        assertThrows(NotFoundException.class, () -> gameService.getGameById(dlc.getId()));
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.getGameById(dlc.getId())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format("%s is not a game", dlc.getTitle()), exception.getMessage());
     }
 
     @Test
     void getGameById_NonExistingGame() {
-        String gameId = "1";
+        String gameId = "invalid-id";
         when(gameRepository.findByIdAndType(gameId, Type.GAME)).thenReturn(null);
 
-        assertThrows(NotFoundException.class, () -> gameService.getGameById(gameId));
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.getGameById(gameId)
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, gameId), exception.getMessage());
+
     }
 
     @Test
@@ -166,8 +184,12 @@ class GameServiceTest {
         GameEntity entity = buildGame(mockDeveloperAuth());
         when(gameRepository.findByTitle(entity.getTitle())).thenReturn(entity);
 
-        Game gameInput = Game.builder().title(entity.getTitle()).build();
-        assertThrows(ValidationException.class, () -> gameService.createGame(gameInput));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> gameService.createGame(Game.builder().title(entity.getTitle()).build())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format("Title %s already exists!", entity.getTitle()), exception.getMessage());
     }
 
     @Test
@@ -192,8 +214,12 @@ class GameServiceTest {
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
         when(gameRepository.findByTitle(entity.getTitle())).thenReturn(entity);
 
-        Game gameInput = Game.builder().title(entity.getTitle()).build();
-        assertThrows(ValidationException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> gameService.updateGame(entity.getId(), Game.builder().title(entity.getTitle()).build())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format("Title %s already exists!", entity.getTitle()), exception.getMessage());
     }
 
     @Test
@@ -201,8 +227,12 @@ class GameServiceTest {
         GameEntity entity = buildGame(mockDeveloperAuth());
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        Game gameInput = Game.builder().price(-price).build();
-        assertThrows(ValidationException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> gameService.updateGame(entity.getId(), Game.builder().price(-price).build())
+        );
+        assertNotNull(exception);
+        assertEquals("Price cannot be negative!", exception.getMessage());
     }
 
     @Test
@@ -217,16 +247,24 @@ class GameServiceTest {
         GameEntity entity = buildGame(realDeveloper);
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
-        assertThrows(UnauthorizedAccessException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+        UnauthorizedAccessException exception = assertThrows(
+                UnauthorizedAccessException.class,
+                () -> gameService.updateGame(entity.getId(), Game.builder().discountPercentage(discountPercentage).build())
+        );
+        assertNotNull(exception);
+        assertNull(exception.getMessage());
     }
 
     @Test
     void testUpdateGame_NonExistingEntity() {
         GameEntity entity = buildGame(mockDeveloperAuth());
 
-        Game gameInput = Game.builder().discountPercentage(discountPercentage).build();
-        assertThrows(NotFoundException.class, () -> gameService.updateGame(entity.getId(), gameInput));
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.updateGame(entity.getId(), Game.builder().discountPercentage(discountPercentage).build())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, entity.getId()), exception.getMessage());
     }
 
     @Test
@@ -249,13 +287,24 @@ class GameServiceTest {
         GameEntity entity = buildGame(mockDeveloperAuth());
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
 
-        assertThrows(ValidationException.class, () -> gameService.addKeys(entity.getId(), -keysToAdd));
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> gameService.addKeys(entity.getId(), -keysToAdd)
+        );
+        assertNotNull(exception);
+        assertEquals("Number of keys cannot be negative!", exception.getMessage());
     }
 
     @Test
     void testAddKeys_NonExistingEntity() {
         GameEntity entity = buildGame(mockDeveloperAuth());
-        assertThrows(NotFoundException.class, () -> gameService.addKeys(entity.getId(), keysToAdd));
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.addKeys(entity.getId(), keysToAdd)
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, entity.getId()), exception.getMessage());
     }
 
     @Test
@@ -276,12 +325,19 @@ class GameServiceTest {
     @Test
     void testMarkOutOfStock_NonExistingEntity() {
         GameEntity entity = buildGame(mockDeveloperAuth());
-        assertThrows(NotFoundException.class, () -> gameService.markOutOfStock(entity.getId()));
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.markOutOfStock(entity.getId())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, entity.getId()), exception.getMessage());
     }
 
     @Test
     void testDeleteGame_ExistingEntity() {
         UserEntity developer = mockDeveloperAuth();
+        int initialSize = developer.getGames().size();
         GameEntity entity = buildGame(developer);
         when(userRepository.findByIdAndRole(developer.getId(), UserEntity.Role.DEVELOPER)).thenReturn(developer);
         when(gameRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
@@ -289,15 +345,22 @@ class GameServiceTest {
 
         Game gameInput = Game.builder().title(entity.getTitle()).build();
         GameEntity game = gameService.createGame(gameInput);
+        assertEquals(initialSize + 1, developer.getGames().size());
         assertTrue(developer.getGames().contains(game));
 
         gameService.deleteGame(entity.getId());
-        assertTrue(developer.getGames().isEmpty());
+        assertEquals(initialSize, developer.getGames().size());
     }
 
     @Test
     void testDeleteGame_NonExistingEntity() {
         GameEntity entity = buildGame(mockDeveloperAuth());
-        assertThrows(NotFoundException.class, () -> gameService.deleteGame(entity.getId()));
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> gameService.deleteGame(entity.getId())
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(notFoundFormat, entity.getId()), exception.getMessage());
     }
 }

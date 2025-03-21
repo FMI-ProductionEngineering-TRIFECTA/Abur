@@ -50,7 +50,7 @@ public class GameService {
 
     public GameEntity getGame(String gameId) {
         Optional<GameEntity> game = gameRepository.findById(gameId);
-        if (game.isEmpty()) throw new NotFoundException("No game found at id %s", gameId);
+        if (game.isEmpty()) throw new NotFoundException("No game found at id %s!", gameId);
         return game.get();
     }
 
@@ -62,7 +62,7 @@ public class GameService {
 
     private GameEntity getAndAssureType(String gameId) {
         GameEntity game = getGame(gameId);
-        if (game.getType() != getType()) throw new NotFoundException("%s is not a", game.getTitle(), getType().toString());
+        if (game.getType() != getType()) throw new NotFoundException("%s is not a %s", game.getTitle(), getType().toString().toLowerCase());
         return game;
     }
 
