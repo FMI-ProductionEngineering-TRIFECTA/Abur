@@ -58,7 +58,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         GameEntity game = buildGame();
         when(gameService.getGameById(game.getId())).thenReturn(game);
 
-        performGet("/{id}", game.getId())
+        performGet(null, "/{id}", game.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(game.getId()))
                 .andExpect(jsonPath("$.title").value(game.getTitle()));
@@ -69,7 +69,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         when(gameService.getGameById(ID)).thenThrow(new NotFoundException(errorMessage));
 
-        performGet("/{id}", ID)
+        performGet(null, "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
@@ -80,7 +80,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         List<GameEntity> dlcs = buildDLCsForGame(3, game);
         when(gameService.getGameDLCs(game.getId())).thenReturn(dlcs);
 
-        performGet("/{id}/dlcs", game.getId())
+        performGet(null, "/{id}/dlcs", game.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value(dlcs.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(dlcs.get(1).getTitle()))

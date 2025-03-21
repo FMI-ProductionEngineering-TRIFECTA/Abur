@@ -48,12 +48,13 @@ public abstract class GenericControllerTest<C> {
                 .with(addToken(token)));
     }
 
-    protected ResultActions performGet(String endpointTemplate, Object... args) throws Exception {
-        return mockMvc.perform(get(formatEndpoint(endpointTemplate), args));
+    protected ResultActions performGet(String token, String endpointTemplate, Object... args) throws Exception {
+        return mockMvc.perform(get(formatEndpoint(endpointTemplate), args)
+                .with(addToken(token)));
     }
 
     protected ResultActions performGet(String endpoint) throws Exception {
-        return performGet(endpoint, new Object[0]);
+        return performGet(null, endpoint, new Object[0]);
     }
 
     protected ResultActions performGet() throws Exception {

@@ -80,6 +80,21 @@ public final class AuthenticationTestUtils {
         return mockDeveloper;
     }
 
+    public static UserEntity mockUpdatedDeveloperAuth() {
+        Developer developerInput = mockUpdatedDeveloper();
+        UserEntity updatedDeveloper = mockUserAuth(UserEntity.Role.DEVELOPER);
+
+        updatedDeveloper.setUsername(developerInput.getUsername());
+        updatedDeveloper.setPassword(developerInput.getPassword());
+        updatedDeveloper.setEmail(developerInput.getEmail());
+        updatedDeveloper.setDetails(UserDetails.forDeveloper(
+                developerInput.getStudio(),
+                developerInput.getWebsite()
+        ));
+
+        return updatedDeveloper;
+    }
+
     @SuppressWarnings("unused")
     public static UserEntity mockCustomerAuth() {
         UserEntity mockCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
