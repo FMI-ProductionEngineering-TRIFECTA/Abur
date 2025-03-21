@@ -21,9 +21,10 @@ public class DeveloperService extends UserService<Developer> {
     @Override
     protected void validateDetails(User user) {
         Developer developer = (Developer) user;
-        String studio = developer.getStudio();
 
-        validate("Studio", studio, defaultValidator().and(isUnique(() -> userRepository.findByDetailsStudio(studio))));
+        String studio = developer.getStudio();
+        validate(String.format("Studio %s", studio), studio, isUnique(() -> userRepository.findByDetailsStudio(studio)));
+
         validate("Website", developer.getWebsite(), validWebsite());
     }
 

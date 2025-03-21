@@ -6,6 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTAuthenticationToken;
@@ -25,12 +27,12 @@ public final class AuthenticationTestUtils {
 
     private static final SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-    private static final JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
+    public static final JWTService jwtService = new JWTService("8a05a7ec81fd773513f88bb33b0ea42b436902d88fc4d9b0dec15d402dfad4c3");
 
     public static <B> B buildCommonFields(B builder, Role role) {
         String username = role.toString().toLowerCase();
         String userId = String.format("%s_id", username);
-        String password = String.format("%s123", username);
+        String password = String.format("%s123-PASSWORD", username);
         String email = String.format("%s@gmail.com", username.toLowerCase());
 
         if (builder instanceof User.UserBuilder) {
@@ -50,6 +52,7 @@ public final class AuthenticationTestUtils {
         else {
             throw new IllegalArgumentException("Unsupported builder type: " + builder.getClass());
         }
+
         return builder;
     }
 
@@ -67,12 +70,38 @@ public final class AuthenticationTestUtils {
     }
 
     public static UserEntity mockDeveloperAuth() {
-        return mockUserAuth(UserEntity.Role.DEVELOPER);
+        UserEntity mockDeveloper = mockUserAuth(UserEntity.Role.DEVELOPER);
+        mockDeveloper.setDetails(UserDetails.forDeveloper(
+                "developer-studio",
+                "https://developer-website.com"
+        ));
+
+        return mockDeveloper;
     }
 
     @SuppressWarnings("unused")
     public static UserEntity mockCustomerAuth() {
-        return mockUserAuth(UserEntity.Role.CUSTOMER);
+        UserEntity mockCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
+        mockCustomer.setDetails(UserDetails.forCustomer(
+                "customer-firstName",
+                "customer-lastName"
+        ));
+
+        return mockCustomer;
+    }
+
+    public static Developer mockDeveloperInput() {
+        return buildCommonFields(Developer.builder(), Role.DEVELOPER)
+                .studio("developer-studio")
+                .website("https://developer-website.com")
+                .build();
+    }
+
+    public static Customer mockCustomerInput() {
+        return buildCommonFields(Customer.builder(), Role.CUSTOMER)
+                .firstName("customer-firstName")
+                .lastName("customer-lastName")
+                .build();
     }
 
     public static String getAccessToken(Role role) {
