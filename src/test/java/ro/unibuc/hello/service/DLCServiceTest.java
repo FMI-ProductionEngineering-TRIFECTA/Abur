@@ -71,7 +71,7 @@ class DLCServiceTest {
         assertEquals(baseGameEntity.getDlcs().size(), initialBaseGameSize + 1);
         assert(developer.getGames().contains(dlc));
 
-        verify(gameRepository, times(1)).findById(any());
+        verify(gameRepository, times(1)).findById(baseGameEntity.getId());
         verify(gameRepository, times(2)).save(any());
     }
 
@@ -92,7 +92,7 @@ class DLCServiceTest {
         assertNotNull(exception);
         assertNull(exception.getMessage());
 
-        verify(gameRepository, times(1)).findById(any());
+        verify(gameRepository, times(1)).findById(baseGameEntity.getId());
         verify(gameRepository, times(0)).save(any());
     }
 
@@ -111,8 +111,8 @@ class DLCServiceTest {
         assertNotNull(exception);
         assertEquals(String.format("Title %s already exists!", entity.getTitle()), exception.getMessage());
 
-        verify(gameRepository, times(1)).findById(any());
-        verify(gameRepository, times(1)).findByTitle(any());
+        verify(gameRepository, times(1)).findById(baseGameEntity.getId());
+        verify(gameRepository, times(1)).findByTitle(entity.getTitle());
         verify(gameRepository, times(0)).save(any());
     }
 
