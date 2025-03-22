@@ -45,7 +45,7 @@ public final class GameTestUtils {
                     .builder()
                     .id(String.format("%s-DLC", baseGame.getId()))
                     .title(String.format("%s DLC %d", baseGame.getTitle(), id))
-                    .price(20.0)
+                    .price(0.0)
                     .discountPercentage(0)
                     .keys(100)
                     .type(GameEntity.Type.DLC)

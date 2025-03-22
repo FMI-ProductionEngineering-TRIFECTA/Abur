@@ -96,7 +96,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
                     .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
                     .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(20.0))
+                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
                     .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
                     .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
                     .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
@@ -149,7 +149,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
                     .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
                     .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(20.0))
+                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
                     .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
                     .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
                     .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
