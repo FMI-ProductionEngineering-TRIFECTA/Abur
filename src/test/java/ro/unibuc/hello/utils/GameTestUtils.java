@@ -43,6 +43,7 @@ public final class GameTestUtils {
         for (int id = 1; id <= total; ++id) {
             dlcs.add(GameEntity
                     .builder()
+                    .id(String.format("%s-DLC", baseGame.getId()))
                     .title(String.format("%s DLC %d", baseGame.getTitle(), id))
                     .price(0.0)
                     .discountPercentage(0)

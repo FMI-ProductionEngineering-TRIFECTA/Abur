@@ -60,10 +60,6 @@ public abstract class UserService<T extends User> {
         validateDetails(user);
     }
 
-    public UserEntity getUserById(String id) {
-        return userRepository.findByIdAndRole(id, getRole());
-    }
-
     public List<UserEntity> getAllUsers() {
         return userRepository.findByRole(getRole());
     }
@@ -75,12 +71,14 @@ public abstract class UserService<T extends User> {
 
     public List<GameEntity> getGames(String id) {
         UserEntity user = userRepository.findByIdAndRole(id, getRole());
+        if (user == null) throw new NotFoundException("No %s found at id %s", getRole().toString().toLowerCase(), id);
         return user.getGames();
     }
 
     public UserEntity updateLoggedUser(T userInput, UserEntity user) {
         String username = userInput.getUsername();
         validate(String.format("Username %s", username), username, isUnique(() -> userRepository.findByUsername(username)));
+        validate("Username", username, validLength(5));
         validateAndUpdate("Username", user::setUsername, username);
 
         validateAndUpdate("Password", user::setPassword, userInput.getPassword(), validPassword().and(validLength(5)));

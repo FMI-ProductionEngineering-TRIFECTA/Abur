@@ -24,7 +24,7 @@ public class CustomerController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<UserEntity> getCustomerById(@PathVariable String id) {
-        return ok(customerService.getUserById(id));
+        return ok(customerService.getCustomer(id));
     }
 
     @GetMapping("/{id}/games")

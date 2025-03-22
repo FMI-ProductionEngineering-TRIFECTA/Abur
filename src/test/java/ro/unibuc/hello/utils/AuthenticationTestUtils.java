@@ -14,6 +14,7 @@ import ro.unibuc.hello.security.jwt.JWTAuthenticationToken;
 import ro.unibuc.hello.security.jwt.JWTService;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -79,6 +80,21 @@ public final class AuthenticationTestUtils {
         return mockDeveloper;
     }
 
+    public static UserEntity mockUpdatedDeveloperAuth() {
+        Developer developerInput = mockUpdatedDeveloperInput();
+        UserEntity updatedDeveloper = mockUserAuth(UserEntity.Role.DEVELOPER);
+
+        updatedDeveloper.setUsername(developerInput.getUsername());
+        updatedDeveloper.setPassword(developerInput.getPassword());
+        updatedDeveloper.setEmail(developerInput.getEmail());
+        updatedDeveloper.setDetails(UserDetails.forDeveloper(
+                developerInput.getStudio(),
+                developerInput.getWebsite()
+        ));
+
+        return updatedDeveloper;
+    }
+
     @SuppressWarnings("unused")
     public static UserEntity mockCustomerAuth() {
         UserEntity mockCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
@@ -90,6 +106,21 @@ public final class AuthenticationTestUtils {
         return mockCustomer;
     }
 
+    public static UserEntity mockUpdatedCustomerAuth() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        UserEntity updatedCustomer = mockUserAuth(UserEntity.Role.CUSTOMER);
+
+        updatedCustomer.setUsername(customerInput.getUsername());
+        updatedCustomer.setPassword(customerInput.getPassword());
+        updatedCustomer.setEmail(customerInput.getEmail());
+        updatedCustomer.setDetails(UserDetails.forCustomer(
+                customerInput.getFirstName(),
+                customerInput.getLastName()
+        ));
+
+        return updatedCustomer;
+    }
+
     public static Developer mockDeveloperInput() {
         return buildCommonFields(Developer.builder(), Role.DEVELOPER)
                 .studio("developer-studio")
@@ -97,11 +128,71 @@ public final class AuthenticationTestUtils {
                 .build();
     }
 
+    public static Developer mockUpdatedDeveloperInput() {
+        Developer updatedDeveloperInput = mockDeveloperInput();
+        updatedDeveloperInput.setUsername(updatedDeveloperInput.getUsername() + "-update");
+        updatedDeveloperInput.setPassword(updatedDeveloperInput.getPassword() + "-update");
+        updatedDeveloperInput.setEmail(updatedDeveloperInput.getUsername() + "@gmail.com");
+        updatedDeveloperInput.setStudio(updatedDeveloperInput.getStudio() + "-update");
+        updatedDeveloperInput.setWebsite("https://developer-update-website.com");
+
+        return updatedDeveloperInput;
+    }
+
     public static Customer mockCustomerInput() {
         return buildCommonFields(Customer.builder(), Role.CUSTOMER)
                 .firstName("customer-firstName")
                 .lastName("customer-lastName")
                 .build();
+    }
+
+    public static Customer mockUpdatedCustomerInput() {
+        Customer updatedCustomerInput = mockCustomerInput();
+        updatedCustomerInput.setUsername(updatedCustomerInput.getUsername() + "-update");
+        updatedCustomerInput.setPassword(updatedCustomerInput.getPassword() + "-update");
+        updatedCustomerInput.setEmail(updatedCustomerInput.getUsername() + "@gmail.com");
+        updatedCustomerInput.setFirstName(updatedCustomerInput.getFirstName() + "-update");
+        updatedCustomerInput.setLastName(updatedCustomerInput.getLastName() + "-update");
+
+        return updatedCustomerInput;
+    }
+
+    public static List<UserEntity> buildCustomers(Integer total) {
+        List<UserEntity> customers = new ArrayList<>();
+        for (int id = 1; id <= total; ++id) {
+            customers.add(UserEntity.builder()
+                    .id(String.valueOf(id))
+                    .username("customer-" + id)
+                    .password("customer-PASSWORD-" + id)
+                    .email("customer" + id + "@gmail.com")
+                    .details(UserDetails.forCustomer(
+                            "customer-firstName-" + id,
+                            "customer-lastName-" + id + ".com"
+                    ))
+                    .build()
+            );
+        }
+
+        return customers;
+    }
+
+    public static List<UserEntity> buildDevelopers(Integer total) {
+        List<UserEntity> developers = new ArrayList<>();
+        for (int id = 1; id <= total; ++id) {
+            developers.add(UserEntity.builder()
+                    .id(String.valueOf(id))
+                    .username("developer-" + id)
+                    .password("developer-PASSWORD-" + id)
+                    .email("developer" + id + "@gmail.com")
+                    .details(UserDetails.forDeveloper(
+                            "developer-studio-" + id,
+                            "https://developer-website-" + id + ".com"
+                    ))
+                    .build()
+            );
+        }
+
+        return developers;
     }
 
     public static String getAccessToken(Role role) {

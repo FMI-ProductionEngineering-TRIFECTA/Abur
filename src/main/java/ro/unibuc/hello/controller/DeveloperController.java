@@ -24,7 +24,7 @@ public class DeveloperController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<UserEntity> getDeveloperById(@PathVariable String id) {
-        return ok(developerService.getUserById(id));
+        return ok(developerService.getDeveloper(id));
     }
 
     @GetMapping("/{id}/games")
