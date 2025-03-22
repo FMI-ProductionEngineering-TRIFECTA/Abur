@@ -10,7 +10,7 @@ public final class GameTestUtils {
 
     private GameTestUtils() {}
 
-    public static List<GameEntity> buildGames(Integer total) {
+    public static List<GameEntity> buildGames(int total) {
         List<GameEntity> games = new ArrayList<>();
         for (int id = 1; id <= total; ++id) {
             games.add(GameEntity
@@ -38,17 +38,20 @@ public final class GameTestUtils {
         return game;
     }
 
-    public static List<GameEntity> buildDLCsForGame(Integer total, GameEntity baseGame) {
+    public static List<GameEntity> buildDLCsForGame(int total, GameEntity baseGame) {
         List<GameEntity> dlcs = new ArrayList<>();
         for (int id = 1; id <= total; ++id) {
             dlcs.add(GameEntity
                     .builder()
                     .title(String.format("%s DLC %d", baseGame.getTitle(), id))
+                    .price(0.0)
+                    .discountPercentage(0)
+                    .keys(100)
                     .type(GameEntity.Type.DLC)
+                    .developer(baseGame.getDeveloper())
                     .build()
             );
         }
-        baseGame.getDlcs().addAll(dlcs);
         return dlcs;
     }
 
