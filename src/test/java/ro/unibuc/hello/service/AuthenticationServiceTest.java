@@ -46,6 +46,7 @@ public class AuthenticationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        resetAccessToken();
 
         ReflectionTestUtils.setField(developerService, "userRepository", userRepository);
         ReflectionTestUtils.setField(customerService, "userRepository", userRepository);
