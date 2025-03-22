@@ -54,7 +54,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         GameEntity dlc = buildDLCForGame(buildBaseGame());
         when(dlcService.getGameById(dlc.getId())).thenReturn(dlc);
 
-        performGet("/{id}", dlc.getId())
+        performGet(null, "/{id}", dlc.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dlc.getId()))
                 .andExpect(jsonPath("$.title").value(dlc.getTitle()));
@@ -65,7 +65,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid ID";
         when(dlcService.getGameById(ID)).thenThrow(new NotFoundException(errorMessage));
 
-        performGet("/{id}", ID)
+        performGet(null, "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
