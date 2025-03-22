@@ -16,6 +16,7 @@ import ro.unibuc.hello.utils.GenericControllerTest;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -94,6 +95,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performGet()
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()))
                 .andExpect(jsonPath("$[2].title").value(games.get(2).getTitle()));

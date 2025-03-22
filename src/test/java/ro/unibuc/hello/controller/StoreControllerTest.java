@@ -12,6 +12,7 @@ import ro.unibuc.hello.utils.GenericControllerTest;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,10 +51,11 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
     void testGetStore_AllGames() throws Exception {
         hideOwned = false;
         List<GameEntity> games = buildGames(3);
-        when(storeService.getStore(false)).thenReturn(games);
+        when(storeService.getStore(hideOwned)).thenReturn(games);
 
         performGet(getAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()))
                 .andExpect(jsonPath("$[2].title").value(games.get(2).getTitle()));
@@ -66,39 +68,36 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
         List<GameEntity> games = buildGames(3);
         List<GameEntity> owned_games = List.of(games.get(0));
         games.removeAll(owned_games);
-        when(storeService.getStore(true)).thenReturn(games);
+        when(storeService.getStore(hideOwned)).thenReturn(games);
 
         performGet(getAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
                 .andExpect(status().isOk())
+                c
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()));
     }
 
     @Test
     void testGetStore_AllGames_InvalidRole() throws Exception {
-        hideOwned = false;
-        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", hideOwned)
+        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", false)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testGetStore_HideOwned_InvalidRole() throws Exception {
-        hideOwned = true;
-        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", hideOwned)
+        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", true)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testGetStore_AllGames_NoAuth() throws Exception {
-        hideOwned = false;
-        performGet(null, "?hideOwned={hideOwned}", hideOwned)
+        performGet(null, "?hideOwned={hideOwned}", false)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testGetStore_HideOwned_NoAuth() throws Exception {
-        hideOwned = true;
-        performGet(null, "?hideOwned={hideOwned}", hideOwned)
+        performGet(null, "?hideOwned={hideOwned}", true)
                 .andExpect(status().isUnauthorized());
     }
 }

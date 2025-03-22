@@ -58,8 +58,8 @@ public class StoreServiceTest {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
         List<GameEntity> owned_games = List.of(games.get(0));
-        List<GameEntity> not_owned_games = games;
-        not_owned_games.removeAll(owned_games);
+        List<GameEntity> unowned_games = games;
+        unowned_games.removeAll(owned_games);
 
         when(gameRepository.findAll()).thenReturn(games);
         when(userRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
@@ -67,8 +67,8 @@ public class StoreServiceTest {
 
         List<GameEntity> response = storeService.getStore(hideOwned);
         assertNotNull(response);
-        assertEquals(not_owned_games.size(), response.size());
-        assertEquals(not_owned_games, response);
+        assertEquals(unowned_games.size(), response.size());
+        assertEquals(unowned_games, response);
     }
 
     @Test

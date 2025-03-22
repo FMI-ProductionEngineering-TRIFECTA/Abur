@@ -16,6 +16,7 @@ import ro.unibuc.hello.utils.GenericControllerTest;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,6 +78,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
         performGet()
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(dlcs.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(dlcs.get(1).getTitle()))
                 .andExpect(jsonPath("$[2].title").value(dlcs.get(2).getTitle()));
