@@ -11,6 +11,7 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.CartInfo;
 import ro.unibuc.hello.exception.NotFoundException;
+import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.service.CartService;
 import ro.unibuc.hello.utils.GenericControllerTest;
 
@@ -85,6 +86,16 @@ class CartControllerTest extends GenericControllerTest<CartController> {
     }
 
     @Test
+    void testCheckout_InvalidBody() throws Exception {
+        String errorMessage = "Invalid body";
+        doThrow(new ValidationException(errorMessage)).when(cartService).checkout();
+
+        performPost("", getAccessToken(Role.CUSTOMER), "/checkout")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
+    }
+
+    @Test
     void testCheckout_InvalidRole() throws Exception {
         performPost("", getAccessToken(Role.DEVELOPER),"/checkout")
                 .andExpect(status().isUnauthorized());
@@ -110,6 +121,16 @@ class CartControllerTest extends GenericControllerTest<CartController> {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id.gameId").value(game.getId()))
                 .andExpect(jsonPath("$.id.customerId").value(customer.getId()));
+    }
+
+    @Test
+    void testAddToCart_InvalidBody() throws Exception {
+        String errorMessage = "Invalid body";
+        when(cartService.addToCart(any())).thenThrow(new ValidationException(errorMessage));
+
+        performPost("", getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
