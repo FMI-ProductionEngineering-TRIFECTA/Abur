@@ -39,7 +39,6 @@ public class CartService {
     @Autowired
     private GameService gameService;
 
-
     private CartInfo getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return new CartInfo(totalPrice(games), games);
