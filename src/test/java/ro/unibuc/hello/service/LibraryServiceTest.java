@@ -33,6 +33,7 @@ public class LibraryServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        resetAccessToken();
     }
 
     @Test

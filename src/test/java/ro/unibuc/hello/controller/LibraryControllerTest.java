@@ -8,7 +8,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.exception.NotFoundException;
-import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.service.LibraryService;
 import ro.unibuc.hello.utils.GenericControllerTest;
 
