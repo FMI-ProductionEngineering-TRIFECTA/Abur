@@ -67,7 +67,6 @@ public class StoreServiceTest {
 
         List<GameEntity> response = storeService.getStore(hideOwned);
         assertNotNull(response);
-        System.out.println(unowned_games);
         assertEquals(unowned_games.size(), response.size());
         assertEquals(unowned_games, response);
     }

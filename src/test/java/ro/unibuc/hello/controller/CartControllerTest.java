@@ -75,13 +75,13 @@ class CartControllerTest extends GenericControllerTest<CartController> {
 
     @Test
     void testGetCart_NoAuth() throws Exception {
-        performGet("")
+        performGet()
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testCheckout_Valid() throws Exception {
-        performPost("", getAccessToken(Role.CUSTOMER),"/checkout")
+        performPost(null, getAccessToken(Role.CUSTOMER),"/checkout")
                 .andExpect(status().isNoContent());
     }
 
@@ -90,20 +90,20 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         String errorMessage = "Invalid body";
         doThrow(new ValidationException(errorMessage)).when(cartService).checkout();
 
-        performPost("", getAccessToken(Role.CUSTOMER), "/checkout")
+        performPost(null, getAccessToken(Role.CUSTOMER), "/checkout")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testCheckout_InvalidRole() throws Exception {
-        performPost("", getAccessToken(Role.DEVELOPER),"/checkout")
+        performPost(null, getAccessToken(Role.DEVELOPER),"/checkout")
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testCheckout_NoAuth() throws Exception {
-        performPost("", null,"/checkout")
+        performPost(null, null,"/checkout")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -117,7 +117,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         );
         when(cartService.addToCart(game.getId())).thenReturn(cart);
 
-        performPost("", getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
+        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id.gameId").value(game.getId()))
                 .andExpect(jsonPath("$.id.customerId").value(customer.getId()));
@@ -128,7 +128,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         String errorMessage = "Invalid body";
         when(cartService.addToCart(any())).thenThrow(new ValidationException(errorMessage));
 
-        performPost("", getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+        performPost(null, getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
@@ -138,20 +138,20 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         String errorMessage = "Invalid ID";
         when(cartService.addToCart(any())).thenThrow(new NotFoundException(errorMessage));
 
-        performPost("", getAccessToken(Role.CUSTOMER),"/{gameId}", ID)
+        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testAddToCart_InvalidRole() throws Exception {
-        performPost("", getAccessToken(Role.DEVELOPER),"/{gameid}", ID)
+        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testAddToCart_NoAuth() throws Exception {
-        performPost("",null,"/{gameid}", ID)
+        performPost(null, null, "/{gameid}", ID)
                 .andExpect(status().isUnauthorized());
     }
 

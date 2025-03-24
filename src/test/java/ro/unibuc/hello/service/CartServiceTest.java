@@ -107,7 +107,7 @@ class CartServiceTest {
 
         verify(wishlistRepository, times(games.size())).deleteById(wishlistCaptor.capture());
         List<CompositeKey> capturedCompositeKeys = wishlistCaptor.getAllValues();
-        
+
         assertEquals(games.size(), capturedLibraryEntities.size());
         assertEquals(games.size(), capturedCompositeKeys.size());
 
