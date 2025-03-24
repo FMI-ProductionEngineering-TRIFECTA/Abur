@@ -18,13 +18,11 @@ import ro.unibuc.hello.exception.ValidationException;
 import java.util.*;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
-import static ro.unibuc.hello.data.entity.LibraryEntity.buildLibraryEntry;
 import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 class CartServiceTest {
@@ -111,7 +109,7 @@ class CartServiceTest {
         assertEquals(games.size(), capturedLibraryEntities.size());
         assertEquals(games.size(), capturedCompositeKeys.size());
 
-        for (int i = 0; i< games.size(); i++) {
+        for (int i = 0; i < games.size(); i++) {
             GameEntity game = games.get(i);
 
             assertNotNull(capturedLibraryEntities.get(i));
@@ -218,16 +216,19 @@ class CartServiceTest {
     @Test
     void testAddToCart_GameAlreadyInLibrary() {
         UserEntity customer = mockCustomerAuth();
-        List<GameEntity> games = buildGames(3);
+        List<GameEntity> games = buildGames(4);
         GameEntity game = games.get(0);
         String gameId = game.getId();
 
         List<GameEntity> gamesInCart = new ArrayList<>(games);
         gamesInCart.remove(game);
+        gamesInCart.removeLast();
+        List<GameEntity> gamesInLibrary = new ArrayList<>(games);
+        gamesInLibrary.removeAll(gamesInCart);
 
         when(gameService.getGame(gameId)).thenReturn(game);
         when(cartRepository.getGamesByCustomer(customer)).thenReturn(gamesInCart);
-        when(libraryRepository.getGamesByCustomer(customer)).thenReturn(games);
+        when(libraryRepository.getGamesByCustomer(customer)).thenReturn(gamesInLibrary);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -238,7 +239,7 @@ class CartServiceTest {
     }
 
     @Test
-    void testRemoveFromCart() {
+    void testRemoveFromCart_Valid() {
         UserEntity customer = mockCustomerAuth();
         GameEntity game = buildGame();
         String gameId = game.getId();
@@ -246,6 +247,23 @@ class CartServiceTest {
 
         cartService.removeFromCart(gameId);
         verify(cartRepository, times(1)).delete(buildCartEntry(game,customer));
+    }
+
+    @Test
+    void testRemoveFromCart_InvalidGameId() {
+        mockCustomerAuth();
+        GameEntity game = buildGame();
+        String gameId = game.getId();
+        String noGameFoundFormat = "No game found at id %s!";
+        when(gameService.getGame(gameId))
+                .thenThrow(new NotFoundException(noGameFoundFormat, gameId));
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> cartService.removeFromCart(gameId)
+        );
+        assertNotNull(exception);
+        assertEquals(String.format(noGameFoundFormat, gameId), exception.getMessage());
     }
 
     @Test
