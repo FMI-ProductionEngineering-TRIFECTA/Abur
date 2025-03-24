@@ -58,7 +58,7 @@ public class StoreServiceTest {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
         List<GameEntity> owned_games = List.of(games.get(0));
-        List<GameEntity> unowned_games = games;
+        List<GameEntity> unowned_games = new ArrayList<>(games);
         unowned_games.removeAll(owned_games);
 
         when(gameRepository.findAll()).thenReturn(games);

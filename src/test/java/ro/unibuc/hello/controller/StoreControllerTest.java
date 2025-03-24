@@ -72,7 +72,7 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
 
         performGet(getAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
                 .andExpect(status().isOk())
-                c
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
                 .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()));
     }

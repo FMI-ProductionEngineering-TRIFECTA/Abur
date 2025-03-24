@@ -39,7 +39,6 @@ public class CartService {
     @Autowired
     private GameService gameService;
 
-
     private CartInfo getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return new CartInfo(totalPrice(games), games);
@@ -48,6 +47,23 @@ public class CartService {
     @CustomerOnly
     public CartInfo getCart() {
         return getCartByCustomerId(getUser().getId());
+    }
+
+    @CustomerOnly
+    public synchronized void checkout() {
+        UserEntity customer = getUser();
+        List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
+
+        games.forEach(GameEntity::decreaseNoKeys);
+        games.forEach(game -> libraryRepository.save(
+                buildLibraryEntry(
+                        game,
+                        customer
+                )
+        ));
+        games.forEach(game -> wishlistRepository.deleteById(build(game, getUser())));
+
+        removeAllFromCart();
     }
 
     @CustomerOnly
@@ -69,23 +85,6 @@ public class CartService {
                  customer
             )
         );
-    }
-
-    @CustomerOnly
-    public synchronized void checkout() {
-        UserEntity customer = getUser();
-        List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
-
-        games.forEach(GameEntity::decreaseNoKeys);
-        games.forEach(game -> libraryRepository.save(
-            buildLibraryEntry(
-                game,
-                customer
-            )
-        ));
-        games.forEach(game -> wishlistRepository.deleteById(build(game, getUser())));
-
-        removeAllFromCart();
     }
 
     @CustomerOnly
