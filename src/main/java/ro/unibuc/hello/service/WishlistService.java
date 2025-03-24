@@ -29,6 +29,7 @@ public class WishlistService {
 
     @Autowired
     private LibraryRepository libraryRepository;
+
     @Autowired
     private GameService gameService;
 
