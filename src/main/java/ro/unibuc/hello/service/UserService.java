@@ -7,6 +7,7 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.exception.NotFoundException;
+import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
 
@@ -62,6 +63,10 @@ public abstract class UserService<T extends User> {
     }
 
     public UserEntity updateLoggedUser(T userInput, UserEntity user) {
+        if (userInput == null) {
+            return user;
+        }
+
         String username = userInput.getUsername();
         validate(String.format("Username %s", username), username, isUnique(() -> userRepository.findByUsername(username)));
         validate("Username", username, validLength(5));

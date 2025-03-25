@@ -349,4 +349,14 @@ public class DeveloperServiceTest {
         verify(userRepository, times(0)).save(any());
     }
 
+    @Test
+    void testUpdateDeveloper_Authenticated_NullInput() {
+        UserEntity mockDeveloper = mockDeveloperAuth();
+
+        UserEntity developer = developerService.updateLoggedUser(null);
+        assertEquals(mockDeveloper, developer);
+
+        verify(userRepository, times(0)).save(any());
+    }
+
 }

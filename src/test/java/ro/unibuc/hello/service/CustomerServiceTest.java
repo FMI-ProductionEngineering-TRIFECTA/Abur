@@ -334,4 +334,14 @@ public class CustomerServiceTest {
         verify(userRepository, times(0)).save(any());
     }
 
+    @Test
+    void testUpdateCustomer_Authenticated_NullInput() {
+        UserEntity mockCustomer = mockCustomerAuth();
+
+        UserEntity customer = customerService.updateLoggedUser(null);
+        assertEquals(mockCustomer, customer);
+
+        verify(userRepository, times(0)).save(any());
+    }
+
 }
