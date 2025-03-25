@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.context.SecurityContextHolder;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.exception.NotFoundException;
-import ro.unibuc.hello.exception.UnauthorizedAccessException;
 import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
 
@@ -264,6 +262,74 @@ public class CustomerServiceTest {
 
         ValidationException exception = assertThrows(ValidationException.class, () -> customerService.updateLoggedUser(customerInput));
         assertEquals("Email must be a valid email address!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void testUpdateCustomer_Authenticated_NullFirstName() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        customerInput.setFirstName(null);
+        UserEntity mockCustomer = mockCustomerAuth();
+
+        customerService.updateLoggedUser(customerInput);
+
+        verify(userRepository, times(1)).save(
+                argThat(cus
+                        -> cus.getUsername().equals(customerInput.getUsername())
+                        && AuthenticationUtils.isPasswordValid(customerInput.getPassword(), cus.getPassword())
+                        && cus.getEmail().equals(customerInput.getEmail())
+                        && cus.getRole().equals(UserEntity.Role.CUSTOMER)
+                        && cus.getDetails().getFirstName().equals(mockCustomer.getDetails().getFirstName())
+                        && cus.getDetails().getLastName().equals(customerInput.getLastName())
+                        && cus.getDetails().getStudio() == null
+                        && cus.getDetails().getWebsite() == null
+                )
+        );
+    }
+
+    @Test
+    void testUpdateCustomer_Authenticated_BlankFirstName() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        customerInput.setFirstName("   \n    ");
+        mockCustomerAuth();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> customerService.updateLoggedUser(customerInput));
+        assertEquals("First name cannot be empty!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void testUpdateCustomer_Authenticated_NullLastName() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        customerInput.setLastName(null);
+        UserEntity mockCustomer = mockCustomerAuth();
+
+        customerService.updateLoggedUser(customerInput);
+
+        verify(userRepository, times(1)).save(
+                argThat(cus
+                        -> cus.getUsername().equals(customerInput.getUsername())
+                        && AuthenticationUtils.isPasswordValid(customerInput.getPassword(), cus.getPassword())
+                        && cus.getEmail().equals(customerInput.getEmail())
+                        && cus.getRole().equals(UserEntity.Role.CUSTOMER)
+                        && cus.getDetails().getFirstName().equals(customerInput.getFirstName())
+                        && cus.getDetails().getLastName().equals(mockCustomer.getDetails().getLastName())
+                        && cus.getDetails().getStudio() == null
+                        && cus.getDetails().getWebsite() == null
+                )
+        );
+    }
+
+    @Test
+    void testUpdateCustomer_Authenticated_BlankLastName() {
+        Customer customerInput = mockUpdatedCustomerInput();
+        customerInput.setLastName("   \t    ");
+        mockCustomerAuth();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> customerService.updateLoggedUser(customerInput));
+        assertEquals("Last name cannot be empty!", exception.getMessage());
 
         verify(userRepository, times(0)).save(any());
     }

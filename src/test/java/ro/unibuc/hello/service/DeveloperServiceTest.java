@@ -9,8 +9,6 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Developer;
-import ro.unibuc.hello.dto.Developer;
-import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.security.AuthenticationUtils;
@@ -265,6 +263,88 @@ public class DeveloperServiceTest {
 
         ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
         assertEquals("Email must be a valid email address!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void testUpdateDeveloper_Authenticated_NullStudio() {
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setStudio(null);
+        UserEntity mockDeveloper = mockDeveloperAuth();
+
+        developerService.updateLoggedUser(developerInput);
+
+        verify(userRepository, times(1)).save(
+                argThat(dev
+                        -> dev.getUsername().equals(developerInput.getUsername())
+                        && AuthenticationUtils.isPasswordValid(developerInput.getPassword(), dev.getPassword())
+                        && dev.getEmail().equals(developerInput.getEmail())
+                        && dev.getRole().equals(UserEntity.Role.DEVELOPER)
+                        && dev.getDetails().getStudio().equals(mockDeveloper.getDetails().getStudio())
+                        && dev.getDetails().getWebsite().equals(developerInput.getWebsite())
+                        && dev.getDetails().getFirstName() == null
+                        && dev.getDetails().getLastName() == null
+                )
+        );
+    }
+
+    @Test
+    void testUpdateDeveloper_Authenticated_NonUniqueStudio() {
+        UserEntity mockDeveloper = mockDeveloperAuth();
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setStudio(mockDeveloper.getDetails().getStudio());
+
+        when(userRepository.findByDetailsStudio(mockDeveloper.getDetails().getStudio())).thenReturn(mockDeveloper);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
+        assertEquals("Studio " + developerInput.getStudio() + " already exists!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void testUpdateDeveloper_Authenticated_BlankStudio() {
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setStudio("   \n    ");
+        mockDeveloperAuth();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
+        assertEquals("Studio cannot be empty!", exception.getMessage());
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void testUpdateDeveloper_Authenticated_NullWebsite() {
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setWebsite(null);
+        UserEntity mockDeveloper = mockDeveloperAuth();
+
+        developerService.updateLoggedUser(developerInput);
+
+        verify(userRepository, times(1)).save(
+                argThat(dev
+                        -> dev.getUsername().equals(developerInput.getUsername())
+                        && AuthenticationUtils.isPasswordValid(developerInput.getPassword(), dev.getPassword())
+                        && dev.getEmail().equals(developerInput.getEmail())
+                        && dev.getRole().equals(UserEntity.Role.DEVELOPER)
+                        && dev.getDetails().getStudio().equals(developerInput.getStudio())
+                        && dev.getDetails().getWebsite().equals(mockDeveloper.getDetails().getWebsite())
+                        && dev.getDetails().getFirstName() == null
+                        && dev.getDetails().getLastName() == null
+                )
+        );
+    }
+
+    @Test
+    void testUpdateDeveloper_Authenticated_NoFormatWebsite() {
+        Developer developerInput = mockUpdatedDeveloperInput();
+        developerInput.setWebsite("website.invalid");
+        mockDeveloperAuth();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> developerService.updateLoggedUser(developerInput));
+        assertEquals("Website must be a valid website URL!", exception.getMessage());
 
         verify(userRepository, times(0)).save(any());
     }
