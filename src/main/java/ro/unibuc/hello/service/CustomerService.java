@@ -9,6 +9,7 @@ import ro.unibuc.hello.security.AuthenticationUtils;
 
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.ValidationUtils.validate;
+import static ro.unibuc.hello.utils.ValidationUtils.validateAndUpdate;
 
 @Service
 public class CustomerService extends UserService<Customer> {
@@ -28,6 +29,12 @@ public class CustomerService extends UserService<Customer> {
 
     public UserEntity getCustomer(String customerId) {
         return getUser(customerId);
+    }
+
+    @Override
+    protected void updateSpecificFields(Customer userInput, UserEntity user) {
+        validateAndUpdate("First name", user.getDetails()::setFirstName, userInput.getFirstName());
+        validateAndUpdate("Last name", user.getDetails()::setLastName, userInput.getLastName());
     }
 
     @CustomerOnly

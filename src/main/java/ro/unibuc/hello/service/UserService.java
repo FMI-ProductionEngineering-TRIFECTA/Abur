@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.dto.Customer;
-import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.User;
 import ro.unibuc.hello.exception.NotFoundException;
 
@@ -32,19 +30,7 @@ public abstract class UserService<T extends User> {
 
     protected abstract void validateDetails(User user);
 
-    private void updateSpecificFields(T userInput, UserEntity user) {
-        if (userInput instanceof Customer customerInput) {
-            validateAndUpdate("First name", user.getDetails()::setFirstName, customerInput.getFirstName());
-            validateAndUpdate("Last name", user.getDetails()::setLastName, customerInput.getLastName());
-        }
-        else if (userInput instanceof Developer developerInput) {
-            String studio = developerInput.getStudio();
-            validate(String.format("Studio %s", studio), studio, isUnique(() -> userRepository.findByDetailsStudio(studio)));
-            validateAndUpdate("Studio", user.getDetails()::setStudio, studio);
-
-            validateAndUpdate("Website", user.getDetails()::setWebsite, developerInput.getWebsite(), validWebsite());
-        }
-    }
+    abstract protected void updateSpecificFields(T userInput, UserEntity user);
 
     public void validateUser(User user) {
         String username = user.getUsername();

@@ -28,9 +28,17 @@ public class DeveloperService extends UserService<Developer> {
         validate("Website", developer.getWebsite(), validWebsite());
     }
 
-    @SuppressWarnings("unused")
     public UserEntity getDeveloper(String developerId) {
         return getUser(developerId);
+    }
+
+    @Override
+    protected void updateSpecificFields(Developer userInput, UserEntity user) {
+        String studio = userInput.getStudio();
+        validate(String.format("Studio %s", studio), studio, isUnique(() -> userRepository.findByDetailsStudio(studio)));
+        validateAndUpdate("Studio", user.getDetails()::setStudio, studio);
+
+        validateAndUpdate("Website", user.getDetails()::setWebsite, userInput.getWebsite(), validWebsite());
     }
 
     @DeveloperOnly
