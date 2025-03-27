@@ -10,13 +10,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ro.unibuc.hello.config.DatabaseSeeder;
+import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.security.jwt.JWTService;
 
+import java.util.List;
+
+import static net.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static ro.unibuc.hello.utils.DatabaseUtils.getId;
 
 @SpringBootTest
@@ -52,6 +61,10 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
         return mockMvc;
     }
 
+    public static String getGameAtId(Integer id) {
+        return getId("games", id);
+    }
+
     public static String getUserId(UserEntity.Role role) {
         return getId(role == UserEntity.Role.CUSTOMER ? "customers" : "developers", 0);
     }
@@ -73,6 +86,18 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
     @AfterAll
     public static void tearDown() {
         mongoDBContainer.stop();
+    }
+
+    public void matchAllGames(ResultActions resultActions, List<GameEntity> games) throws Exception {
+        for (int i = 0; i < games.size(); i++) {
+            resultActions = resultActions
+                .andExpect(jsonPath(String.format("$.items[%d].id", i), equalTo(games.get(i).getId())))
+                .andExpect(jsonPath(String.format("$.items[%d].title", i), equalTo(games.get(i).getTitle())))
+                .andExpect(jsonPath(String.format("$.items[%d].price", i), equalTo(games.get(i).getPrice())))
+                .andExpect(jsonPath(String.format("$.items[%d].discountPercentage", i), equalTo(games.get(i).getDiscountPercentage())))
+                .andExpect(jsonPath(String.format("$.items[%d].keys", i), equalTo(games.get(i).getKeys())))
+                .andExpect(jsonPath(String.format("$.items[%d].type", i), equalTo(games.get(i).getType().toString())));
+        }
     }
 
 }

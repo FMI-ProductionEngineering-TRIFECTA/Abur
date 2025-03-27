@@ -1,7 +1,7 @@
 package ro.unibuc.hello.controller;
 
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,17 +11,15 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
 import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.UserRepository;
-import ro.unibuc.hello.service.CartService;
-import ro.unibuc.hello.service.StoreService;
 import ro.unibuc.hello.utils.GenericControllerIntegrationTest;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ro.unibuc.hello.data.entity.GameEntity.Type;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 
@@ -32,16 +30,13 @@ import static ro.unibuc.hello.data.entity.UserEntity.Role;
 public class CartControllerIntegrationTest extends GenericControllerIntegrationTest<CartController> {
 
     @Autowired
-    private StoreService storeService;
-
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
     private CartRepository cartRepository;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private GameRepository gameRepository;
 
     @Autowired
     private CartController cartController;
@@ -56,18 +51,141 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
         return cartController;
     }
 
+    private void testPerformGet(List<GameEntity> games) throws Exception {
+        matchAllGames(
+                performGet(getAccessToken(Role.CUSTOMER), "")
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.price").value(totalPrice(games)))
+                        .andExpect(jsonPath("$.items", hasSize(games.size()))),
+                games
+        );
+    }
+
     @Test
     void testGetCart_Valid() throws Exception {
         UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
         List<GameEntity> games = cartRepository.getGamesByCustomer(user);
 
+        testPerformGet(games);
+    }
+
+    @Test
+    void testGetCart_InvalidRole() throws Exception {
+        performGet(getAccessToken(Role.DEVELOPER),"")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testGetCart_NoAuth() throws Exception {
+        performGet()
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCheckout_Valid() throws Exception {
+        performPost(null, getAccessToken(Role.CUSTOMER),"/checkout")
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testCheckout_InvalidRole() throws Exception {
+        performPost(null, getAccessToken(Role.DEVELOPER),"/checkout")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testCheckout_NoAuth() throws Exception {
+        performPost(null, null,"/checkout")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testAddToCart_Valid() throws Exception {
+        UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+        ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
+        GameEntity game = gameRepository.findByIdAndType(getGameAtId(6), Type.GAME);
+
+        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id.gameId").value(game.getId()))
+                .andExpect(jsonPath("$.id.customerId").value(getUserId(Role.CUSTOMER)));
+
+        games.add(game);
+        testPerformGet(games);
+    }
+
+    @Test
+    void testAddToCart_InvalidId() throws Exception {
+        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", ID)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(String.format("No game found at id %s!", ID)));
+    }
+
+    @Test
+    void testAddToCart_InvalidRole() throws Exception {
+        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", getGameAtId(6))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testAddToCart_NoAuth() throws Exception {
+        performPost(null, null, "/{gameid}", getGameAtId(6))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRemoveFromCart_Valid() throws Exception {
+        UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+        ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
+        GameEntity game = gameRepository.findByIdAndType(getGameAtId(3), Type.GAME);
+
+        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", game.getId())
+                .andExpect(status().isNoContent());
+
+        games.remove(game);
+        testPerformGet(games);
+    }
+
+    @Test
+    void testRemoveFromCart_InvalidId() throws Exception {
+        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(String.format("No game found at id %s!", ID)));
+    }
+
+    @Test
+    void testRemoveFromCart_InvalidRole() throws Exception {
+        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", getGameAtId(3))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRemoveFromCart_NoAuth() throws Exception {
+        performDelete(null, "/{gameId}", getGameAtId(3))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testClearCart_Valid() throws Exception {
+        performDelete(getAccessToken(Role.CUSTOMER), "/clear")
+                .andExpect(status().isNoContent());
+
         performGet(getAccessToken(Role.CUSTOMER), "")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.price").value(totalPrice(games)))
-                .andExpect(jsonPath("$.items", hasSize(games.size())))
-                .andExpect(jsonPath("$.items[0].title").value(games.get(0).getTitle()))
-                .andExpect(jsonPath("$.items[1].title").value(games.get(1).getTitle()))
-                .andExpect(jsonPath("$.items[2].title").value(games.get(2).getTitle()));
+                .andExpect(jsonPath("$.price").value(0))
+                .andExpect(jsonPath("$.items", hasSize(0)));
+    }
+
+    @Test
+    void testClearCart_InvalidRole() throws Exception {
+        performDelete(getAccessToken(Role.DEVELOPER), "/clear")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testClearCart_NoAuth() throws Exception {
+        performDelete(null, "/clear")
+                .andExpect(status().isUnauthorized());
     }
 
 }

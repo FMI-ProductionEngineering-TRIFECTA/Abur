@@ -86,16 +86,6 @@ class CartControllerTest extends GenericControllerTest<CartController> {
     }
 
     @Test
-    void testCheckout_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        doThrow(new ValidationException(errorMessage)).when(cartService).checkout();
-
-        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/checkout")
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
-    }
-
-    @Test
     void testCheckout_InvalidRole() throws Exception {
         performPost(null, getMockedAccessToken(Role.DEVELOPER),"/checkout")
                 .andExpect(status().isUnauthorized());
@@ -121,16 +111,6 @@ class CartControllerTest extends GenericControllerTest<CartController> {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id.gameId").value(game.getId()))
                 .andExpect(jsonPath("$.id.customerId").value(customer.getId()));
-    }
-
-    @Test
-    void testAddToCart_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        when(cartService.addToCart(any())).thenThrow(new ValidationException(errorMessage));
-
-        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -167,7 +147,8 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         doThrow(new NotFoundException(errorMessage)).when(cartService).removeFromCart(any());
 
         performDelete(getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test

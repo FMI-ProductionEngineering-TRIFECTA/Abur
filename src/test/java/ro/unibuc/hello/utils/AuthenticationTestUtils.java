@@ -211,7 +211,9 @@ public final class AuthenticationTestUtils {
 
     public static RequestPostProcessor addToken(String token) {
         return request -> {
-            request.addHeader("Authorization", "Bearer " + token);
+            if (token != null) {
+                request.addHeader("Authorization", "Bearer " + token);
+            }
             return request;
         };
     }

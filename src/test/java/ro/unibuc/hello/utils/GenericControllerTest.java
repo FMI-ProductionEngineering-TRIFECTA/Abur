@@ -12,7 +12,6 @@ import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessTok
 public abstract class GenericControllerTest<C> implements ControllerTestInterface<C> {
 
     protected MockMvc mockMvc;
-    protected final String ID = "1";
 
     @BeforeEach
     protected void setUp() {

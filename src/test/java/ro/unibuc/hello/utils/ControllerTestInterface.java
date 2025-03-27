@@ -12,6 +12,8 @@ import static ro.unibuc.hello.utils.AuthenticationTestUtils.addToken;
 
 public interface ControllerTestInterface<C> {
 
+    String ID = "Invalid ID";
+
     MockMvc getMockMvc();
     String getEndpoint();
     C getController();
