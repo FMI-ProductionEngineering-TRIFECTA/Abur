@@ -42,7 +42,7 @@ public class WishlistServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        resetAccessToken();
+        resetMockedAccessToken();
     }
 
     @Test

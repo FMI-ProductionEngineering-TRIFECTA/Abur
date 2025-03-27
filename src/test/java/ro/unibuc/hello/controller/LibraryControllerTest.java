@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 @EnableAspectJAutoProxy
@@ -31,12 +31,12 @@ class LibraryControllerTest extends GenericControllerTest<LibraryController> {
     private LibraryController libraryController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "library";
     }
 
     @Override
-    protected LibraryController getController() {
+    public LibraryController getController() {
         return libraryController;
     }
 
@@ -51,7 +51,7 @@ class LibraryControllerTest extends GenericControllerTest<LibraryController> {
         List<GameEntity> games = buildGames(3);
         when(libraryService.getLibrary()).thenReturn(games);
 
-        performGet(getAccessToken(Role.CUSTOMER), "")
+        performGet(getMockedAccessToken(Role.CUSTOMER), "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
@@ -61,7 +61,7 @@ class LibraryControllerTest extends GenericControllerTest<LibraryController> {
 
     @Test
     void testGetLibrary_InvalidRole() throws Exception {
-        performGet(getAccessToken(Role.DEVELOPER), "")
+        performGet(getMockedAccessToken(Role.DEVELOPER), "")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -76,7 +76,7 @@ class LibraryControllerTest extends GenericControllerTest<LibraryController> {
         List<GameEntity> games = buildGames(3);
         when(libraryService.getLibraryByCustomerId(ID)).thenReturn(games);
 
-        performGet(getAccessToken(Role.CUSTOMER), "/{customerId}", ID)
+        performGet(getMockedAccessToken(Role.CUSTOMER), "/{customerId}", ID)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
@@ -89,7 +89,7 @@ class LibraryControllerTest extends GenericControllerTest<LibraryController> {
         String errorMessage = "Invalid ID";
         when(libraryService.getLibraryByCustomerId(ID)).thenThrow(new NotFoundException(errorMessage));
 
-        performGet(getAccessToken(Role.CUSTOMER), "/{customerId}", ID)
+        performGet(getMockedAccessToken(Role.CUSTOMER), "/{customerId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }

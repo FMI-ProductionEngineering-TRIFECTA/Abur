@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 @EnableAspectJAutoProxy
@@ -32,12 +32,12 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
     private static Boolean hideOwned = false;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "store";
     }
 
     @Override
-    protected StoreController getController() {
+    public StoreController getController() {
         return storeController;
     }
 
@@ -53,7 +53,7 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
         List<GameEntity> games = buildGames(3);
         when(storeService.getStore(hideOwned)).thenReturn(games);
 
-        performGet(getAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
+        performGet(getMockedAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
@@ -70,7 +70,7 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
         games.removeAll(owned_games);
         when(storeService.getStore(hideOwned)).thenReturn(games);
 
-        performGet(getAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
+        performGet(getMockedAccessToken(Role.CUSTOMER),"?hideOwned={hideOwned}", hideOwned)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
@@ -79,13 +79,13 @@ class StoreControllerTest extends GenericControllerTest<StoreController> {
 
     @Test
     void testGetStore_AllGames_InvalidRole() throws Exception {
-        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", false)
+        performGet(getMockedAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", false)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testGetStore_HideOwned_InvalidRole() throws Exception {
-        performGet(getAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", true)
+        performGet(getMockedAccessToken(Role.DEVELOPER), "?hideOwned={hideOwned}", true)
                 .andExpect(status().isUnauthorized());
     }
 

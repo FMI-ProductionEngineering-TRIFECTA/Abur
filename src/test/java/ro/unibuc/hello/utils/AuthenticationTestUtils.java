@@ -1,6 +1,7 @@
 package ro.unibuc.hello.utils;
 
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.getId;
 
 public final class AuthenticationTestUtils {
 
@@ -195,14 +197,14 @@ public final class AuthenticationTestUtils {
         return developers;
     }
 
-    public static String getAccessToken(Role role) {
+    public static String getMockedAccessToken(Role role) {
         UserEntity user = mockUserAuth(role);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userRepository.findByIdAndRole(user.getId(), role)).thenReturn(user);
         return jwtService.getToken(user.getId());
     }
 
-    public static void resetAccessToken() {
+    public static void resetMockedAccessToken() {
         when(userRepository.findById(any())).thenReturn(Optional.empty());
         when(userRepository.findByIdAndRole(any(), any())).thenReturn(null);
     }

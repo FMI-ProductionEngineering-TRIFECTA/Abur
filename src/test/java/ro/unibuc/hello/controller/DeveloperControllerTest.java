@@ -34,12 +34,12 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
     private DeveloperController developerController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "developers";
     }
 
     @Override
-    protected DeveloperController getController() {
+    public DeveloperController getController() {
         return developerController;
     }
 
@@ -137,7 +137,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
         GameEntity mockDLC = buildDLCForGame(mockGame);
         when(developerService.getGames()).thenReturn(List.of(mockGame, mockDLC));
 
-        performGet(getAccessToken(UserEntity.Role.DEVELOPER), "/myGames")
+        performGet(getMockedAccessToken(UserEntity.Role.DEVELOPER), "/myGames")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
@@ -163,7 +163,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
     @Test
     void testGetMyGames_AuthenticatedCustomer() throws Exception {
-        performGet(getAccessToken(UserEntity.Role.CUSTOMER), "/myGames")
+        performGet(getMockedAccessToken(UserEntity.Role.CUSTOMER), "/myGames")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -174,7 +174,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
         when(developerService.updateLoggedUser(argThat(devInput -> devInput.equals(developerInput))))
                 .thenReturn(mockUpdatedDeveloper);
 
-        performPut(developerInput, getAccessToken(UserEntity.Role.DEVELOPER), "")
+        performPut(developerInput, getMockedAccessToken(UserEntity.Role.DEVELOPER), "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mockUpdatedDeveloper.getId()))
                 .andExpect(jsonPath("$.username").value(developerInput.getUsername()))
@@ -188,7 +188,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
     @Test
     void testUpdateLoggedDeveloper_AuthenticatedCustomer() throws Exception {
-        performPut(mockDeveloperInput(), getAccessToken(UserEntity.Role.CUSTOMER), "")
+        performPut(mockDeveloperInput(), getMockedAccessToken(UserEntity.Role.CUSTOMER), "")
                 .andExpect(status().isUnauthorized());
     }
 

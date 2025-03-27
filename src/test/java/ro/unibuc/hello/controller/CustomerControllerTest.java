@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.buildDLCForGame;
 import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
 
@@ -35,12 +35,12 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
     private CustomerController customerController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "customers";
     }
 
     @Override
-    protected CustomerController getController() {
+    public CustomerController getController() {
         return customerController;
     }
 
@@ -138,7 +138,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
         GameEntity mockDLC = buildDLCForGame(mockGame);
         when(customerService.getGames()).thenReturn(List.of(mockGame, mockDLC));
 
-        performGet(getAccessToken(UserEntity.Role.CUSTOMER), "/myGames")
+        performGet(getMockedAccessToken(UserEntity.Role.CUSTOMER), "/myGames")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
@@ -164,7 +164,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
     @Test
     void testGetMyGames_AuthenticatedCustomer() throws Exception {
-        performGet(getAccessToken(UserEntity.Role.DEVELOPER), "/myGames")
+        performGet(getMockedAccessToken(UserEntity.Role.DEVELOPER), "/myGames")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -175,7 +175,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
         when(customerService.updateLoggedUser(argThat(devInput -> devInput.equals(customerInput))))
                 .thenReturn(mockUpdatedCustomer);
 
-        performPut(customerInput, getAccessToken(UserEntity.Role.CUSTOMER), "")
+        performPut(customerInput, getMockedAccessToken(UserEntity.Role.CUSTOMER), "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mockUpdatedCustomer.getId()))
                 .andExpect(jsonPath("$.username").value(customerInput.getUsername()))
@@ -189,7 +189,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
     @Test
     void testUpdateLoggedCustomer_AuthenticatedCustomer() throws Exception {
-        performPut(mockCustomerInput(), getAccessToken(UserEntity.Role.DEVELOPER), "")
+        performPut(mockCustomerInput(), getMockedAccessToken(UserEntity.Role.DEVELOPER), "")
                 .andExpect(status().isUnauthorized());
     }
 
