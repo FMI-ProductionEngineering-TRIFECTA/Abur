@@ -14,6 +14,7 @@ public interface UserRepository extends MongoRepository<UserEntity, String> {
     UserEntity findByUsername(String username);
     UserEntity findByEmail(String email);
     List<UserEntity> findByRole(Role role);
+    List<UserEntity> findAllByRole(Role role);
     UserEntity findByIdAndRole(String id, Role role);
     UserEntity findByDetailsStudio(String studio);
 
