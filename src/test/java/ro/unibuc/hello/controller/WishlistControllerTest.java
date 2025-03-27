@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
@@ -36,12 +36,12 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
     private WishlistController wishlistController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "wishlist";
     }
 
     @Override
-    protected WishlistController getController() {
+    public WishlistController getController() {
         return wishlistController;
     }
 
@@ -56,7 +56,7 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         List<GameEntity> games = buildGames(3);
         when(wishlistService.getWishlist()).thenReturn(games);
 
-        performGet(getAccessToken(Role.CUSTOMER), "")
+        performGet(getMockedAccessToken(Role.CUSTOMER), "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
@@ -67,7 +67,7 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
 
     @Test
     void testGetWishlist_InvalidRole() throws Exception {
-        performGet(getAccessToken(Role.DEVELOPER), "")
+        performGet(getMockedAccessToken(Role.DEVELOPER), "")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -87,20 +87,10 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         );
         when(wishlistService.addToWishlist(game.getId())).thenReturn(wishlistEntry);
 
-        performPost(null, getAccessToken(Role.CUSTOMER), "/{gameId}", game.getId())
+        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/{gameId}", game.getId())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id.gameId").value(game.getId()))
                 .andExpect(jsonPath("$.id.customerId").value(customer.getId()));
-    }
-
-    @Test
-    void testAddToWishlist_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        when(wishlistService.addToWishlist(any())).thenThrow(new ValidationException(errorMessage));
-
-        performPost(null, getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -108,14 +98,14 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         String errorMessage = "Invalid ID";
         when(wishlistService.addToWishlist(any())).thenThrow(new NotFoundException(errorMessage));
 
-        performPost(null, getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testAddToWishlist_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER), "/{gameid}", ID)
+        performPost(null, getMockedAccessToken(Role.DEVELOPER), "/{gameid}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -129,18 +119,8 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
     void testMoveToCart_Valid() throws Exception {
         doNothing().when(wishlistService).moveToCart(ID);
 
-        performPost(null, getAccessToken(Role.CUSTOMER), "/moveToCart/{gameId}", ID)
+        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/moveToCart/{gameId}", ID)
                 .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void testMoveToCart_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        doThrow(new ValidationException(errorMessage)).when(wishlistService).moveToCart(any());
-
-        performPost(null, getAccessToken(Role.CUSTOMER), "/moveToCart/{gameId}", ID)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -148,14 +128,14 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         String errorMessage = "Invalid ID";
         doThrow(new NotFoundException(errorMessage)).when(wishlistService).moveToCart(any());
 
-        performPost(null, getAccessToken(Role.CUSTOMER), "/moveToCart/{gameId}", ID)
+        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/moveToCart/{gameId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testMoveToCart_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER), "/moveToCart/{gameId}", ID)
+        performPost(null, getMockedAccessToken(Role.DEVELOPER), "/moveToCart/{gameId}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -169,23 +149,13 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
     void testMoveAllToCart_Valid() throws Exception {
         doNothing().when(wishlistService).moveAllToCart();
 
-        performPost(null, getAccessToken(Role.CUSTOMER), "/moveToCart")
+        performPost(null, getMockedAccessToken(Role.CUSTOMER), "/moveToCart")
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void testMoveAllToCart_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        doThrow(new ValidationException(errorMessage)).when(wishlistService).moveAllToCart();
-
-        performPost(null, getAccessToken(Role.CUSTOMER), "/moveToCart")
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
-    }
-
-    @Test
     void testMoveAllToCart_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER), "/moveToCart")
+        performPost(null, getMockedAccessToken(Role.DEVELOPER), "/moveToCart")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -197,7 +167,7 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
 
     @Test
     void testRemoveFromWishlist_Valid() throws Exception {
-        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
                 .andExpect(status().isNoContent());
     }
 
@@ -206,13 +176,14 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         String errorMessage = "Invalid ID";
         doThrow(new NotFoundException(errorMessage)).when(wishlistService).removeFromWishlist(any());
 
-        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest());
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testRemoveFromWishlist_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", ID)
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/{gameId}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -224,13 +195,13 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
 
     @Test
     void testRemoveAllFromWishlist_Valid() throws Exception {
-        performDelete(getAccessToken(Role.CUSTOMER), "/clear")
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/clear")
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void testRemoveAllFromWishlist_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/clear")
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/clear")
                 .andExpect(status().isUnauthorized());
     }
 

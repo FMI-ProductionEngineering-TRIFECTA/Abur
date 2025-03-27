@@ -31,12 +31,12 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
     private AuthenticationController authenticationController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "auth";
     }
 
     @Override
-    protected AuthenticationController getController() {
+    public AuthenticationController getController() {
         return authenticationController;
     }
 
@@ -50,7 +50,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
     void testLogin_ValidCredentials() throws Exception {
         Developer mockDeveloper = mockDeveloperInput();
         Credentials credentials = new Credentials(mockDeveloper.getUsername(), mockDeveloper.getPassword());
-        Token token = new Token(getAccessToken(UserEntity.Role.DEVELOPER));
+        Token token = new Token(getMockedAccessToken(UserEntity.Role.DEVELOPER));
         when(authenticationService.login(argThat(cred -> cred.equals(credentials))))
                 .thenReturn(token);
 

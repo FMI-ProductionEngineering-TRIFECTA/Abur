@@ -53,7 +53,7 @@ class GameServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        resetAccessToken();
+        resetMockedAccessToken();
     }
 
     @Test

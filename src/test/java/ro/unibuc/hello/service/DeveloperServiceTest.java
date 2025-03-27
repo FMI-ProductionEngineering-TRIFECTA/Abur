@@ -32,7 +32,7 @@ public class DeveloperServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        resetAccessToken();
+        resetMockedAccessToken();
     }
 
     @Test

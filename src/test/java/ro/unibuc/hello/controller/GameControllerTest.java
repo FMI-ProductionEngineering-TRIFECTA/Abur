@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 @EnableAspectJAutoProxy
@@ -39,12 +39,12 @@ class GameControllerTest extends GenericControllerTest<GameController> {
     private GameController gameController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "games";
     }
 
     @Override
-    protected GameController getController() {
+    public GameController getController() {
         return gameController;
     }
 
@@ -107,7 +107,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         Game gameInput = Game.builder().title(game.getTitle()).build();
         when(gameService.createGame(any(Game.class))).thenReturn(game);
 
-        performPost(gameInput, getAccessToken(Role.DEVELOPER))
+        performPost(gameInput, getMockedAccessToken(Role.DEVELOPER))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value(game.getTitle()));
     }
@@ -117,14 +117,14 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid body";
         when(gameService.createGame(any(Game.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPost(new Game(), getAccessToken(Role.DEVELOPER))
+        performPost(new Game(), getMockedAccessToken(Role.DEVELOPER))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testCreateGame_InvalidRole() throws Exception {
-        performPost(new Game(), getAccessToken(Role.CUSTOMER))
+        performPost(new Game(), getMockedAccessToken(Role.CUSTOMER))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -141,7 +141,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         Game dlcInput = Game.builder().title(dlc.getTitle()).build();
         when(dlcService.createDLC(eq(baseGame.getId()), any(Game.class))).thenReturn(dlc);
 
-        performPost(dlcInput, getAccessToken(Role.DEVELOPER), "/{id}/addDLC", baseGame.getId())
+        performPost(dlcInput, getMockedAccessToken(Role.DEVELOPER), "/{id}/addDLC", baseGame.getId())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value(dlc.getTitle()));
     }
@@ -151,7 +151,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid body";
         when(dlcService.createDLC(eq(ID),any(Game.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPost(new Game(), getAccessToken(Role.DEVELOPER), "/{id}/addDLC", ID)
+        performPost(new Game(), getMockedAccessToken(Role.DEVELOPER), "/{id}/addDLC", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
@@ -161,14 +161,14 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         when(dlcService.createDLC(eq(ID),any(Game.class))).thenThrow(new NotFoundException(errorMessage));
 
-        performPost(new Game(), getAccessToken(Role.DEVELOPER), "/{id}/addDLC", ID)
+        performPost(new Game(), getMockedAccessToken(Role.DEVELOPER), "/{id}/addDLC", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testAddDLC_InvalidRole() throws Exception {
-        performPost(new Game(), getAccessToken(Role.CUSTOMER), "/{id}/addDLC", ID)
+        performPost(new Game(), getMockedAccessToken(Role.CUSTOMER), "/{id}/addDLC", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -183,7 +183,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         GameEntity game = buildGame();
         when(gameService.updateGame(eq(game.getId()), any(Game.class))).thenReturn(game);
 
-        performPut(Game.builder().title(game.getTitle()).build(), getAccessToken(Role.DEVELOPER), "/{id}", game.getId())
+        performPut(Game.builder().title(game.getTitle()).build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(game.getId()))
                 .andExpect(jsonPath("$.title").value(game.getTitle()));
@@ -194,7 +194,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid body";
         when(gameService.updateGame(eq(ID),any(Game.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPut(new Game(), getAccessToken(Role.DEVELOPER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
@@ -204,14 +204,14 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         when(gameService.updateGame(eq(ID),any(Game.class))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(new Game(), getAccessToken(Role.DEVELOPER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testUpdateGame_InvalidRole() throws Exception {
-        performPut(new Game(), getAccessToken(Role.CUSTOMER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(Role.CUSTOMER), "/{id}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -227,7 +227,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         game.setKeys(game.getKeys() + keysToAdd);
         when(gameService.addKeys(eq(game.getId()), any(Integer.class))).thenReturn(game);
 
-        performPut(null, getAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", game.getId(), keysToAdd)
+        performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", game.getId(), keysToAdd)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(game.getId()))
                 .andExpect(jsonPath("$.keys").value(game.getKeys()));
@@ -238,7 +238,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid parameter";
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPut(null, getAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
+        performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
                 .andExpect(status().isBadRequest());
     }
 
@@ -247,13 +247,13 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(null, getAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
+        performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testAddKeys_InvalidRole() throws Exception {
-        performPut(null, getAccessToken(Role.CUSTOMER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
+        performPut(null, getMockedAccessToken(Role.CUSTOMER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -269,7 +269,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         game.setKeys(0);
         when(gameService.markOutOfStock(eq(game.getId()))).thenReturn(game);
 
-        performPut(null, getAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", game.getId())
+        performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", game.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(game.getId()))
                 .andExpect(jsonPath("$.keys").value(0));
@@ -280,14 +280,14 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         when(gameService.markOutOfStock(eq(ID))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(null, getAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", ID)
+        performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testMarkOutOfStock_InvalidRole() throws Exception {
-        performPut(null, getAccessToken(Role.CUSTOMER), "/{id}/markOutOfStock", ID)
+        performPut(null, getMockedAccessToken(Role.CUSTOMER), "/{id}/markOutOfStock", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -299,7 +299,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
     @Test
     void testDeleteGame_Valid() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/{id}", ID)
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isNoContent());
     }
 
@@ -308,13 +308,13 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         String errorMessage = "Invalid ID";
         doThrow(new NotFoundException(errorMessage)).when(gameService).deleteGame(any());
 
-        performDelete(getAccessToken(Role.DEVELOPER), "/{id}", ID)
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testDeleteGame_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.CUSTOMER), "/{id}", ID)
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/{id}", ID)
                 .andExpect(status().isUnauthorized());
     }
 

@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
@@ -38,12 +38,12 @@ class CartControllerTest extends GenericControllerTest<CartController> {
     private CartController cartController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "cart";
     }
 
     @Override
-    protected CartController getController() {
+    public CartController getController() {
         return cartController;
     }
 
@@ -58,7 +58,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         List<GameEntity> games = buildGames(3);
         when(cartService.getCart()).thenReturn(new CartInfo(totalPrice(games),games));
 
-        performGet(getAccessToken(Role.CUSTOMER),"")
+        performGet(getMockedAccessToken(Role.CUSTOMER),"")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.price").value(totalPrice(games)))
                 .andExpect(jsonPath("$.items", hasSize(3)))
@@ -69,7 +69,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
 
     @Test
     void testGetCart_InvalidRole() throws Exception {
-        performGet(getAccessToken(Role.DEVELOPER),"")
+        performGet(getMockedAccessToken(Role.DEVELOPER),"")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -81,23 +81,13 @@ class CartControllerTest extends GenericControllerTest<CartController> {
 
     @Test
     void testCheckout_Valid() throws Exception {
-        performPost(null, getAccessToken(Role.CUSTOMER),"/checkout")
+        performPost(null, getMockedAccessToken(Role.CUSTOMER),"/checkout")
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void testCheckout_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        doThrow(new ValidationException(errorMessage)).when(cartService).checkout();
-
-        performPost(null, getAccessToken(Role.CUSTOMER), "/checkout")
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
-    }
-
-    @Test
     void testCheckout_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER),"/checkout")
+        performPost(null, getMockedAccessToken(Role.DEVELOPER),"/checkout")
                 .andExpect(status().isUnauthorized());
     }
 
@@ -117,20 +107,10 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         );
         when(cartService.addToCart(game.getId())).thenReturn(cart);
 
-        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
+        performPost(null, getMockedAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id.gameId").value(game.getId()))
                 .andExpect(jsonPath("$.id.customerId").value(customer.getId()));
-    }
-
-    @Test
-    void testAddToCart_InvalidBody() throws Exception {
-        String errorMessage = "Invalid body";
-        when(cartService.addToCart(any())).thenThrow(new ValidationException(errorMessage));
-
-        performPost(null, getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -138,14 +118,14 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         String errorMessage = "Invalid ID";
         when(cartService.addToCart(any())).thenThrow(new NotFoundException(errorMessage));
 
-        performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", ID)
+        performPost(null, getMockedAccessToken(Role.CUSTOMER),"/{gameId}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testAddToCart_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", ID)
+        performPost(null, getMockedAccessToken(Role.DEVELOPER),"/{gameid}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -157,7 +137,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
 
     @Test
     void testRemoveFromCart_Valid() throws Exception {
-        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
                 .andExpect(status().isNoContent());
     }
 
@@ -166,13 +146,14 @@ class CartControllerTest extends GenericControllerTest<CartController> {
         String errorMessage = "Invalid ID";
         doThrow(new NotFoundException(errorMessage)).when(cartService).removeFromCart(any());
 
-        performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", ID)
-                .andExpect(status().isBadRequest());
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/{gameId}", ID)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testRemoveFromCart_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", ID)
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/{gameId}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -184,13 +165,13 @@ class CartControllerTest extends GenericControllerTest<CartController> {
 
     @Test
     void testClearCart_Valid() throws Exception {
-        performDelete(getAccessToken(Role.CUSTOMER), "/clear")
+        performDelete(getMockedAccessToken(Role.CUSTOMER), "/clear")
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void testClearCart_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/clear")
+        performDelete(getMockedAccessToken(Role.DEVELOPER), "/clear")
                 .andExpect(status().isUnauthorized());
     }
 

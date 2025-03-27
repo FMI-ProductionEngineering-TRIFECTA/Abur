@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.getAccessToken;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
 import static ro.unibuc.hello.utils.DLCTestUtils.*;
 
 @EnableAutoConfiguration
@@ -35,12 +35,12 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
     private DLCController dlcController;
 
     @Override
-    protected String getEndpoint() {
+    public String getEndpoint() {
         return "dlcs";
     }
 
     @Override
-    protected DLCController getController() {
+    public DLCController getController() {
         return dlcController;
     }
 
@@ -89,7 +89,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         GameEntity dlc = buildDLCForGame(buildBaseGame());
         when(dlcService.updateGame(eq(dlc.getId()), any(Game.class))).thenReturn(dlc);
 
-        performPut(Game.builder().title(dlc.getTitle()).build(), getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", dlc.getId())
+        performPut(Game.builder().title(dlc.getTitle()).build(), getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", dlc.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dlc.getId()))
                 .andExpect(jsonPath("$.title").value(dlc.getTitle()));
@@ -100,7 +100,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid body";
         when(dlcService.updateGame(eq(ID),any(Game.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPut(new Game(), getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
@@ -110,14 +110,14 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid ID";
         when(dlcService.updateGame(eq(ID),any(Game.class))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(new Game(), getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testUpdateDLC_InvalidRole() throws Exception {
-        performPut(new Game(), getAccessToken(UserEntity.Role.CUSTOMER), "/{id}", ID)
+        performPut(new Game(), getMockedAccessToken(UserEntity.Role.CUSTOMER), "/{id}", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -133,7 +133,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         dlc.setKeys(dlc.getKeys() + keysToAdd);
         when(dlcService.addKeys(eq(dlc.getId()), any(Integer.class))).thenReturn(dlc);
 
-        performPut(null, getAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", dlc.getId(), keysToAdd)
+        performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", dlc.getId(), keysToAdd)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dlc.getId()))
                 .andExpect(jsonPath("$.keys").value(dlc.getKeys()));
@@ -144,7 +144,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid parameter";
         when(dlcService.addKeys(eq(ID), any(Integer.class))).thenThrow(new ValidationException(errorMessage));
 
-        performPut(null, getAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
+        performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
                 .andExpect(status().isBadRequest());
     }
 
@@ -153,13 +153,13 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid ID";
         when(dlcService.addKeys(eq(ID), any(Integer.class))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(null, getAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
+        performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testAddKeys_InvalidRole() throws Exception {
-        performPut(null, getAccessToken(UserEntity.Role.CUSTOMER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
+        performPut(null, getMockedAccessToken(UserEntity.Role.CUSTOMER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -175,7 +175,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         dlc.setKeys(0);
         when(dlcService.markOutOfStock(eq(dlc.getId()))).thenReturn(dlc);
 
-        performPut(null, getAccessToken(UserEntity.Role.DEVELOPER), "/{id}/markOutOfStock", dlc.getId())
+        performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/markOutOfStock", dlc.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dlc.getId()))
                 .andExpect(jsonPath("$.keys").value(0));
@@ -186,14 +186,14 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid ID";
         when(dlcService.markOutOfStock(eq(ID))).thenThrow(new NotFoundException(errorMessage));
 
-        performPut(null, getAccessToken(UserEntity.Role.DEVELOPER), "/{id}/markOutOfStock", ID)
+        performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/markOutOfStock", ID)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
     void testMarkOutOfStock_InvalidRole() throws Exception {
-        performPut(null, getAccessToken(UserEntity.Role.CUSTOMER), "/{id}/markOutOfStock", ID)
+        performPut(null, getMockedAccessToken(UserEntity.Role.CUSTOMER), "/{id}/markOutOfStock", ID)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -205,7 +205,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
     @Test
     void testDeleteDLC_Valid() throws Exception {
-        performDelete(getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
+        performDelete(getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isNoContent());
     }
 
@@ -214,13 +214,13 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         String errorMessage = "Invalid ID";
         doThrow(new NotFoundException(errorMessage)).when(dlcService).deleteGame(any());
 
-        performDelete(getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
+        performDelete(getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", ID)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testDeleteDLC_InvalidRole() throws Exception {
-        performDelete(getAccessToken(UserEntity.Role.CUSTOMER), "/{id}", ID)
+        performDelete(getMockedAccessToken(UserEntity.Role.CUSTOMER), "/{id}", ID)
                 .andExpect(status().isUnauthorized());
     }
 

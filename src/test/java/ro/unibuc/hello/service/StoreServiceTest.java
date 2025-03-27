@@ -37,7 +37,7 @@ public class StoreServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        resetAccessToken();
+        resetMockedAccessToken();
     }
 
     @Test
