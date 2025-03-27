@@ -85,15 +85,43 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
         mongoDBContainer.stop();
     }
 
-    public void matchAllGames(ResultActions resultActions, List<GameEntity> games) throws Exception {
+    public void matchAllGames(String jsonPrefix, ResultActions resultActions, List<GameEntity> games) throws Exception {
         for (int i = 0; i < games.size(); i++) {
             resultActions = resultActions
-                .andExpect(jsonPath(String.format("$.items[%d].id", i), equalTo(games.get(i).getId())))
-                .andExpect(jsonPath(String.format("$.items[%d].title", i), equalTo(games.get(i).getTitle())))
-                .andExpect(jsonPath(String.format("$.items[%d].price", i), equalTo(games.get(i).getPrice())))
-                .andExpect(jsonPath(String.format("$.items[%d].discountPercentage", i), equalTo(games.get(i).getDiscountPercentage())))
-                .andExpect(jsonPath(String.format("$.items[%d].keys", i), equalTo(games.get(i).getKeys())))
-                .andExpect(jsonPath(String.format("$.items[%d].type", i), equalTo(games.get(i).getType().toString())));
+                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(games.get(i).getId())))
+                .andExpect(jsonPath(String.format("$%s[%d].title", jsonPrefix, i), equalTo(games.get(i).getTitle())))
+                .andExpect(jsonPath(String.format("$%s[%d].price", jsonPrefix, i), equalTo(games.get(i).getPrice())))
+                .andExpect(jsonPath(String.format("$%s[%d].discountPercentage", jsonPrefix, i), equalTo(games.get(i).getDiscountPercentage())))
+                .andExpect(jsonPath(String.format("$%s[%d].keys", jsonPrefix, i), equalTo(games.get(i).getKeys())))
+                .andExpect(jsonPath(String.format("$%s[%d].type", jsonPrefix, i), equalTo(games.get(i).getType().toString())));
+        }
+    }
+
+    public void matchAllDevelopers(String jsonPrefix, ResultActions resultActions, List<UserEntity> developers) throws Exception {
+        for (int i = 0; i < developers.size(); i++) {
+            resultActions = resultActions
+                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(developers.get(i).getId())))
+                .andExpect(jsonPath(String.format("$%s[%d].username", jsonPrefix, i), equalTo(developers.get(i).getUsername())))
+                .andExpect(jsonPath(String.format("$%s[%d].password", jsonPrefix, i), equalTo(developers.get(i).getPassword())))
+                .andExpect(jsonPath(String.format("$%s[%d].email", jsonPrefix, i), equalTo(developers.get(i).getEmail())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.studio", jsonPrefix, i), equalTo(developers.get(i).getDetails().getStudio())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.website", jsonPrefix, i), equalTo(developers.get(i).getDetails().getWebsite())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.firstName", jsonPrefix, i)).doesNotExist())
+                .andExpect(jsonPath(String.format("$%s[%d].details.lastName", jsonPrefix, i)).doesNotExist());
+        }
+    }
+
+    public void matchAllCustomers(String jsonPrefix, ResultActions resultActions, List<UserEntity> customers) throws Exception {
+        for (int i = 0; i < customers.size(); i++) {
+            resultActions = resultActions
+                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(customers.get(i).getId())))
+                .andExpect(jsonPath(String.format("$%s[%d].username", jsonPrefix, i), equalTo(customers.get(i).getUsername())))
+                .andExpect(jsonPath(String.format("$%s[%d].password", jsonPrefix, i), equalTo(customers.get(i).getPassword())))
+                .andExpect(jsonPath(String.format("$%s[%d].email", jsonPrefix, i), equalTo(customers.get(i).getEmail())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.firstName", jsonPrefix, i), equalTo(customers.get(i).getDetails().getFirstName())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.lastName", jsonPrefix, i), equalTo(customers.get(i).getDetails().getLastName())))
+                .andExpect(jsonPath(String.format("$%s[%d].details.studio", jsonPrefix, i)).doesNotExist())
+                .andExpect(jsonPath(String.format("$%s[%d].details.website", jsonPrefix, i)).doesNotExist());
         }
     }
 

@@ -53,6 +53,7 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
 
     private void testPerformGet(List<GameEntity> games) throws Exception {
         matchAllGames(
+                ".items",
                 performGet(getAccessToken(Role.CUSTOMER), "")
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.price").value(totalPrice(games)))
