@@ -7,16 +7,22 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.repository.GameRepository;
+import ro.unibuc.hello.data.repository.LibraryRepository;
+import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGames;
 
 public class StoreServiceTest {
 

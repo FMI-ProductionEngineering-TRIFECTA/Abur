@@ -1,14 +1,10 @@
 package ro.unibuc.hello.service;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.mockito.Spy;
 import org.springframework.test.util.ReflectionTestUtils;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -22,6 +18,8 @@ import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTService;
 import ro.unibuc.hello.utils.AuthenticationTestUtils;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
 
 public class AuthenticationServiceTest {

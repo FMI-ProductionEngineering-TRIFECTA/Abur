@@ -13,19 +13,16 @@ import ro.unibuc.hello.dto.Credentials;
 import ro.unibuc.hello.dto.Customer;
 import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.Token;
-import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.utils.GenericControllerIntegrationTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerInput;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperInput;
 
 @SpringBootTest
 @AutoConfigureMockMvc

@@ -9,7 +9,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Developer;
-
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.service.DeveloperService;
 import ro.unibuc.hello.utils.GenericControllerTest;
@@ -22,7 +21,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static ro.unibuc.hello.utils.GameTestUtils.buildDLCForGame;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
 
 @EnableAspectJAutoProxy
 public class DeveloperControllerTest extends GenericControllerTest<DeveloperController> {

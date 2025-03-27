@@ -6,19 +6,27 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ro.unibuc.hello.data.entity.*;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.entity.CartEntity;
+import ro.unibuc.hello.data.entity.GameEntity;
+import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.entity.WishlistEntity;
+import ro.unibuc.hello.data.repository.CartRepository;
+import ro.unibuc.hello.data.repository.LibraryRepository;
+import ro.unibuc.hello.data.repository.WishlistRepository;
 import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.ValidationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
-import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
+import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGames;
 
 public class WishlistServiceTest {
 
