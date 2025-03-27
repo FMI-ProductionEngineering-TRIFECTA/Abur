@@ -14,7 +14,8 @@ import ro.unibuc.hello.dto.Developer;
 import ro.unibuc.hello.dto.Token;
 import ro.unibuc.hello.service.AuthenticationService;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.created;
+import static ro.unibuc.hello.utils.ResponseUtils.ok;
 
 @Controller
 @RequestMapping("/auth")

@@ -6,7 +6,7 @@ import ro.unibuc.hello.data.entity.GameEntity;
 
 import java.util.function.Function;
 
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey;
 
 @Repository
 public interface CartRepository extends GameCollectionRepository<CartEntity, CompositeKey> {

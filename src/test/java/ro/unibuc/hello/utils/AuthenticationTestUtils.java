@@ -1,7 +1,6 @@
 package ro.unibuc.hello.utils;
 
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -18,9 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
-import static ro.unibuc.hello.data.entity.UserEntity.*;
-import static ro.unibuc.hello.utils.DatabaseUtils.getId;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+import static ro.unibuc.hello.data.entity.UserEntity.UserDetails;
 
 public final class AuthenticationTestUtils {
 

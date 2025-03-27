@@ -13,7 +13,7 @@ import ro.unibuc.hello.service.StoreService;
 
 import java.util.List;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.ok;
 
 @Controller
 @RequestMapping("/store")

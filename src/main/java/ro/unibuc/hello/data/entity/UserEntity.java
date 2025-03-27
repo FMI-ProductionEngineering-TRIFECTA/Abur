@@ -11,8 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
-import static ro.unibuc.hello.security.AuthenticationUtils.*;
+import static ro.unibuc.hello.security.AuthenticationUtils.encryptPassword;
+import static ro.unibuc.hello.utils.DatabaseUtils.generateId;
 
 @Getter
 @Setter

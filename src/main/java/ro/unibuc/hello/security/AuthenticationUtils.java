@@ -11,6 +11,7 @@ import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 
 import java.util.Optional;
+
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 
 @Component

@@ -12,7 +12,7 @@ import ro.unibuc.hello.service.DeveloperService;
 
 import java.util.List;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.ok;
 
 @Controller
 @RequestMapping("/developers")

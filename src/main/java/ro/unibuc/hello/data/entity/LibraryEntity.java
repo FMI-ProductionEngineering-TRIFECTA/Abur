@@ -9,9 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-import static ro.unibuc.hello.utils.DateUtils.*;
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey;
 import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
+import static ro.unibuc.hello.utils.DateUtils.dateNow;
 
 @Getter
 @Setter

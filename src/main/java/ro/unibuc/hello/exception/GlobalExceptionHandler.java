@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ro.unibuc.hello.dto.ErrorString;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.badRequest;
+import static ro.unibuc.hello.utils.ResponseUtils.unauthorized;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
