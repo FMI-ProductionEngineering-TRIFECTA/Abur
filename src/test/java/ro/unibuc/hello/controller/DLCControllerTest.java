@@ -57,8 +57,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
         performGet(null, "/{id}", dlc.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(dlc.getId()))
-                .andExpect(jsonPath("$.title").value(dlc.getTitle()));
+                .andExpect(matchOne(dlc, GAME_FIELDS));
     }
 
     @Test
@@ -79,9 +78,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
         performGet()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].title").value(dlcs.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(dlcs.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(dlcs.get(2).getTitle()));
+                .andExpect(matchAll(dlcs, GAME_FIELDS));
     }
 
     @Test
@@ -91,8 +88,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
         performPut(Game.builder().title(dlc.getTitle()).build(), getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}", dlc.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(dlc.getId()))
-                .andExpect(jsonPath("$.title").value(dlc.getTitle()));
+                .andExpect(matchOne(dlc, GAME_FIELDS));
     }
 
     @Test
@@ -135,8 +131,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
         performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", dlc.getId(), keysToAdd)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(dlc.getId()))
-                .andExpect(jsonPath("$.keys").value(dlc.getKeys()));
+                .andExpect(matchOne(dlc, GAME_FIELDS));
     }
 
     @Test
@@ -177,8 +172,7 @@ class DLCControllerTest extends GenericControllerTest<DLCController> {
 
         performPut(null, getMockedAccessToken(UserEntity.Role.DEVELOPER), "/{id}/markOutOfStock", dlc.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(dlc.getId()))
-                .andExpect(jsonPath("$.keys").value(0));
+                .andExpect(matchOne(dlc, GAME_FIELDS));
     }
 
     @Test

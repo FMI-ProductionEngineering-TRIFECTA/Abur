@@ -1,11 +1,11 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Developer;
@@ -20,17 +20,26 @@ import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperInput;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockUpdatedDeveloperInput;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@Tag("IntegrationTest")
 public class DeveloperControllerIntegrationTest extends GenericControllerIntegrationTest<DeveloperController> {
 
-    @Autowired
-    UserRepository userRepository;
+    @Container
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+            .withExposedPorts(27017)
+            .withSharding();
+
+    @DynamicPropertySource
+    private static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://localhost:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    }
 
     @Autowired
-    DeveloperController developerController;
+    private UserRepository userRepository;
+
+    @Autowired
+    private DeveloperController developerController;
 
     @Override
     public String getEndpoint() {
@@ -48,14 +57,7 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
 
         performGet(null,"/{id}", developerDB.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(developerDB.getId()))
-                .andExpect(jsonPath("$.username").value(developerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(developerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(developerDB.getEmail()))
-                .andExpect(jsonPath("$.details.studio").value(developerDB.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(developerDB.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(developerDB, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -71,13 +73,10 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
     void testGetDeveloperGames_ValidId() throws Exception {
         UserEntity developerDB = userRepository.findByIdAndRole(getUserId(Role.DEVELOPER), Role.DEVELOPER);
 
-        matchAllGames(
-                "",
-                performGet(null, "/{id}/games", developerDB.getId())
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developerDB.getGames().size()))),
-                developerDB.getGames()
-        );
+        performGet(null, "/{id}/games", developerDB.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developerDB.getGames().size())))
+                .andExpect(matchAll(developerDB.getGames(), GAME_FIELDS));
     }
 
     @Test
@@ -93,26 +92,20 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
     void testGetAllDevelopers() throws Exception {
         List<UserEntity> developersDB = userRepository.findAllByRole(Role.DEVELOPER);
 
-        matchAllDevelopers(
-                "",
-                performGet(null, "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developersDB.size()))),
-                developersDB
-        );
+        performGet(null, "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developersDB.size())))
+                .andExpect(matchAll("", developersDB, DEVELOPER_FIELDS));
     }
 
     @Test
     void testGetMyGames_Authenticated() throws Exception {
         UserEntity developerDB = userRepository.findByIdAndRole(getUserId(Role.DEVELOPER), Role.DEVELOPER);
 
-        matchAllGames(
-                "",
-                performGet(getAccessToken(Role.DEVELOPER), "/myGames")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developerDB.getGames().size()))),
-                developerDB.getGames()
-        );
+        performGet(getAccessToken(Role.DEVELOPER), "/myGames")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developerDB.getGames().size())))
+                .andExpect(matchAll(developerDB.getGames(), GAME_FIELDS));
     }
 
     @Test

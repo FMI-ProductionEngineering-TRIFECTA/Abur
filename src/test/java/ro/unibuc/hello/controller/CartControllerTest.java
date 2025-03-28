@@ -62,9 +62,7 @@ class CartControllerTest extends GenericControllerTest<CartController> {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.price").value(totalPrice(games)))
                 .andExpect(jsonPath("$.items", hasSize(3)))
-                .andExpect(jsonPath("$.items[0].title").value(games.get(0).getTitle()))
-                .andExpect(jsonPath("$.items[1].title").value(games.get(1).getTitle()))
-                .andExpect(jsonPath("$.items[2].title").value(games.get(2).getTitle()));
+                .andExpect(matchAll(".items", games, GAME_FIELDS));
     }
 
     @Test

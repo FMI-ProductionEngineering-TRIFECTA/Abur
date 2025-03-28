@@ -1,11 +1,11 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Customer;
@@ -16,21 +16,30 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerInput;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockUpdatedCustomerInput;
-import static ro.unibuc.hello.data.entity.UserEntity.Role;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@Tag("IntegrationTest")
 public class CustomerControllerIntegrationTest extends GenericControllerIntegrationTest<CustomerController> {
 
-    @Autowired
-    UserRepository userRepository;
+    @Container
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+            .withExposedPorts(27017)
+            .withSharding();
+
+    @DynamicPropertySource
+    private static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://localhost:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    }
 
     @Autowired
-    CustomerController customerController;
+    private UserRepository userRepository;
+
+    @Autowired
+    private CustomerController customerController;
 
     @Override
     public String getEndpoint() {
@@ -48,14 +57,7 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
 
         performGet(null,"/{id}", customerDB.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(customerDB.getId()))
-                .andExpect(jsonPath("$.username").value(customerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(customerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(customerDB.getEmail()))
-                .andExpect(jsonPath("$.details.firstName").value(customerDB.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(customerDB.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(customerDB, CUSTOMER_FIELDS));
     }
 
     @Test
@@ -71,13 +73,10 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
     void testGetCustomerGames_ValidId() throws Exception {
         UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
 
-        matchAllGames(
-                "",
-                performGet(null, "/{id}/games", customerDB.getId())
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
-                customerDB.getGames()
-        );
+        performGet(null, "/{id}/games", customerDB.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customerDB.getGames().size())))
+                .andExpect(matchAll(customerDB.getGames(), GAME_FIELDS));
     }
 
     @Test
@@ -93,26 +92,20 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
     void testGetAllCustomers() throws Exception {
         List<UserEntity> customersDB = userRepository.findAllByRole(Role.CUSTOMER);
 
-        matchAllCustomers(
-                "",
-                performGet(null, "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customersDB.size()))),
-                customersDB
-        );
+        performGet(null, "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customersDB.size())))
+                .andExpect(matchAll(customersDB, CUSTOMER_FIELDS));
     }
 
     @Test
     void testGetMyGames_Authenticated() throws Exception {
         UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
 
-        matchAllGames(
-                "",
-                performGet(getAccessToken(Role.CUSTOMER), "/myGames")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
-                customerDB.getGames()
-        );
+        performGet(getAccessToken(Role.CUSTOMER), "/myGames")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customerDB.getGames().size())))
+                .andExpect(matchAll(customerDB.getGames(), GAME_FIELDS));
     }
 
     @Test

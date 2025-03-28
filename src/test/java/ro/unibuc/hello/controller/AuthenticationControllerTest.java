@@ -145,15 +145,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
 
         performPost(developerInput, null, "/signup/developer")
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(mockDeveloper.getId()))
-                .andExpect(jsonPath("$.username").value(mockDeveloper.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockDeveloper.getPassword()))
-                .andExpect(jsonPath("$.email").value(mockDeveloper.getEmail()))
-                .andExpect(jsonPath("$.role").value(mockDeveloper.getRole().toString()))
-                .andExpect(jsonPath("$.details.studio").value(mockDeveloper.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(mockDeveloper.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(mockDeveloper, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -165,15 +157,7 @@ public class AuthenticationControllerTest extends GenericControllerTest<Authenti
 
         performPost(customerInput, null, "/signup/customer")
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(mockCustomer.getId()))
-                .andExpect(jsonPath("$.username").value(mockCustomer.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockCustomer.getPassword()))
-                .andExpect(jsonPath("$.email").value(mockCustomer.getEmail()))
-                .andExpect(jsonPath("$.role").value(mockCustomer.getRole().toString()))
-                .andExpect(jsonPath("$.details.firstName").value(mockCustomer.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(mockCustomer.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(mockCustomer, CUSTOMER_FIELDS));
     }
 
 }

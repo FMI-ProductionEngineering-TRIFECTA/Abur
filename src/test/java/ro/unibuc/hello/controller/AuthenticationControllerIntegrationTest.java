@@ -1,12 +1,12 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Credentials;
@@ -24,14 +24,23 @@ import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerInput;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperInput;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@Tag("IntegrationTest")
 public class AuthenticationControllerIntegrationTest extends GenericControllerIntegrationTest<AuthenticationController> {
 
+    @Container
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+            .withExposedPorts(27017)
+            .withSharding();
+
+    @DynamicPropertySource
+    private static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://localhost:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    }
+
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private AuthenticationController authenticationController;
@@ -128,15 +137,7 @@ public class AuthenticationControllerIntegrationTest extends GenericControllerIn
         assertNotNull(newDeveloperDB);
 
         newDeveloperResults
-                .andExpect(jsonPath("$.id").value(newDeveloperDB.getId()))
-                .andExpect(jsonPath("$.username").value(newDeveloperDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(newDeveloperDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(newDeveloperDB.getEmail()))
-                .andExpect(jsonPath("$.role").value(newDeveloperDB.getRole().toString()))
-                .andExpect(jsonPath("$.details.studio").value(newDeveloperDB.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(newDeveloperDB.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(newDeveloperDB, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -156,15 +157,7 @@ public class AuthenticationControllerIntegrationTest extends GenericControllerIn
         assertNotNull(newCustomerDB);
 
         newCustomerResults
-                .andExpect(jsonPath("$.id").value(newCustomerDB.getId()))
-                .andExpect(jsonPath("$.username").value(newCustomerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(newCustomerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(newCustomerDB.getEmail()))
-                .andExpect(jsonPath("$.role").value(newCustomerDB.getRole().toString()))
-                .andExpect(jsonPath("$.details.firstName").value(newCustomerDB.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(newCustomerDB.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(newCustomerDB, CUSTOMER_FIELDS));
     }
 
     @Test

@@ -1,11 +1,11 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
@@ -23,11 +23,20 @@ import static ro.unibuc.hello.data.entity.GameEntity.Type;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@Tag("IntegrationTest")
 public class CartControllerIntegrationTest extends GenericControllerIntegrationTest<CartController> {
+
+    @Container
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+            .withExposedPorts(27017)
+            .withSharding();
+
+    @DynamicPropertySource
+    private static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://localhost:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    }
 
     @Autowired
     private CartRepository cartRepository;
@@ -52,14 +61,11 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     }
 
     private void testPerformGet(List<GameEntity> games) throws Exception {
-        matchAllGames(
-                ".items",
-                performGet(getAccessToken(Role.CUSTOMER), "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.price").value(totalPrice(games)))
-                        .andExpect(jsonPath("$.items", hasSize(games.size()))),
-                games
-        );
+        performGet(getAccessToken(Role.CUSTOMER), "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.price").value(totalPrice(games)))
+                .andExpect(jsonPath("$.items", hasSize(games.size())))
+                .andExpect(matchAll(".items", games, GAME_FIELDS));
     }
 
     @Test
@@ -104,7 +110,7 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     void testAddToCart_Valid() throws Exception {
         UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
         ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
-        GameEntity game = gameRepository.findByIdAndType(getGameAtId(6), Type.GAME);
+        GameEntity game = gameRepository.findByIdAndType(getGameId(6), Type.GAME);
 
         performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
                 .andExpect(status().isCreated())
@@ -124,13 +130,13 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
 
     @Test
     void testAddToCart_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", getGameAtId(6))
+        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", getGameId(6))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testAddToCart_NoAuth() throws Exception {
-        performPost(null, null, "/{gameid}", getGameAtId(6))
+        performPost(null, null, "/{gameid}", getGameId(6))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -138,7 +144,7 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     void testRemoveFromCart_Valid() throws Exception {
         UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
         ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
-        GameEntity game = gameRepository.findByIdAndType(getGameAtId(3), Type.GAME);
+        GameEntity game = gameRepository.findByIdAndType(getGameId(3), Type.GAME);
 
         performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", game.getId())
                 .andExpect(status().isNoContent());
@@ -156,13 +162,13 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
 
     @Test
     void testRemoveFromCart_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", getGameAtId(3))
+        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", getGameId(3))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testRemoveFromCart_NoAuth() throws Exception {
-        performDelete(null, "/{gameId}", getGameAtId(3))
+        performDelete(null, "/{gameId}", getGameId(3))
                 .andExpect(status().isUnauthorized());
     }
 

@@ -61,8 +61,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performGet(null, "/{id}", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.title").value(game.getTitle()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -83,9 +82,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performGet(null, "/{id}/dlcs", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value(dlcs.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(dlcs.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(dlcs.get(2).getTitle()));
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(matchAll(dlcs, GAME_FIELDS));
     }
 
     @Test
@@ -96,9 +94,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         performGet()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(games.get(2).getTitle()));
+                .andExpect(matchAll(games, GAME_FIELDS));
     }
 
     @Test
@@ -183,10 +179,9 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         GameEntity game = buildGame();
         when(gameService.updateGame(eq(game.getId()), any(Game.class))).thenReturn(game);
 
-        performPut(Game.builder().title(game.getTitle()).build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
+        performPut(Game.builder().title(game.getTitle() + " Update").build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.title").value(game.getTitle()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -229,8 +224,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", game.getId(), keysToAdd)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.keys").value(game.getKeys()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -239,7 +233,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new ValidationException(errorMessage));
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -248,7 +243,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new NotFoundException(errorMessage));
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -271,8 +267,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.keys").value(0));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -309,7 +304,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         doThrow(new NotFoundException(errorMessage)).when(gameService).deleteGame(any());
 
         performDelete(getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
