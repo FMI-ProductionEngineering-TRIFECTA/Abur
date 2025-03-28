@@ -102,9 +102,11 @@ public class GameControllerIntegrationTest extends GenericControllerIntegrationT
 
     @Test
     void testCreateGame_InvalidBody() throws Exception {
-        performPost(new Game(), getAccessToken(UserEntity.Role.DEVELOPER))
+        GameEntity game = gameRepository.findByIdAndType(getGameId(0), GameEntity.Type.GAME);
+
+        performPost(Game.builder().title(game.getTitle()).build(), getAccessToken(UserEntity.Role.DEVELOPER))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Title is required"));
+                .andExpect(jsonPath("$.error").value(String.format("Title %s already exists!", game.getTitle())));
     }
 
     @Test
@@ -171,7 +173,7 @@ public class GameControllerIntegrationTest extends GenericControllerIntegrationT
         GameEntity game = gameRepository.findByIdAndType(getGameId(0), GameEntity.Type.GAME);
         performPut(Game.builder().title(game.getTitle()).build(), getAccessToken(UserEntity.Role.DEVELOPER), "/{id}", game.getId())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Title is required"));
+                .andExpect(jsonPath("$.error").value(String.format("Title %s already exists!", game.getTitle())));
     }
 
     @Test
