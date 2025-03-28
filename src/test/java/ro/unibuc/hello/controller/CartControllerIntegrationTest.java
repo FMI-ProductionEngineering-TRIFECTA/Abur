@@ -1,7 +1,5 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -112,7 +110,7 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     void testAddToCart_Valid() throws Exception {
         UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
         ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
-        GameEntity game = gameRepository.findByIdAndType(getGameAtId(6), Type.GAME);
+        GameEntity game = gameRepository.findByIdAndType(getGameId(6), Type.GAME);
 
         performPost(null, getAccessToken(Role.CUSTOMER),"/{gameId}", game.getId())
                 .andExpect(status().isCreated())
@@ -132,13 +130,13 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
 
     @Test
     void testAddToCart_InvalidRole() throws Exception {
-        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", getGameAtId(6))
+        performPost(null, getAccessToken(Role.DEVELOPER),"/{gameid}", getGameId(6))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testAddToCart_NoAuth() throws Exception {
-        performPost(null, null, "/{gameid}", getGameAtId(6))
+        performPost(null, null, "/{gameid}", getGameId(6))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -146,7 +144,7 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     void testRemoveFromCart_Valid() throws Exception {
         UserEntity user = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
         ArrayList<GameEntity> games = new ArrayList<>(cartRepository.getGamesByCustomer(user));
-        GameEntity game = gameRepository.findByIdAndType(getGameAtId(3), Type.GAME);
+        GameEntity game = gameRepository.findByIdAndType(getGameId(3), Type.GAME);
 
         performDelete(getAccessToken(Role.CUSTOMER), "/{gameId}", game.getId())
                 .andExpect(status().isNoContent());
@@ -164,13 +162,13 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
 
     @Test
     void testRemoveFromCart_InvalidRole() throws Exception {
-        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", getGameAtId(3))
+        performDelete(getAccessToken(Role.DEVELOPER), "/{gameId}", getGameId(3))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void testRemoveFromCart_NoAuth() throws Exception {
-        performDelete(null, "/{gameId}", getGameAtId(3))
+        performDelete(null, "/{gameId}", getGameId(3))
                 .andExpect(status().isUnauthorized());
     }
 

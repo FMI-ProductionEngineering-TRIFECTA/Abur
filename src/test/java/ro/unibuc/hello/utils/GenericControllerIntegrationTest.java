@@ -6,18 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ro.unibuc.hello.config.DatabaseSeeder;
-import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.security.jwt.JWTService;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static ro.unibuc.hello.utils.DatabaseUtils.getId;
 
@@ -46,7 +39,7 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
         return mockMvc;
     }
 
-    public static String getGameAtId(Integer id) {
+    public static String getGameId(Integer id) {
         return getId("games", id);
     }
 

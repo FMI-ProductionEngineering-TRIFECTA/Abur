@@ -179,7 +179,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         GameEntity game = buildGame();
         when(gameService.updateGame(eq(game.getId()), any(Game.class))).thenReturn(game);
 
-        performPut(Game.builder().title(game.getTitle()).build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
+        performPut(Game.builder().title(game.getTitle() + " Update").build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
                 .andExpect(status().isOk())
                 .andExpect(matchOne(game, GAME_FIELDS));
     }
@@ -233,7 +233,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new ValidationException(errorMessage));
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, -keysToAdd)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -242,7 +243,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         when(gameService.addKeys(eq(ID), any(Integer.class))).thenThrow(new NotFoundException(errorMessage));
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", ID, keysToAdd)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
@@ -302,7 +304,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         doThrow(new NotFoundException(errorMessage)).when(gameService).deleteGame(any());
 
         performDelete(getMockedAccessToken(Role.DEVELOPER), "/{id}", ID)
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
     }
 
     @Test
