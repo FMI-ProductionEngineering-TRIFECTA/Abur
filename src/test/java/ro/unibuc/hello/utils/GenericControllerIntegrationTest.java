@@ -1,18 +1,12 @@
 package ro.unibuc.hello.utils;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ro.unibuc.hello.config.DatabaseSeeder;
 import ro.unibuc.hello.data.entity.GameEntity;
@@ -42,30 +36,8 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
     @Autowired
     private JWTService jwtService;
 
-    @Container
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
-            .withExposedPorts(27017)
-            .withSharding();
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("mongodb.connection.url", mongoDBContainer::getReplicaSetUrl);
-    }
-
-    @BeforeAll
-    public static void initialSetUp() {
-        if (!mongoDBContainer.isRunning()) {
-            mongoDBContainer.start();
-        }
-    }
-
-    @AfterAll
-    public static void tearDown() {
-         mongoDBContainer.stop();
-    }
-
     @BeforeEach
-    protected void setUp() {
+    protected void seeder() {
         databaseSeeder.seedData();
     }
 

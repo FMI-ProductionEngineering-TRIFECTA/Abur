@@ -1,11 +1,13 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
@@ -23,11 +25,30 @@ import static ro.unibuc.hello.data.entity.GameEntity.Type;
 import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@Tag("IntegrationTest")
 public class CartControllerIntegrationTest extends GenericControllerIntegrationTest<CartController> {
+
+    @Container
+    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+            .withExposedPorts(27017)
+            .withSharding();
+
+    @BeforeAll
+    public static void setUp() {
+        mongoDBContainer.start();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        mongoDBContainer.stop();
+    }
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://localhost:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    }
 
     @Autowired
     private CartRepository cartRepository;
