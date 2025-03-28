@@ -56,14 +56,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
         performGet(null,"/{id}", mockCustomer.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(mockCustomer.getId()))
-                .andExpect(jsonPath("$.username").value(mockCustomer.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockCustomer.getPassword()))
-                .andExpect(jsonPath("$.email").value(mockCustomer.getEmail()))
-                .andExpect(jsonPath("$.details.firstName").value(mockCustomer.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(mockCustomer.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(mockCustomer, CUSTOMER_FIELDS));
     }
 
     @Test
@@ -87,19 +80,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
         performGet(null, "/{id}/games", mockCustomer.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
-                    .andExpect(jsonPath("$[0].title").value(mockGame.getTitle()))
-                    .andExpect(jsonPath("$[0].price").value(mockGame.getPrice()))
-                    .andExpect(jsonPath("$[0].discountPercentage").value(mockGame.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[0].keys").value(mockGame.getKeys()))
-                    .andExpect(jsonPath("$[0].type").value(mockGame.getType().toString()))
-
-                    .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
-                    .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
-                    .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
-                    .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
+                .andExpect(matchAll(List.of(mockGame, mockDLC), GAME_FIELDS));
     }
 
     @Test
@@ -116,19 +97,13 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
     @Test
     void testGetAllCustomers() throws Exception {
         UserEntity mockCustomer = mockCustomerAuth();
-        when(customerService.getAllUsers()).thenReturn(List.of(mockCustomer));
+        List<UserEntity> mockCustomers = List.of(mockCustomer);
+        when(customerService.getAllUsers()).thenReturn(mockCustomers);
 
         performGet(null, "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                    .andExpect(jsonPath("$[0].id").value(mockCustomer.getId()))
-                    .andExpect(jsonPath("$[0].username").value(mockCustomer.getUsername()))
-                    .andExpect(jsonPath("$[0].password").value(mockCustomer.getPassword()))
-                    .andExpect(jsonPath("$[0].email").value(mockCustomer.getEmail()))
-                    .andExpect(jsonPath("$[0].details.firstName").value(mockCustomer.getDetails().getFirstName()))
-                    .andExpect(jsonPath("$[0].details.lastName").value(mockCustomer.getDetails().getLastName()))
-                    .andExpect(jsonPath("$[0].details.studio").doesNotExist())
-                    .andExpect(jsonPath("$[0].details.website").doesNotExist());
+                .andExpect(matchAll(mockCustomers, CUSTOMER_FIELDS));
     }
 
     @Test
@@ -140,19 +115,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
         performGet(getMockedAccessToken(UserEntity.Role.CUSTOMER), "/myGames")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
-                    .andExpect(jsonPath("$[0].title").value(mockGame.getTitle()))
-                    .andExpect(jsonPath("$[0].price").value(mockGame.getPrice()))
-                    .andExpect(jsonPath("$[0].discountPercentage").value(mockGame.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[0].keys").value(mockGame.getKeys()))
-                    .andExpect(jsonPath("$[0].type").value(mockGame.getType().toString()))
-
-                    .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
-                    .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
-                    .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
-                    .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
+                .andExpect(matchAll(List.of(mockGame, mockDLC), GAME_FIELDS));
     }
 
     @Test
@@ -176,14 +139,7 @@ public class CustomerControllerTest extends GenericControllerTest<CustomerContro
 
         performPut(customerInput, getMockedAccessToken(UserEntity.Role.CUSTOMER), "")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(mockUpdatedCustomer.getId()))
-                .andExpect(jsonPath("$.username").value(customerInput.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockUpdatedCustomer.getPassword()))
-                .andExpect(jsonPath("$.email").value(customerInput.getEmail()))
-                .andExpect(jsonPath("$.details.firstName").value(customerInput.getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(customerInput.getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(mockUpdatedCustomer, CUSTOMER_FIELDS));
     }
 
     @Test

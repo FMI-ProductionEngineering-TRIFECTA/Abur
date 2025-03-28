@@ -1,7 +1,5 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -29,22 +27,12 @@ import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperInput;
 public class AuthenticationControllerIntegrationTest extends GenericControllerIntegrationTest<AuthenticationController> {
 
     @Container
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
             .withExposedPorts(27017)
             .withSharding();
 
-    @BeforeAll
-    public static void setUp() {
-        mongoDBContainer.start();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
-    }
-
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    private static void setProperties(DynamicPropertyRegistry registry) {
         final String MONGO_URL = "mongodb://localhost:";
         final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
 
@@ -52,7 +40,7 @@ public class AuthenticationControllerIntegrationTest extends GenericControllerIn
     }
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private AuthenticationController authenticationController;
@@ -149,15 +137,7 @@ public class AuthenticationControllerIntegrationTest extends GenericControllerIn
         assertNotNull(newDeveloperDB);
 
         newDeveloperResults
-                .andExpect(jsonPath("$.id").value(newDeveloperDB.getId()))
-                .andExpect(jsonPath("$.username").value(newDeveloperDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(newDeveloperDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(newDeveloperDB.getEmail()))
-                .andExpect(jsonPath("$.role").value(newDeveloperDB.getRole().toString()))
-                .andExpect(jsonPath("$.details.studio").value(newDeveloperDB.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(newDeveloperDB.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(newDeveloperDB, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -177,15 +157,7 @@ public class AuthenticationControllerIntegrationTest extends GenericControllerIn
         assertNotNull(newCustomerDB);
 
         newCustomerResults
-                .andExpect(jsonPath("$.id").value(newCustomerDB.getId()))
-                .andExpect(jsonPath("$.username").value(newCustomerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(newCustomerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(newCustomerDB.getEmail()))
-                .andExpect(jsonPath("$.role").value(newCustomerDB.getRole().toString()))
-                .andExpect(jsonPath("$.details.firstName").value(newCustomerDB.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(newCustomerDB.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(newCustomerDB, CUSTOMER_FIELDS));
     }
 
     @Test

@@ -56,14 +56,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
         performGet(null,"/{id}", mockDeveloper.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(mockDeveloper.getId()))
-                .andExpect(jsonPath("$.username").value(mockDeveloper.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockDeveloper.getPassword()))
-                .andExpect(jsonPath("$.email").value(mockDeveloper.getEmail()))
-                .andExpect(jsonPath("$.details.studio").value(mockDeveloper.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(mockDeveloper.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(mockDeveloper, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -87,19 +80,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
         performGet(null, "/{id}/games", mockDeveloper.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
-                    .andExpect(jsonPath("$[0].title").value(mockGame.getTitle()))
-                    .andExpect(jsonPath("$[0].price").value(mockGame.getPrice()))
-                    .andExpect(jsonPath("$[0].discountPercentage").value(mockGame.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[0].keys").value(mockGame.getKeys()))
-                    .andExpect(jsonPath("$[0].type").value(mockGame.getType().toString()))
-
-                    .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
-                    .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
-                    .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
-                    .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
+                .andExpect(matchAll(List.of(mockGame, mockDLC), GAME_FIELDS));
     }
 
     @Test
@@ -116,19 +97,13 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
     @Test
     void testGetAllDevelopers() throws Exception {
         UserEntity mockDeveloper = mockDeveloperAuth();
-        when(developerService.getAllUsers()).thenReturn(List.of(mockDeveloper));
+        List<UserEntity> mockDevelopers = List.of(mockDeveloper);
+        when(developerService.getAllUsers()).thenReturn(mockDevelopers);
 
         performGet(null, "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                    .andExpect(jsonPath("$[0].id").value(mockDeveloper.getId()))
-                    .andExpect(jsonPath("$[0].username").value(mockDeveloper.getUsername()))
-                    .andExpect(jsonPath("$[0].password").value(mockDeveloper.getPassword()))
-                    .andExpect(jsonPath("$[0].email").value(mockDeveloper.getEmail()))
-                    .andExpect(jsonPath("$[0].details.studio").value(mockDeveloper.getDetails().getStudio()))
-                    .andExpect(jsonPath("$[0].details.website").value(mockDeveloper.getDetails().getWebsite()))
-                    .andExpect(jsonPath("$[0].details.firstName").doesNotExist())
-                    .andExpect(jsonPath("$[0].details.lastName").doesNotExist());
+                .andExpect(matchAll(mockDevelopers, DEVELOPER_FIELDS));
     }
 
     @Test
@@ -140,19 +115,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
         performGet(getMockedAccessToken(UserEntity.Role.DEVELOPER), "/myGames")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].id").value(mockGame.getId()))
-                    .andExpect(jsonPath("$[0].title").value(mockGame.getTitle()))
-                    .andExpect(jsonPath("$[0].price").value(mockGame.getPrice()))
-                    .andExpect(jsonPath("$[0].discountPercentage").value(mockGame.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[0].keys").value(mockGame.getKeys()))
-                    .andExpect(jsonPath("$[0].type").value(mockGame.getType().toString()))
-
-                    .andExpect(jsonPath("$[1].id").value(mockDLC.getId()))
-                    .andExpect(jsonPath("$[1].title").value(mockDLC.getTitle()))
-                    .andExpect(jsonPath("$[1].price").value(mockDLC.getPrice()))
-                    .andExpect(jsonPath("$[1].discountPercentage").value(mockDLC.getDiscountPercentage()))
-                    .andExpect(jsonPath("$[1].keys").value(mockDLC.getKeys()))
-                    .andExpect(jsonPath("$[1].type").value(mockDLC.getType().toString()));
+                .andExpect(matchAll(List.of(mockGame, mockDLC), GAME_FIELDS));
     }
 
     @Test
@@ -176,14 +139,7 @@ public class DeveloperControllerTest extends GenericControllerTest<DeveloperCont
 
         performPut(developerInput, getMockedAccessToken(UserEntity.Role.DEVELOPER), "")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(mockUpdatedDeveloper.getId()))
-                .andExpect(jsonPath("$.username").value(developerInput.getUsername()))
-                .andExpect(jsonPath("$.password").value(mockUpdatedDeveloper.getPassword()))
-                .andExpect(jsonPath("$.email").value(developerInput.getEmail()))
-                .andExpect(jsonPath("$.details.studio").value(developerInput.getStudio()))
-                .andExpect(jsonPath("$.details.website").value(developerInput.getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(mockUpdatedDeveloper, DEVELOPER_FIELDS));
     }
 
     @Test

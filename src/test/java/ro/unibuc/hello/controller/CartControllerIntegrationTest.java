@@ -28,22 +28,12 @@ import static ro.unibuc.hello.data.entity.UserEntity.Role;
 public class CartControllerIntegrationTest extends GenericControllerIntegrationTest<CartController> {
 
     @Container
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
             .withExposedPorts(27017)
             .withSharding();
 
-    @BeforeAll
-    public static void setUp() {
-        mongoDBContainer.start();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
-    }
-
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    private static void setProperties(DynamicPropertyRegistry registry) {
         final String MONGO_URL = "mongodb://localhost:";
         final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
 

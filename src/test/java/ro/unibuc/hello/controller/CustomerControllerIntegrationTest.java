@@ -1,7 +1,5 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -25,22 +23,12 @@ import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockUpdatedCustomerI
 public class CustomerControllerIntegrationTest extends GenericControllerIntegrationTest<CustomerController> {
 
     @Container
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
             .withExposedPorts(27017)
             .withSharding();
 
-    @BeforeAll
-    public static void setUp() {
-        mongoDBContainer.start();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
-    }
-
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    private static void setProperties(DynamicPropertyRegistry registry) {
         final String MONGO_URL = "mongodb://localhost:";
         final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
 
@@ -48,10 +36,10 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
     }
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    CustomerController customerController;
+    private CustomerController customerController;
 
     @Override
     public String getEndpoint() {
@@ -69,14 +57,7 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
 
         performGet(null,"/{id}", customerDB.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(customerDB.getId()))
-                .andExpect(jsonPath("$.username").value(customerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(customerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(customerDB.getEmail()))
-                .andExpect(jsonPath("$.details.firstName").value(customerDB.getDetails().getFirstName()))
-                .andExpect(jsonPath("$.details.lastName").value(customerDB.getDetails().getLastName()))
-                .andExpect(jsonPath("$.details.studio").doesNotExist())
-                .andExpect(jsonPath("$.details.website").doesNotExist());
+                .andExpect(matchOne(customerDB, CUSTOMER_FIELDS));
     }
 
     @Test

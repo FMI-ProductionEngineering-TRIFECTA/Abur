@@ -59,10 +59,7 @@ class WishlistControllerTest extends GenericControllerTest<WishlistController> {
         performGet(getMockedAccessToken(Role.CUSTOMER), "")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(games.get(2).getTitle()));
-
+                .andExpect(matchAll(games, GAME_FIELDS));
     }
 
     @Test

@@ -1,7 +1,5 @@
 package ro.unibuc.hello.controller;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -25,22 +23,12 @@ import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockUpdatedDeveloper
 public class DeveloperControllerIntegrationTest extends GenericControllerIntegrationTest<DeveloperController> {
 
     @Container
-    public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
+    private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
             .withExposedPorts(27017)
             .withSharding();
 
-    @BeforeAll
-    public static void setUp() {
-        mongoDBContainer.start();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
-    }
-
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    private static void setProperties(DynamicPropertyRegistry registry) {
         final String MONGO_URL = "mongodb://localhost:";
         final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
 
@@ -48,10 +36,10 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
     }
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    DeveloperController developerController;
+    private DeveloperController developerController;
 
     @Override
     public String getEndpoint() {
@@ -69,14 +57,7 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
 
         performGet(null,"/{id}", developerDB.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(developerDB.getId()))
-                .andExpect(jsonPath("$.username").value(developerDB.getUsername()))
-                .andExpect(jsonPath("$.password").value(developerDB.getPassword()))
-                .andExpect(jsonPath("$.email").value(developerDB.getEmail()))
-                .andExpect(jsonPath("$.details.studio").value(developerDB.getDetails().getStudio()))
-                .andExpect(jsonPath("$.details.website").value(developerDB.getDetails().getWebsite()))
-                .andExpect(jsonPath("$.details.firstName").doesNotExist())
-                .andExpect(jsonPath("$.details.lastName").doesNotExist());
+                .andExpect(matchOne(developerDB, DEVELOPER_FIELDS));
     }
 
     @Test

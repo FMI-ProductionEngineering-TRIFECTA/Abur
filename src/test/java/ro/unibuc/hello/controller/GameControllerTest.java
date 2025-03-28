@@ -61,8 +61,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performGet(null, "/{id}", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.title").value(game.getTitle()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -83,9 +82,8 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performGet(null, "/{id}/dlcs", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value(dlcs.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(dlcs.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(dlcs.get(2).getTitle()));
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(matchAll(dlcs, GAME_FIELDS));
     }
 
     @Test
@@ -96,9 +94,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
         performGet()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].title").value(games.get(0).getTitle()))
-                .andExpect(jsonPath("$[1].title").value(games.get(1).getTitle()))
-                .andExpect(jsonPath("$[2].title").value(games.get(2).getTitle()));
+                .andExpect(matchAll(games, GAME_FIELDS));
     }
 
     @Test
@@ -185,8 +181,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performPut(Game.builder().title(game.getTitle()).build(), getMockedAccessToken(Role.DEVELOPER), "/{id}", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.title").value(game.getTitle()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -229,8 +224,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/addKeys?quantity={keys}", game.getId(), keysToAdd)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.keys").value(game.getKeys()));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
@@ -271,8 +265,7 @@ class GameControllerTest extends GenericControllerTest<GameController> {
 
         performPut(null, getMockedAccessToken(Role.DEVELOPER), "/{id}/markOutOfStock", game.getId())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(game.getId()))
-                .andExpect(jsonPath("$.keys").value(0));
+                .andExpect(matchOne(game, GAME_FIELDS));
     }
 
     @Test
