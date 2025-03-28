@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
-import static ro.unibuc.hello.utils.DateUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.generateId;
+import static ro.unibuc.hello.utils.DateUtils.dateNow;
+import static ro.unibuc.hello.utils.DateUtils.parseDate;
 import static ro.unibuc.hello.utils.ValidationUtils.*;
 
 @Getter

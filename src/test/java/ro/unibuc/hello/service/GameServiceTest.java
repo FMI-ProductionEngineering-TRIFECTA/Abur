@@ -13,13 +13,16 @@ import ro.unibuc.hello.exception.NotFoundException;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 import ro.unibuc.hello.exception.ValidationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static ro.unibuc.hello.data.entity.UserEntity.*;
-import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
+import static ro.unibuc.hello.data.entity.GameEntity.Type;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperAuth;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
 import static ro.unibuc.hello.utils.GameTestUtils.*;
 
 class GameServiceTest {

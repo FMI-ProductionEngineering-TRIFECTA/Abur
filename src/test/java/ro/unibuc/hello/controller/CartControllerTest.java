@@ -11,7 +11,6 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.CartInfo;
 import ro.unibuc.hello.exception.NotFoundException;
-import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.service.CartService;
 import ro.unibuc.hello.utils.GenericControllerTest;
 
@@ -22,11 +21,12 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
+import static ro.unibuc.hello.data.entity.GameEntity.totalPrice;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
-import static ro.unibuc.hello.data.entity.GameEntity.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGames;
 
 @EnableAspectJAutoProxy
 class CartControllerTest extends GenericControllerTest<CartController> {

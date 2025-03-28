@@ -1,0 +1,158 @@
+package ro.unibuc.hello.controller;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import ro.unibuc.hello.data.entity.UserEntity;
+import ro.unibuc.hello.data.repository.UserRepository;
+import ro.unibuc.hello.dto.Customer;
+import ro.unibuc.hello.utils.GenericControllerIntegrationTest;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerInput;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockUpdatedCustomerInput;
+import static ro.unibuc.hello.data.entity.UserEntity.Role;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Testcontainers
+@Tag("IntegrationTest")
+public class CustomerControllerIntegrationTest extends GenericControllerIntegrationTest<CustomerController> {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    CustomerController customerController;
+
+    @Override
+    public String getEndpoint() {
+        return "customers";
+    }
+
+    @Override
+    public CustomerController getController() {
+        return customerController;
+    }
+
+    @Test
+    void testGetCustomerById_ValidId() throws Exception {
+        UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+
+        performGet(null,"/{id}", customerDB.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(customerDB.getId()))
+                .andExpect(jsonPath("$.username").value(customerDB.getUsername()))
+                .andExpect(jsonPath("$.password").value(customerDB.getPassword()))
+                .andExpect(jsonPath("$.email").value(customerDB.getEmail()))
+                .andExpect(jsonPath("$.details.firstName").value(customerDB.getDetails().getFirstName()))
+                .andExpect(jsonPath("$.details.lastName").value(customerDB.getDetails().getLastName()))
+                .andExpect(jsonPath("$.details.studio").doesNotExist())
+                .andExpect(jsonPath("$.details.website").doesNotExist());
+    }
+
+    @Test
+    void testGetCustomerById_InvalidId() throws Exception {
+        final String id = "id-invalid";
+
+        performGet(null, "/{id}", id)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(String.format("No %s found at id %s", Role.CUSTOMER.toString().toLowerCase(), id)));
+    }
+
+    @Test
+    void testGetCustomerGames_ValidId() throws Exception {
+        UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+
+        matchAllGames(
+                "",
+                performGet(null, "/{id}/games", customerDB.getId())
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
+                customerDB.getGames()
+        );
+    }
+
+    @Test
+    void testGetCustomerGames_InvalidId() throws Exception {
+        final String id = "id-invalid";
+
+        performGet(null, "/{id}/games", id)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(String.format("No %s found at id %s", Role.CUSTOMER.toString().toLowerCase(), id)));
+    }
+
+    @Test
+    void testGetAllCustomers() throws Exception {
+        List<UserEntity> customersDB = userRepository.findAllByRole(Role.CUSTOMER);
+
+        matchAllCustomers(
+                "",
+                performGet(null, "")
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", hasSize(customersDB.size()))),
+                customersDB
+        );
+    }
+
+    @Test
+    void testGetMyGames_Authenticated() throws Exception {
+        UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+
+        matchAllGames(
+                "",
+                performGet(getAccessToken(Role.CUSTOMER), "/myGames")
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
+                customerDB.getGames()
+        );
+    }
+
+    @Test
+    void testGetMyGames_Unauthenticated() throws Exception {
+        performGet("/myGames")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testGetMyGames_AuthenticatedDeveloper() throws Exception {
+        performGet(getAccessToken(Role.DEVELOPER), "/myGames")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testUpdateLoggedCustomer_Authenticated() throws Exception {
+        Customer customerInput = mockUpdatedCustomerInput();
+        UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
+
+        performPut(customerInput, getAccessToken(Role.CUSTOMER), "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(customerDB.getId()))
+                .andExpect(jsonPath("$.username").value(customerInput.getUsername()))
+                .andExpect(jsonPath("$.email").value(customerInput.getEmail()))
+                .andExpect(jsonPath("$.details.firstName").value(customerInput.getFirstName()))
+                .andExpect(jsonPath("$.details.lastName").value(customerInput.getLastName()))
+                .andExpect(jsonPath("$.details.studio").doesNotExist())
+                .andExpect(jsonPath("$.details.website").doesNotExist());
+    }
+
+    @Test
+    void testUpdateLoggedCustomer_AuthenticatedDeveloper() throws Exception {
+        performPut(mockCustomerInput(), getAccessToken(Role.DEVELOPER), "")
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testUpdateLoggedCustomer_Unauthenticated() throws Exception {
+        performPut(mockCustomerInput(), null, "")
+                .andExpect(status().isUnauthorized());
+    }
+
+}

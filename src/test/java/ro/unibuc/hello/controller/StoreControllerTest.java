@@ -13,12 +13,12 @@ import ro.unibuc.hello.utils.GenericControllerTest;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.unibuc.hello.data.entity.UserEntity.Role;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.getMockedAccessToken;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGames;
 
 @EnableAspectJAutoProxy
 class StoreControllerTest extends GenericControllerTest<StoreController> {

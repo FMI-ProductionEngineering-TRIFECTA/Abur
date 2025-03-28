@@ -7,15 +7,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.exception.NotFoundException;
 
-import java.util.*;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
-import static ro.unibuc.hello.utils.GameTestUtils.*;
+import static org.mockito.Mockito.when;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
+import static ro.unibuc.hello.utils.GameTestUtils.buildGames;
 
 public class LibraryServiceTest {
 

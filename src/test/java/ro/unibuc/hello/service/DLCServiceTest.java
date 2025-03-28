@@ -7,18 +7,21 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
-import ro.unibuc.hello.data.repository.*;
+import ro.unibuc.hello.data.repository.GameRepository;
+import ro.unibuc.hello.data.repository.UserRepository;
 import ro.unibuc.hello.dto.Game;
 import ro.unibuc.hello.exception.UnauthorizedAccessException;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
+import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.data.entity.GameEntity.Type;
-import static ro.unibuc.hello.utils.DLCTestUtils.*;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockDeveloperAuth;
+import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
+import static ro.unibuc.hello.utils.DLCTestUtils.buildBaseGame;
+import static ro.unibuc.hello.utils.DLCTestUtils.buildDLCForGame;
 
 class DLCServiceTest {
 

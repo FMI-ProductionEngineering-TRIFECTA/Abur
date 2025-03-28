@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import ro.unibuc.hello.data.entity.GameEntity;
-import ro.unibuc.hello.data.entity.InformationEntity;
 import ro.unibuc.hello.data.entity.LibraryEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.*;
@@ -14,17 +13,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
-import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
-import static ro.unibuc.hello.data.entity.LibraryEntity.*;
+import static ro.unibuc.hello.data.entity.LibraryEntity.buildLibraryEntry;
 import static ro.unibuc.hello.data.entity.UserEntity.*;
+import static ro.unibuc.hello.data.entity.WishlistEntity.buildWishlistEntry;
+import static ro.unibuc.hello.utils.DatabaseUtils.getId;
+import static ro.unibuc.hello.utils.DatabaseUtils.setTemplate;
 
 @Component
 public class DatabaseSeeder {
-
-    @Autowired
-    private InformationRepository informationRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -69,16 +66,6 @@ public class DatabaseSeeder {
         GameEntity baseGame = gameRepository.findByIdAndType(dlcEntity.getBaseGame().getId(), Type.GAME);
         baseGame.getDlcs().add(dlcEntity);
         gameRepository.save(baseGame);
-    }
-
-    @Async
-    protected void seedInformation() {
-        informationRepository.saveAll(List.of(
-            new InformationEntity(
-                    "Overview",
-                    "This is an example of using a data storage engine running separately from our applications server"
-            )
-        ));
     }
 
     @Async
@@ -380,7 +367,6 @@ public class DatabaseSeeder {
         setTemplate("dlcs", "67c9f02a5582625f6c6639dlc");
 
         executeAsync(List.of(
-            informationRepository::deleteAll,
             userRepository::deleteAll,
             gameRepository::deleteAll,
             libraryRepository::deleteAll,
@@ -388,7 +374,6 @@ public class DatabaseSeeder {
             wishlistRepository::deleteAll
         ))
         .thenCompose(ignored -> executeAsync(List.of(
-            this::seedInformation,
             this::seedDeveloper,
             this::seedCustomer
         )))

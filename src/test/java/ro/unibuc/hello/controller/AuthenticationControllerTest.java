@@ -15,7 +15,7 @@ import ro.unibuc.hello.exception.ValidationException;
 import ro.unibuc.hello.service.AuthenticationService;
 import ro.unibuc.hello.utils.GenericControllerTest;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

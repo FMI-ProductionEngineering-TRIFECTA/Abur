@@ -11,7 +11,8 @@ import ro.unibuc.hello.service.DLCService;
 
 import java.util.List;
 
-import static ro.unibuc.hello.utils.ResponseUtils.*;
+import static ro.unibuc.hello.utils.ResponseUtils.noContent;
+import static ro.unibuc.hello.utils.ResponseUtils.ok;
 
 @Controller
 @RequestMapping("/dlcs")

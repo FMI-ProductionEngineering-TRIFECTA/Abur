@@ -6,15 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ro.unibuc.hello.annotation.DeveloperOnly;
 import ro.unibuc.hello.data.entity.GameEntity;
-import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.dto.Game;
-import ro.unibuc.hello.exception.UnauthorizedAccessException;
 import ro.unibuc.hello.service.DLCService;
 import ro.unibuc.hello.service.GameService;
 
 import java.util.List;
 
-import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
 import static ro.unibuc.hello.utils.ResponseUtils.*;
 
 @Controller

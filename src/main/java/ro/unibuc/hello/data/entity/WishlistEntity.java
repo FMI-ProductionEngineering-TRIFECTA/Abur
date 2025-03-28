@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static ro.unibuc.hello.utils.DatabaseUtils.*;
+import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey;
 import static ro.unibuc.hello.utils.DatabaseUtils.CompositeKey.build;
 
 @Getter

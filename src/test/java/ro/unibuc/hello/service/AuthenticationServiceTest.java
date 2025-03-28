@@ -1,14 +1,10 @@
 package ro.unibuc.hello.service;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.mockito.Spy;
 import org.springframework.test.util.ReflectionTestUtils;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -22,11 +18,13 @@ import ro.unibuc.hello.security.AuthenticationUtils;
 import ro.unibuc.hello.security.jwt.JWTService;
 import ro.unibuc.hello.utils.AuthenticationTestUtils;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.*;
 
 public class AuthenticationServiceTest {
 
-    private static final Integer minStringValidLength = 5;
+    private static final Integer MIN_STRING_VALID_LENGTH = 5;
 
     @Mock
     protected UserRepository userRepository;
@@ -211,7 +209,7 @@ public class AuthenticationServiceTest {
         developerInput.setUsername("dev");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
-        assertEquals("Username must be at least " + minStringValidLength + " characters long!", exception.getMessage());
+        assertEquals("Username must be at least " + MIN_STRING_VALID_LENGTH + " characters long!", exception.getMessage());
 
         verify(userRepository, times(0)).save(any());
     }
@@ -277,7 +275,7 @@ public class AuthenticationServiceTest {
         developerInput.setPassword("Pa1");
 
         ValidationException exception = assertThrows(ValidationException.class, () -> authenticationService.signupDeveloper(developerInput));
-        assertEquals("Password must be at least " + minStringValidLength + " characters long!", exception.getMessage());
+        assertEquals("Password must be at least " + MIN_STRING_VALID_LENGTH + " characters long!", exception.getMessage());
 
         verify(userRepository, times(0)).save(any());
     }
