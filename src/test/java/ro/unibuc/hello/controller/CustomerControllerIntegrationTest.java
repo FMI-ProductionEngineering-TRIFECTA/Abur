@@ -71,13 +71,10 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
     void testGetCustomerGames_ValidId() throws Exception {
         UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
 
-        matchAllGames(
-                "",
-                performGet(null, "/{id}/games", customerDB.getId())
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
-                customerDB.getGames()
-        );
+        performGet(null, "/{id}/games", customerDB.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customerDB.getGames().size())))
+                .andExpect(matchAll(customerDB.getGames(), GAME_FIELDS));
     }
 
     @Test
@@ -93,26 +90,20 @@ public class CustomerControllerIntegrationTest extends GenericControllerIntegrat
     void testGetAllCustomers() throws Exception {
         List<UserEntity> customersDB = userRepository.findAllByRole(Role.CUSTOMER);
 
-        matchAllCustomers(
-                "",
-                performGet(null, "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customersDB.size()))),
-                customersDB
-        );
+        performGet(null, "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customersDB.size())))
+                .andExpect(matchAll(customersDB, CUSTOMER_FIELDS));
     }
 
     @Test
     void testGetMyGames_Authenticated() throws Exception {
         UserEntity customerDB = userRepository.findByIdAndRole(getUserId(Role.CUSTOMER), Role.CUSTOMER);
 
-        matchAllGames(
-                "",
-                performGet(getAccessToken(Role.CUSTOMER), "/myGames")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(customerDB.getGames().size()))),
-                customerDB.getGames()
-        );
+        performGet(getAccessToken(Role.CUSTOMER), "/myGames")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(customerDB.getGames().size())))
+                .andExpect(matchAll(customerDB.getGames(), GAME_FIELDS));
     }
 
     @Test

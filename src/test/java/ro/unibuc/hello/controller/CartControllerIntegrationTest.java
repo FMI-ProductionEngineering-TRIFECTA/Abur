@@ -52,14 +52,11 @@ public class CartControllerIntegrationTest extends GenericControllerIntegrationT
     }
 
     private void testPerformGet(List<GameEntity> games) throws Exception {
-        matchAllGames(
-                ".items",
-                performGet(getAccessToken(Role.CUSTOMER), "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.price").value(totalPrice(games)))
-                        .andExpect(jsonPath("$.items", hasSize(games.size()))),
-                games
-        );
+        performGet(getAccessToken(Role.CUSTOMER), "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.price").value(totalPrice(games)))
+                .andExpect(jsonPath("$.items", hasSize(games.size())))
+                .andExpect(matchAll(".items", games, GAME_FIELDS));
     }
 
     @Test

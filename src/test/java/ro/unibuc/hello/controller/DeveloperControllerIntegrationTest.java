@@ -71,13 +71,10 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
     void testGetDeveloperGames_ValidId() throws Exception {
         UserEntity developerDB = userRepository.findByIdAndRole(getUserId(Role.DEVELOPER), Role.DEVELOPER);
 
-        matchAllGames(
-                "",
-                performGet(null, "/{id}/games", developerDB.getId())
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developerDB.getGames().size()))),
-                developerDB.getGames()
-        );
+        performGet(null, "/{id}/games", developerDB.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developerDB.getGames().size())))
+                .andExpect(matchAll(developerDB.getGames(), GAME_FIELDS));
     }
 
     @Test
@@ -93,26 +90,20 @@ public class DeveloperControllerIntegrationTest extends GenericControllerIntegra
     void testGetAllDevelopers() throws Exception {
         List<UserEntity> developersDB = userRepository.findAllByRole(Role.DEVELOPER);
 
-        matchAllDevelopers(
-                "",
-                performGet(null, "")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developersDB.size()))),
-                developersDB
-        );
+        performGet(null, "")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developersDB.size())))
+                .andExpect(matchAll("", developersDB, DEVELOPER_FIELDS));
     }
 
     @Test
     void testGetMyGames_Authenticated() throws Exception {
         UserEntity developerDB = userRepository.findByIdAndRole(getUserId(Role.DEVELOPER), Role.DEVELOPER);
 
-        matchAllGames(
-                "",
-                performGet(getAccessToken(Role.DEVELOPER), "/myGames")
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$", hasSize(developerDB.getGames().size()))),
-                developerDB.getGames()
-        );
+        performGet(getAccessToken(Role.DEVELOPER), "/myGames")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(developerDB.getGames().size())))
+                .andExpect(matchAll(developerDB.getGames(), GAME_FIELDS));
     }
 
     @Test

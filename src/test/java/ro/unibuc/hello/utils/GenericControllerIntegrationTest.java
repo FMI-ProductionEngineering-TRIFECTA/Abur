@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -20,6 +20,8 @@ import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.security.jwt.JWTService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,10 +49,24 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        final String MONGO_URL = "mongodb://localhost:";
-        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+        registry.add("mongodb.connection.url", mongoDBContainer::getReplicaSetUrl);
+    }
 
-        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
+    @BeforeAll
+    public static void initialSetUp() {
+        if (!mongoDBContainer.isRunning()) {
+            mongoDBContainer.start();
+        }
+    }
+
+    @AfterAll
+    public static void tearDown() {
+         mongoDBContainer.stop();
+    }
+
+    @BeforeEach
+    protected void setUp() {
+        databaseSeeder.seedData();
     }
 
     @Override
@@ -70,59 +86,56 @@ public abstract class GenericControllerIntegrationTest<C> implements ControllerT
         return jwtService.getToken(getUserId(role));
     }
 
-    @BeforeEach
-    protected void setUp() {
-        databaseSeeder.seedData();
+    public static <T> ResultMatcher matchAll(String jsonPrefix, List<T> entities, Map<String, Function<T, Object>> fieldGetters) {
+        return result -> {
+            for (int i = 0; i < entities.size(); ++i) {
+                for (Map.Entry<String, Function<T, Object>> entry : fieldGetters.entrySet()) {
+                    String jsonPathExpr = String.format("$%s[%d].%s", jsonPrefix, i, entry.getKey());
+                    Object expectedValue = entry.getValue().apply(entities.get(i));
+                    if (expectedValue != null) {
+                        jsonPath(jsonPathExpr, equalTo(expectedValue)).match(result);
+                    }
+                    else {
+                        jsonPath(jsonPathExpr).doesNotExist().match(result);
+                    }
+                }
+            }
+        };
     }
 
-    @BeforeAll
-    public static void initialSetUp() {
-        mongoDBContainer.start();
+    public static <T> ResultMatcher matchAll(List<T> entities, Map<String, Function<T, Object>> fieldGetters) {
+        return matchAll("", entities, fieldGetters);
     }
 
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
-    }
+    public static final Map<String, Function<GameEntity, Object>> GAME_FIELDS = Map.of(
+            "id", GameEntity::getId,
+            "title", GameEntity::getTitle,
+            "price", GameEntity::getPrice,
+            "discountPercentage", GameEntity::getDiscountPercentage,
+            "keys", GameEntity::getKeys,
+            "type", game -> game.getType().toString()
+    );
 
-    public void matchAllGames(String jsonPrefix, ResultActions resultActions, List<GameEntity> games) throws Exception {
-        for (int i = 0; i < games.size(); i++) {
-            resultActions = resultActions
-                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(games.get(i).getId())))
-                .andExpect(jsonPath(String.format("$%s[%d].title", jsonPrefix, i), equalTo(games.get(i).getTitle())))
-                .andExpect(jsonPath(String.format("$%s[%d].price", jsonPrefix, i), equalTo(games.get(i).getPrice())))
-                .andExpect(jsonPath(String.format("$%s[%d].discountPercentage", jsonPrefix, i), equalTo(games.get(i).getDiscountPercentage())))
-                .andExpect(jsonPath(String.format("$%s[%d].keys", jsonPrefix, i), equalTo(games.get(i).getKeys())))
-                .andExpect(jsonPath(String.format("$%s[%d].type", jsonPrefix, i), equalTo(games.get(i).getType().toString())));
-        }
-    }
+    public static final Map<String, Function<UserEntity, Object>> DEVELOPER_FIELDS = Map.of(
+            "id", UserEntity::getId,
+            "username", UserEntity::getUsername,
+            "password", UserEntity::getPassword,
+            "email", UserEntity::getEmail,
+            "details.studio", user -> user.getDetails().getStudio(),
+            "details.website", user -> user.getDetails().getWebsite(),
+            "details.firstName", user -> null,
+            "details.lastName", user -> null
+    );
 
-    public void matchAllDevelopers(String jsonPrefix, ResultActions resultActions, List<UserEntity> developers) throws Exception {
-        for (int i = 0; i < developers.size(); i++) {
-            resultActions = resultActions
-                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(developers.get(i).getId())))
-                .andExpect(jsonPath(String.format("$%s[%d].username", jsonPrefix, i), equalTo(developers.get(i).getUsername())))
-                .andExpect(jsonPath(String.format("$%s[%d].password", jsonPrefix, i), equalTo(developers.get(i).getPassword())))
-                .andExpect(jsonPath(String.format("$%s[%d].email", jsonPrefix, i), equalTo(developers.get(i).getEmail())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.studio", jsonPrefix, i), equalTo(developers.get(i).getDetails().getStudio())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.website", jsonPrefix, i), equalTo(developers.get(i).getDetails().getWebsite())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.firstName", jsonPrefix, i)).doesNotExist())
-                .andExpect(jsonPath(String.format("$%s[%d].details.lastName", jsonPrefix, i)).doesNotExist());
-        }
-    }
-
-    public void matchAllCustomers(String jsonPrefix, ResultActions resultActions, List<UserEntity> customers) throws Exception {
-        for (int i = 0; i < customers.size(); i++) {
-            resultActions = resultActions
-                .andExpect(jsonPath(String.format("$%s[%d].id", jsonPrefix, i), equalTo(customers.get(i).getId())))
-                .andExpect(jsonPath(String.format("$%s[%d].username", jsonPrefix, i), equalTo(customers.get(i).getUsername())))
-                .andExpect(jsonPath(String.format("$%s[%d].password", jsonPrefix, i), equalTo(customers.get(i).getPassword())))
-                .andExpect(jsonPath(String.format("$%s[%d].email", jsonPrefix, i), equalTo(customers.get(i).getEmail())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.firstName", jsonPrefix, i), equalTo(customers.get(i).getDetails().getFirstName())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.lastName", jsonPrefix, i), equalTo(customers.get(i).getDetails().getLastName())))
-                .andExpect(jsonPath(String.format("$%s[%d].details.studio", jsonPrefix, i)).doesNotExist())
-                .andExpect(jsonPath(String.format("$%s[%d].details.website", jsonPrefix, i)).doesNotExist());
-        }
-    }
+    public static final Map<String, Function<UserEntity, Object>> CUSTOMER_FIELDS = Map.of(
+            "id", UserEntity::getId,
+            "username", UserEntity::getUsername,
+            "password", UserEntity::getPassword,
+            "email", UserEntity::getEmail,
+            "details.firstName", user -> user.getDetails().getFirstName(),
+            "details.lastName", user -> user.getDetails().getLastName(),
+            "details.studio", user -> null,
+            "details.website", user -> null
+    );
 
 }
