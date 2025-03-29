@@ -7,6 +7,7 @@ import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
+import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.WishlistRepository;
 import ro.unibuc.hello.dto.CartInfo;
@@ -29,6 +30,9 @@ public class CartService {
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private GameRepository gameRepository;
 
     @Autowired
     private WishlistRepository wishlistRepository;
@@ -55,6 +59,10 @@ public class CartService {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 
         games.forEach(GameEntity::decreaseNoKeys);
+        games.forEach(game -> {
+            gameRepository.save(game);
+            customer.getGames().add(game);
+        });
         games.forEach(game -> libraryRepository.save(
                 buildLibraryEntry(
                         game,
