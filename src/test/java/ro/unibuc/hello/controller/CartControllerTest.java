@@ -84,6 +84,16 @@ class CartControllerTest extends GenericControllerTest<CartController> {
     }
 
     @Test
+    void testCheckout_NotEnoughKeys() throws Exception {
+        String errorMessage = "There are no more keys for INSERT_GAME_TITLE, please remove it from the cart!";
+        doThrow(new NotFoundException(errorMessage)).when(cartService).checkout();
+
+        performPost(null, getMockedAccessToken(Role.CUSTOMER),"/checkout")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(errorMessage));
+    }
+
+    @Test
     void testCheckout_InvalidRole() throws Exception {
         performPost(null, getMockedAccessToken(Role.DEVELOPER),"/checkout")
                 .andExpect(status().isUnauthorized());

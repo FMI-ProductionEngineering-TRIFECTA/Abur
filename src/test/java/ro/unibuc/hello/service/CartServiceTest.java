@@ -11,6 +11,7 @@ import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.LibraryEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.CartRepository;
+import ro.unibuc.hello.data.repository.GameRepository;
 import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.WishlistRepository;
 import ro.unibuc.hello.dto.CartInfo;
@@ -20,6 +21,7 @@ import ro.unibuc.hello.exception.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.max;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
@@ -40,6 +42,9 @@ class CartServiceTest {
 
     @Mock
     protected CartRepository cartRepository;
+
+    @Mock
+    protected GameRepository gameRepository;
 
     @Mock
     protected CustomerService customerService;
@@ -93,29 +98,51 @@ class CartServiceTest {
     @Test
     void testCheckout_Valid() {
         UserEntity customer = mockCustomerAuth();
-        List<GameEntity> games = buildGames(3);
-        when(cartRepository.getGamesByCustomer(customer)).thenReturn(games);
+        List<GameEntity> games = buildGames(6);
+        List<Integer> numKeyList = games
+                .stream()
+                .map(GameEntity::getKeys)
+                .toList();
+        List<GameEntity> customerGames = customer.getGames();
+        customerGames.add(games.get(0));
+        customerGames.add(games.get(1));
+        customerGames.add(games.get(2));
+        games.removeAll(customerGames);
+        int initialNumGames = customerGames.size();
 
+        ArgumentCaptor<GameEntity> gameCaptor = ArgumentCaptor.forClass(GameEntity.class);
         ArgumentCaptor<LibraryEntity> libraryCaptor = ArgumentCaptor.forClass(LibraryEntity.class);
         ArgumentCaptor<CompositeKey> wishlistCaptor = ArgumentCaptor.forClass(CompositeKey.class);
 
+        when(cartRepository.getGamesByCustomer(customer)).thenReturn(games);
+        when(gameRepository.save(any(GameEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(libraryRepository.save(any(LibraryEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doNothing().when(wishlistRepository).deleteById(any(CompositeKey.class));
 
         cartService.checkout();
 
         // capture the arguments and then get the values
+        verify(gameRepository, times(games.size())).save(gameCaptor.capture());
+        List<GameEntity> capturedGameEntities = gameCaptor.getAllValues();
+
         verify(libraryRepository, times(games.size())).save(libraryCaptor.capture());
         List<LibraryEntity> capturedLibraryEntities = libraryCaptor.getAllValues();
 
         verify(wishlistRepository, times(games.size())).deleteById(wishlistCaptor.capture());
         List<CompositeKey> capturedCompositeKeys = wishlistCaptor.getAllValues();
 
+        assertEquals(games.size(), capturedGameEntities.size());
         assertEquals(games.size(), capturedLibraryEntities.size());
         assertEquals(games.size(), capturedCompositeKeys.size());
+        assertEquals(customer.getGames().size(), initialNumGames + games.size());
 
         for (int i = 0; i < games.size(); i++) {
             GameEntity game = games.get(i);
+
+            assertEquals(max(numKeyList.get(i) - 1, 0), game.getKeys());
+
+            assertNotNull(capturedGameEntities.get(i));
+            assertEquals(game.getId(), capturedGameEntities.get(i).getId());
 
             assertNotNull(capturedLibraryEntities.get(i));
             assertEquals(game.getId(), capturedLibraryEntities.get(i).getGame().getId());
