@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_CREDENTIALS = credentials("docker_password")
+        DOCKER_CREDENTIALS = credentials("docker_credentials")
     }
 
     stages {
@@ -20,9 +20,6 @@ pipeline {
         stage('Push to Docker Hub') {
               steps {
                     script {
-                        DOCKER_USERNAME = DOCKER_CREDENTIALS.username
-                        DOCKER_PASSWORD = DOCKER_CREDENTIALS.password
-
                         GIT_TAG = sh([script: 'git fetch --tag && git tag', returnStdout: true]).trim()
                         MAJOR_VERSION = sh([script: 'git tag | cut -d . -f 1', returnStdout: true]).trim()
                         MINOR_VERSION = sh([script: 'git tag | cut -d . -f 2', returnStdout: true]).trim()
@@ -32,9 +29,9 @@ pipeline {
                         IMAGE_VERSION = "${MAJOR_VERSION}.${NEW_MINOR}.${PATCH_VERSION}"
 
                         sh """
-                            docker build -t ${DOCKER_USERNAME}/hello-img:${IMAGE_VERSION} .
-                            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} docker.io
-                            docker push ${DOCKER_USERNAME}/hello-img:${IMAGE_VERSION}
+                            docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${IMAGE_VERSION} .
+                            docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW} docker.io
+                            docker push ${DOCKER_CREDENTIALS_USR}/hello-img:${IMAGE_VERSION}
                         """
                     }
               }
