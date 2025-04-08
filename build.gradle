@@ -127,23 +127,3 @@ asciidoctor {
 	inputs.dir snippetsDir
 	dependsOn test
 }
-
-processResources {
-	outputs.upToDateWhen { false }
-	include '**/application.properties'
-	doLast {
-		println "Copied resources:"
-		fileTree(destinationDir).each { file ->
-			println file
-		}
-	}
-}
-
-task showResources {
-	doLast {
-		println "Resources to be included:"
-		sourceSets.main.resources.each { file ->
-			println file
-		}
-	}
-}
