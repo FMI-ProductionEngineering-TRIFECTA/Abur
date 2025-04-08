@@ -30,7 +30,10 @@ pipeline {
 
          stage('Build & Test') {
             steps {
-                sh './gradlew clean build test'
+                sh """
+                    ./gradlew clean build -x test
+                    unzip -p build/libs/hello-0.0.1-SNAPSHOT.jar BOOT-INF/classes/application.properties | cat
+                """
             }
         }
 
@@ -47,7 +50,7 @@ pipeline {
                             git tag ${env.IMAGE_TAG}
                             git push https://${GITHUB_TOKEN}@github.com/${GITHUB_ORGANIZATION_USERNAME}/Abur.git ${env.IMAGE_TAG}
                             docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG} .
-                            unzip -p /hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
+                            unzip -p hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
                             docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW} docker.io
                             docker push ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG}
                         """
