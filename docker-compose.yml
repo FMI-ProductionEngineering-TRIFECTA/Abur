@@ -21,7 +21,7 @@ services:
       - /usr/bin/touch:/usr/bin/touch
       - /lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu
       - /workspaces/jenkins_config:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock.raw:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
       - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
       - /$HOME/.docker/cli-plugins/docker-compose:/$HOME/.docker/cli-plugins/docker-compose
