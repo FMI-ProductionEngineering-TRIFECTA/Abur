@@ -16,7 +16,7 @@ pipeline {
         stage('Add application.properties file') {
             steps {
                 writeFile(
-                    file: "${WORKSPACE}/src/main/java/resources/application.properties",
+                    file: "${WORKSPACE}/src/main/resources/application.properties",
                     text: """
                             server.servlet.contextPath=/api
                             spring.data.mongodb.auto-index-creation=true
@@ -25,16 +25,13 @@ pipeline {
                           """.stripIndent()
                 )
                 sh 'echo ${WORKSPACE}'
-                sh 'cat ${WORKSPACE}/src/main/java/resources/application.properties'
+                sh 'cat ${WORKSPACE}/src/main/resources/application.properties'
             }
         }
 
          stage('Build & Test') {
             steps {
-                sh """
-                    ./gradlew clean build showResources -x test
-                    unzip -p build/libs/hello-0.0.1-SNAPSHOT.jar BOOT-INF/classes/application.properties | cat
-                """
+                sh './gradlew clean build -x test'
             }
         }
 
@@ -51,7 +48,6 @@ pipeline {
                             git tag ${env.IMAGE_TAG}
                             git push https://${GITHUB_TOKEN}@github.com/${GITHUB_ORGANIZATION_USERNAME}/Abur.git ${env.IMAGE_TAG}
                             docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG} .
-                            unzip -p hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
                             docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW} docker.io
                             docker push ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG}
                         """
