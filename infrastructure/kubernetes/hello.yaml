@@ -20,7 +20,7 @@ spec:
               value: local
             - name: MONGODB_CONECTION_URL
               value: mongodb://root:example@mongo:27017/
-          image: robertpoziumschi/hello-img-pipeline:v1.2.0
+          image: andrei137/hello-img:1.42.0
           name: hello
           ports:
             - containerPort: 8080

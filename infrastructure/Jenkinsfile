@@ -29,7 +29,7 @@ pipeline {
 
          stage('Build & Test') {
             steps {
-                sh './gradlew clean build test'
+                sh './gradlew clean build test testIT'
             }
         }
 
@@ -59,12 +59,6 @@ pipeline {
                     IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello mongo ||
                     IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo
                 """
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                sh './gradlew testIT'
             }
         }
     }
