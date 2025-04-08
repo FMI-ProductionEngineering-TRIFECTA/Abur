@@ -28,8 +28,11 @@ public class GameControllerIntegrationTest extends GenericControllerIntegrationT
             .withSharding();
 
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("mongodb.connection.url", mongoDBContainer::getReplicaSetUrl);
+    private static void setProperties(DynamicPropertyRegistry registry) {
+        final String MONGO_URL = "mongodb://host.docker.internal:";
+        final String PORT = String.valueOf(mongoDBContainer.getMappedPort(27017));
+
+        registry.add("mongodb.connection.url", () -> MONGO_URL + PORT);
     }
 
     private final Integer keysToAdd = 10;
