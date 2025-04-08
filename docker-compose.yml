@@ -30,6 +30,7 @@ services:
       - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
       - /$HOME/.docker/cli-plugins/docker-compose:/$HOME/.docker/cli-plugins/docker-compose
       - ./Dockerfile:/Dockerfile
+      - /usr/bin/unzip:/usr/bin/unzip
     profiles:
       - "hello-service"
     user: 0:0

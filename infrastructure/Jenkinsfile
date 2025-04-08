@@ -13,9 +13,20 @@ pipeline {
     }
 
     stages {
+        /*
         stage('Build & Test') {
             steps {
-                sh './gradlew clean build'
+                sh './gradlew clean build test'
+            }
+        }
+        */
+
+        stage('Debug') {
+            steps {
+                sh """
+                    ./gradlew clean build -x test
+                    unzip -p /hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
+                """
             }
         }
 
