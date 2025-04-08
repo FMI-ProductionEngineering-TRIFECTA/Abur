@@ -49,4 +49,3 @@ infrastructure/loki/durable/
 
 ### Secrets
 src/main/resources/application.properties
-.env

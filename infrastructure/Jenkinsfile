@@ -38,7 +38,7 @@ pipeline {
               }
         }
 
-        stage('Get image from Docker Hub') {
+        stage('Create containers from the Docker Hub image') {
             steps {
                 sh """
                     IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello mongo ||
