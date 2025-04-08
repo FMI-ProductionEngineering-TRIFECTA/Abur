@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     tools {
@@ -25,8 +24,7 @@ pipeline {
                         MINOR_VERSION = sh([script: 'git tag | cut -d . -f 2', returnStdout: true]).trim()
                         PATCH_VERSION = sh([script: 'git tag | cut -d . -f 3', returnStdout: true]).trim()
 
-                        def NEW_MINOR = (MINOR_VERSION.toInteger() + 1).toString()
-                        IMAGE_VERSION = "${MAJOR_VERSION}.${NEW_MINOR}.${PATCH_VERSION}"
+                        IMAGE_VERSION = "${env.MAJOR_VERSION}.\$((${env.MINOR_VERSION} + 1)).${env.PATCH_VERSION}"
 
                         sh """
                             docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${IMAGE_VERSION} .
@@ -37,5 +35,4 @@ pipeline {
               }
         }
     }
-
 }
