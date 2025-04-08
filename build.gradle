@@ -56,8 +56,8 @@ dependencies {
 
 	// JWT
 	implementation "io.jsonwebtoken:jjwt-api:$jwtVersion"
-	runtimeOnly "io.jsonwebtoken:jjwt-impl:$jwtVersion"
-	runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jwtVersion"
+	implementation "io.jsonwebtoken:jjwt-impl:$jwtVersion"
+	implementation "io.jsonwebtoken:jjwt-jackson:$jwtVersion"
 
 	// Lombok dependency
 	compileOnly "org.projectlombok:lombok:$lombokVersion"
