@@ -6,6 +6,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.TestcontainersConfiguration;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
 import ro.unibuc.hello.data.repository.GameRepository;
@@ -21,6 +22,12 @@ import static ro.unibuc.hello.utils.GameTestUtils.buildDLCForGame;
 import static ro.unibuc.hello.utils.GameTestUtils.buildGame;
 
 public class GameControllerIntegrationTest extends GenericControllerIntegrationTest<GameController>  {
+
+    static {
+        TestcontainersConfiguration
+                .getInstance()
+                .updateUserConfig("ryuk.container.privileged", "true");
+    }
 
     @Container
     private final static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.20")
