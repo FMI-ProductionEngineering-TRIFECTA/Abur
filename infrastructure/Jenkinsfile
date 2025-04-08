@@ -42,8 +42,8 @@ pipeline {
         stage('Create containers from the Docker Hub image') {
             steps {
                 sh """
-                    IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello mongo ||
-                    IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo
+                    IMAGE_TAG=${env.IMAGE_TAG} JWT_SECRET_KEY=${env.JWT_SECRET_KEY} docker-compose up -d hello mongo ||
+                    IMAGE_TAG=${env.IMAGE_TAG} JWT_SECRET_KEY=${env.JWT_SECRET_KEY} docker compose up -d hello mongo
                 """
             }
         }
