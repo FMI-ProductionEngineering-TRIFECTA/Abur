@@ -16,7 +16,7 @@ pipeline {
         stage('Add application.properties file') {
             steps {
                 writeFile(
-                    file: "src/main/java/resources/application.properties",
+                    file: "${WORKSPACE}/src/main/java/resources/application.properties",
                     text: """
                             server.servlet.contextPath=/api
                             spring.data.mongodb.auto-index-creation=true
@@ -24,7 +24,8 @@ pipeline {
                             security.jwt.secret-key=${JWT_SECRET_KEY}
                           """.stripIndent()
                 )
-                sh 'cat src/main/java/resources/application.properties'
+                sh 'echo ${WORKSPACE}'
+                sh 'cat ${WORKSPACE}/src/main/java/resources/application.properties'
             }
         }
 
