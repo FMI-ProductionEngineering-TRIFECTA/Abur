@@ -14,4 +14,4 @@ COPY ./build/resources /hello/resources
 WORKDIR /hello/libs/
 
 # Define the command to run the application
-CMD ["java", "-jar", "/hello/libs/hello.jar"]
+CMD ["java", "-jar", "/hello/libs/hello.jar", "--spring.config.location=/hello/resources/main/application.properties"]
