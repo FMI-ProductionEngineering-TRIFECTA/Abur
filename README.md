@@ -44,3 +44,10 @@ This project replicates the core features of the Steam platform with the followi
 - <kbd>[src/test/controller](src/test/java/ro/unibuc/hello/controller)</kbd> - Controller tests
 - <kbd>[src/test/e2e](src/test/java/ro/unibuc/hello/e2e)</kbd> - E2E tests
 - <kbd>[src/test/service](src/test/java/ro/unibuc/hello/service)</kbd> - Service tests
+
+### Docker compose for Jenkins
+- If docker-compose doesn't work, do the following
+  - Download the [latest version](https://github.com/docker/compose)
+  - Move the downloaded file to <kbd>$HOME/.docker/cli-plugins</kbd> as <kbd>docker-compose</kbd>
+  - Create the symlink with ```sh sudo ln -s $HOME/.docker/cli-plugins/docker-compose /usr/local/bin/docker-compose```
+  - Both paths are mounted in the jenkins container in <kbd>[docker-compose.yaml](docker-compose.yml)</kbd>

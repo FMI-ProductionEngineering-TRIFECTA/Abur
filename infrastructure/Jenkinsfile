@@ -12,14 +12,6 @@ pipeline {
     }
 
     stages {
-        stage('Debug') {
-            steps {
-                sh 'which docker'
-                sh 'docker --version'
-                sh 'docker compose version || docker-compose version || echo "No compose installed"'
-            }
-        }
-
         stage('Build & Test') {
             steps {
                 sh './gradlew clean build'
@@ -49,6 +41,7 @@ pipeline {
         stage('Get image from Docker Hub') {
             steps {
                 sh """
+                    IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello mongo ||
                     IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo
                 """
             }

@@ -18,14 +18,14 @@ services:
       - 50000:50000
     restart: on-failure
     volumes:
-      - /usr/bin:/usr/bin
+      - /usr/bin/touch:/usr/bin/touch
+      - /lib/x86_64-linux-gnu:/lib/x86_64-linux-gnu
       - /workspaces/jenkins_config:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+      - /$HOME/.docker/cli-plugins/docker-compose:/$HOME/.docker/cli-plugins/docker-compose
       - ./Dockerfile:/Dockerfile
-      - /usr/bin/docker-compose:/usr/bin/docker-compose
-    environment:
-      - PATH=/usr/bin:/usr/local/bin:/usr/bin/docker-compose
     profiles:
       - "hello-service"
     user: 0:0
