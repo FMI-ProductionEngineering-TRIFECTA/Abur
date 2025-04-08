@@ -30,9 +30,9 @@ pipeline {
                         sh """
                             git tag ${env.IMAGE_TAG}
                             git push https://${GITHUB_TOKEN}@github.com/${GITHUB_ORGANIZATION_USERNAME}/Abur.git ${env.IMAGE_TAG}
-                            docker build -t ${DOCKER_CREDENTIALS_USR}/abur-img:${env.IMAGE_TAG} .
+                            docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG} .
                             docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW} docker.io
-                            docker push ${DOCKER_CREDENTIALS_USR}/abur-img:${env.IMAGE_TAG}
+                            docker push ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG}
                         """
                     }
               }
