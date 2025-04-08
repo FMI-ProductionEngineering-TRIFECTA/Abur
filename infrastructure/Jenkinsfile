@@ -12,6 +12,14 @@ pipeline {
     }
 
     stages {
+        stage('Debug') {
+            steps {
+                sh 'which docker'
+                sh 'docker --version'
+                sh 'docker compose version || docker-compose version || echo "No compose installed"'
+            }
+        }
+
         stage('Build & Test') {
             steps {
                 sh './gradlew clean build'
@@ -36,14 +44,6 @@ pipeline {
                         """
                     }
               }
-        }
-
-        stage('Debug') {
-            steps {
-                sh 'which docker'
-                sh 'docker --version'
-                sh 'docker compose version || docker-compose version || echo "No compose installed"'
-            }
         }
 
         stage('Get image from Docker Hub') {
