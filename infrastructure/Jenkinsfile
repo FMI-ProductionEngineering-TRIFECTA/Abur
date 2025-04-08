@@ -38,10 +38,18 @@ pipeline {
               }
         }
 
+        stage('Debug') {
+            steps {
+                sh 'which docker'
+                sh 'docker --version'
+                sh 'docker compose version || docker-compose version || echo "No compose installed"'
+            }
+        }
+
         stage('Get image from Docker Hub') {
             steps {
                 sh """
-                    IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello mongo
+                    IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo
                 """
             }
         }
