@@ -21,11 +21,26 @@ pipeline {
         }
         */
 
+        stage('Add application.properties file') {
+            steps {
+                writeFile(
+                    file: "src/main/java/resources/application.properties",
+                    text: """
+                            server.servlet.contextPath=/api
+                            spring.data.mongodb.auto-index-creation=true
+                            mongodb.connection.url=\${MONGODB_CONECTION_URL:mongodb://root:example@host.docker.internal:27017}
+                            security.jwt.secret-key=${JWT_SECRET_KEY}
+                          """.stripIndent()
+                )
+            }
+        }
+
         stage('Debug') {
             steps {
                 sh """
                     ./gradlew clean build -x test
                     unzip -p /hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
+                    echo src/main/java/resources/application.properties
                 """
             }
         }
