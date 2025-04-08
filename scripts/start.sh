@@ -8,6 +8,13 @@ start_default() {
   cd scripts || exit
 }
 
+start_jenkins() {
+  cd ..
+  mkdir -p /workspaces/jenkins_config
+  docker compose up -d jenkins
+  cd scripts || exit
+}
+
 start_mongo() {
   docker compose --profile mongo up -d
 }
@@ -31,6 +38,8 @@ if [[ "$1" == "mongo" ]]; then
   start_mongo
 elif [[ "$1" == "monitor" ]]; then
   start_monitor
+elif [[ "$1" == "jenkins" ]]; then
+  start_jenkins
 else
   start_default
 fi
