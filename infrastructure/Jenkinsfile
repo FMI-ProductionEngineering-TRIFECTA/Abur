@@ -27,15 +27,15 @@ pipeline {
             }
         }
 
-        stage('Integration Tests') {
-            steps {
-                sh './gradlew testIT'
-            }
-        }
-
         stage('Build & Test') {
             steps {
                 sh './gradlew clean build'
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                sh './gradlew testIT'
             }
         }
 
