@@ -8,10 +8,6 @@ services:
     environment:
       ENVIRONMENT_NAME: local
       MONGODB_CONECTION_URL: mongodb://root:example@mongo:27017/
-      security.jwt.secret-key: ${JWT_SECRET_KEY}
-      server.servlet.contextPath: /api
-      spring.data.mongodb.auto-index-creation: true
-      mongodb.connection.url: ${MONGODB_CONECTION_URL}
     restart: always
     profiles:
       - "hello-service"
