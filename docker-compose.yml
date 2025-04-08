@@ -23,6 +23,9 @@ services:
       - /usr/bin/docker:/usr/bin/docker
       - ./Dockerfile:/Dockerfile
       - /usr/libexec/docker/cli-plugins/docker-compose:/usr/libexec/docker/cli-plugins/docker-compose
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
     profiles:
       - "hello-service"
     user: 0:0
