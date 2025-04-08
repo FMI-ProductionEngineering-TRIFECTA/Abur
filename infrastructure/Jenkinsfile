@@ -9,9 +9,32 @@ pipeline {
         DOCKER_CREDENTIALS = credentials("docker_credentials")
         GITHUB_TOKEN = credentials("github_token")
         GITHUB_ORGANIZATION_USERNAME = "FMI-ProductionEngineering-TRIFECTA"
+        JWT_SECRET_KEY = credentials("jwt_secret_key")
     }
 
     stages {
+        stage('Add application.properties file') {
+            steps {
+                writeFile
+                    file: 'src/main/java/resources/application.properties',
+                    text: """
+                            server.servlet.contextPath=/api
+                            spring.data.mongodb.auto-index-creation=true
+                            mongodb.connection.url=\${MONGODB_CONECTION_URL:mongodb://root:example@host.docker.internal:27017}
+                            security.jwt.secret-key=${JWT_SECRET_KEY}
+                          """.stripIndent()
+            }
+        }
+
+        stage('TODO: DEBUG') {
+            steps {
+                sh '''
+                    echo "application.properties content:"
+                    cat src/main/java/resources/application.properties
+                '''
+            }
+        }
+
         stage('Build & Test') {
             steps {
                 sh './gradlew clean build'
@@ -43,6 +66,12 @@ pipeline {
         stage('Create containers from the Docker Hub image') {
             steps {
                 sh "IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo"
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                sh './gradlew testIT'
             }
         }
     }
