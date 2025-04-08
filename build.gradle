@@ -19,13 +19,13 @@ repositories {
 
 ext {
 	set('snippetsDir', file("build/generated-snippets"))
-	set('testcontainersVersion', "1.20.4")
+	set('testcontainersVersion', "1.20.6")
 }
 
 dependencies {
 	def cucumberVersion = "7.20.1"
 	def junitVersion = "5.11.4"
-	def testcontainersVersion = "1.20.4"
+	def testcontainersVersion = "1.20.6"
 	def jwtVersion = "0.12.6"
 	def lombokVersion = "1.18.36"
 	def aspectjVersion = "1.9.22.1"
