@@ -28,10 +28,7 @@ services:
       - ./Dockerfile:/Dockerfile
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - TESTCONTAINERS_HOST_OVERRIDE=host.docker.inter
-    networks:
-      - default
-      - host
+      - TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
     privileged: true
     profiles:
       - "hello-service"
