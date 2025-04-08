@@ -31,7 +31,7 @@ pipeline {
          stage('Build & Test') {
             steps {
                 sh """
-                    ./gradlew clean build -x test
+                    ./gradlew clean build showResources -x test
                     unzip -p build/libs/hello-0.0.1-SNAPSHOT.jar BOOT-INF/classes/application.properties | cat
                 """
             }
