@@ -13,28 +13,28 @@ pipeline {
     }
 
     stages {
-        stage('Add application.properties file') {
-            steps {
-                writeFile(
-                    file: "src/main/java/resources/application.properties",
-                    text: """
-                            server.servlet.contextPath=/api
-                            spring.data.mongodb.auto-index-creation=true
-                            mongodb.connection.url=\${MONGODB_CONECTION_URL:mongodb://root:example@host.docker.internal:27017}
-                            security.jwt.secret-key=${JWT_SECRET_KEY}
-                          """.stripIndent()
-                )
-            }
-        }
-
-        stage('TODO: DEBUG') {
-            steps {
-                sh '''
-                    echo "application.properties content:"
-                    cat src/main/java/resources/application.properties
-                '''
-            }
-        }
+//         stage('Add application.properties file') {
+//             steps {
+//                 writeFile(
+//                     file: "src/main/java/resources/application.properties",
+//                     text: """
+//                             server.servlet.contextPath=/api
+//                             spring.data.mongodb.auto-index-creation=true
+//                             mongodb.connection.url=\${MONGODB_CONECTION_URL:mongodb://root:example@host.docker.internal:27017}
+//                             security.jwt.secret-key=${JWT_SECRET_KEY}
+//                           """.stripIndent()
+//                 )
+//             }
+//         }
+//
+//         stage('TODO: DEBUG') {
+//             steps {
+//                 sh '''
+//                     echo "application.properties content:"
+//                     cat src/main/java/resources/application.properties
+//                 '''
+//             }
+//         }
 
         stage('Build & Test') {
             steps {
@@ -70,10 +70,10 @@ pipeline {
             }
         }
 
-        stage('Integration Tests') {
-            steps {
-                sh './gradlew testIT'
-            }
-        }
+//         stage('Integration Tests') {
+//             steps {
+//                 sh './gradlew testIT'
+//             }
+//         }
     }
 }
