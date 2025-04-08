@@ -8,7 +8,7 @@ ENV JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y
 COPY ./build/libs/hello-0.0.1-SNAPSHOT.jar /hello/libs/hello.jar
 
 # Copy the application.properties to the appropriate directory inside the container
-COPY ./build/resources/main/application.properties /hello/libs/application.properties
+COPY ./src/main/resources/application.properties /hello/libs/application.properties
 
 # Set the working directory inside the image
 WORKDIR /hello/libs/
