@@ -13,14 +13,6 @@ pipeline {
     }
 
     stages {
-        /*
-        stage('Build & Test') {
-            steps {
-                sh './gradlew clean build test'
-            }
-        }
-        */
-
         stage('Add application.properties file') {
             steps {
                 writeFile(
@@ -32,16 +24,13 @@ pipeline {
                             security.jwt.secret-key=${JWT_SECRET_KEY}
                           """.stripIndent()
                 )
+                sh 'cat src/main/java/resources/application.properties'
             }
         }
 
-        stage('Debug') {
+         stage('Build & Test') {
             steps {
-                sh """
-                    ./gradlew clean build -x test
-                    unzip -p /hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
-                    echo src/main/java/resources/application.properties
-                """
+                sh './gradlew clean build test'
             }
         }
 
@@ -58,6 +47,7 @@ pipeline {
                             git tag ${env.IMAGE_TAG}
                             git push https://${GITHUB_TOKEN}@github.com/${GITHUB_ORGANIZATION_USERNAME}/Abur.git ${env.IMAGE_TAG}
                             docker build -t ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG} .
+                            unzip -p /hello/libs/hello.jar BOOT-INF/classes/application.properties | cat
                             docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW} docker.io
                             docker push ${DOCKER_CREDENTIALS_USR}/hello-img:${env.IMAGE_TAG}
                         """
