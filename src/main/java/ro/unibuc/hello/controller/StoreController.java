@@ -1,5 +1,7 @@
 package ro.unibuc.hello.controller;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,8 @@ public class StoreController {
     @GetMapping("")
     @ResponseBody
     @CustomerOnly
+    @Timed(value = "hello.store.time", description = "Time taken to return store")
+    @Counted(value = "hello.store.count", description = "Times store was returned")
     public ResponseEntity<List<GameEntity>> getStore(@RequestParam Boolean hideOwned) {
         return ok(storeService.getStore(hideOwned));
     }

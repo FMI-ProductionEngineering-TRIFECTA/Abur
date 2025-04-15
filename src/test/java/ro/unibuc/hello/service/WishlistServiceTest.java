@@ -1,11 +1,10 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -42,6 +41,9 @@ public class WishlistServiceTest {
     @Mock
     protected GameService gameService;
 
+    @Mock
+    private MeterRegistry metricsRegistry;
+
     @InjectMocks
     private WishlistService wishlistService;
 
@@ -57,6 +59,10 @@ public class WishlistServiceTest {
     void testGetWishlist() {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(wishlistRepository.getGamesByCustomer(customer)).thenReturn(games);
 
         List<GameEntity> response = wishlistService.getWishlist();
@@ -249,7 +255,7 @@ public class WishlistServiceTest {
             GameEntity game = games.get(i);
             assertNotNull(capturedCartEntities.get(i));
             assertEquals(game.getId(), capturedCartEntities.get(i).getGame().getId());
-        };
+        }
     }
 
     @Test
@@ -276,7 +282,7 @@ public class WishlistServiceTest {
             GameEntity game = gamesInStock.get(i);
             assertNotNull(capturedCartEntities.get(i));
             assertEquals(game.getId(), capturedCartEntities.get(i).getGame().getId());
-        };
+        }
     }
 
     @Test

@@ -69,6 +69,10 @@ class CartServiceTest {
     void testGetCart_Valid() {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(customerService.getCustomer(customer.getId())).thenReturn(customer);
         when(cartRepository.getGamesByCustomer(customer)).thenReturn(games);
 
@@ -85,6 +89,10 @@ class CartServiceTest {
     void testGetCart_InvalidId() {
         UserEntity customer = mockCustomerAuth();
         String customerId = customer.getId();
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(customerService.getCustomer(customerId))
                 .thenThrow(new NotFoundException(notFoundFormat, customerId));
 

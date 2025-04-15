@@ -1,9 +1,12 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -13,6 +16,8 @@ import ro.unibuc.hello.exception.NotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
@@ -29,6 +34,9 @@ public class LibraryServiceTest {
     @Mock
     protected CustomerService customerService;
 
+    @Mock
+    private MeterRegistry metricsRegistry;
+
     private static final String notFoundFormat = "No customer found at id %s!";
 
     @BeforeEach
@@ -42,6 +50,10 @@ public class LibraryServiceTest {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
         customer.getGames().addAll(games);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(libraryService.getLibraryByCustomerId(customer.getId())).thenReturn(customer.getGames());
 
         List<GameEntity> response = libraryService.getLibrary();
@@ -55,6 +67,10 @@ public class LibraryServiceTest {
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
         customer.getGames().addAll(games);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(customerService.getCustomer(customer.getId())).thenReturn(customer);
         when(libraryRepository.getGamesByCustomer(customer)).thenReturn(customer.getGames());
 
@@ -67,6 +83,10 @@ public class LibraryServiceTest {
     @Test
     void testGetLibraryById_InvalidId() {
         UserEntity customer = mockCustomerAuth();
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(customerService.getCustomer(customer.getId()))
                 .thenThrow(new NotFoundException(notFoundFormat, customer.getId()));
 

@@ -57,12 +57,18 @@ public class CartService {
 
     @CustomerOnly
     public CartInfo getCart() {
+        metricsRegistry
+                .counter("my_non_aop_metric", "endpoint", "cart")
+                .increment(counter.incrementAndGet());
+
         return getCartByCustomerId(getUser().getId());
     }
 
     @CustomerOnly
     public synchronized void checkout() {
-        metricsRegistry.counter("my_non_aop_metric", "endpoint", "checkout").increment(counter.incrementAndGet());
+        metricsRegistry
+                .counter("my_non_aop_metric", "endpoint", "checkout")
+                .increment(counter.incrementAndGet());
 
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);

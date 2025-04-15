@@ -1,5 +1,7 @@
 package ro.unibuc.hello.controller;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,12 +27,16 @@ public class LibraryController {
     @GetMapping("")
     @ResponseBody
     @CustomerOnly
+    @Timed(value = "hello.library.time", description = "Time taken to return library")
+    @Counted(value = "hello.library.count", description = "Times library was returned")
     public ResponseEntity<List<GameEntity>> getLibrary() {
         return ok(libraryService.getLibrary());
     }
 
     @GetMapping("/{customerId}")
     @ResponseBody
+    @Timed(value = "hello.library.time", description = "Time taken to return library")
+    @Counted(value = "hello.library.count", description = "Times library was returned")
     public ResponseEntity<List<GameEntity>> getLibraryByCustomerId(@PathVariable String customerId) {
         return ok(libraryService.getLibraryByCustomerId(customerId));
     }

@@ -1,9 +1,12 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.UserEntity;
@@ -17,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static ro.unibuc.hello.security.AuthenticationUtils.getUser;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.mockCustomerAuth;
 import static ro.unibuc.hello.utils.AuthenticationTestUtils.resetMockedAccessToken;
@@ -35,6 +38,9 @@ public class StoreServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private MeterRegistry metricsRegistry;
+
     @InjectMocks
     protected StoreService storeService;
 
@@ -47,9 +53,13 @@ public class StoreServiceTest {
     }
 
     @Test
-    void testGetStore_AllGames() throws Exception {
+    void testGetStore_AllGames()  {
         hideOwned = false;
         List<GameEntity> games = buildGames(3);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(gameRepository.findAll()).thenReturn(games);
 
         List<GameEntity> response = storeService.getStore(hideOwned);
@@ -59,14 +69,17 @@ public class StoreServiceTest {
     }
 
     @Test
-    void testGetStore_HideOwned() throws Exception {
+    void testGetStore_HideOwned() {
         hideOwned = true;
         UserEntity customer = mockCustomerAuth();
         List<GameEntity> games = buildGames(3);
         List<GameEntity> owned_games = List.of(games.get(0));
         List<GameEntity> unowned_games = new ArrayList<>(games);
         unowned_games.removeAll(owned_games);
+        Counter counterMock = Mockito.mock(Counter.class);
 
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(gameRepository.findAll()).thenReturn(games);
         when(userRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
         when(libraryRepository.getGamesByCustomer(getUser())).thenReturn(owned_games);
@@ -78,10 +91,13 @@ public class StoreServiceTest {
     }
 
     @Test
-    void testGetStore_HideOwned_NoAuth() throws Exception {
+    void testGetStore_HideOwned_NoAuth() {
         hideOwned = true;
         List<GameEntity> games = buildGames(3);
+        Counter counterMock = Mockito.mock(Counter.class);
 
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(gameRepository.findAll()).thenReturn(games);
         when(userRepository.findById(any())).thenThrow(new UnauthorizedAccessException());
 

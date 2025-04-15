@@ -1,5 +1,6 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
@@ -11,6 +12,7 @@ import ro.unibuc.hello.data.repository.LibraryRepository;
 import ro.unibuc.hello.data.repository.WishlistRepository;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
@@ -33,8 +35,17 @@ public class WishlistService {
     @Autowired
     private GameService gameService;
 
+    @Autowired
+    private MeterRegistry metricsRegistry;
+
+    private final AtomicLong counter = new AtomicLong();
+
     @CustomerOnly
     public List<GameEntity> getWishlist() {
+        metricsRegistry
+                .counter("my_non_aop_metric", "endpoint", "wishlist")
+                .increment(counter.incrementAndGet());
+
         return wishlistRepository.getGamesByCustomer(getUser());
     }
 

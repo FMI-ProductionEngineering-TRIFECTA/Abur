@@ -23,6 +23,8 @@ public class CartController {
     @GetMapping("")
     @ResponseBody
     @CustomerOnly
+    @Timed(value = "hello.cart.time", description = "Time taken to return cart")
+    @Counted(value = "hello.cart.count", description = "Times cart was returned")
     public ResponseEntity<CartInfo> getCart() {
         return ok(cartService.getCart());
     }
