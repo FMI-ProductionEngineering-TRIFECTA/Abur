@@ -1,5 +1,6 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.unibuc.hello.annotation.CustomerOnly;
@@ -14,6 +15,7 @@ import ro.unibuc.hello.dto.CartInfo;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
@@ -43,6 +45,11 @@ public class CartService {
     @Autowired
     private GameService gameService;
 
+    @Autowired
+    private MeterRegistry metricsRegistry;
+
+    private final AtomicLong counter = new AtomicLong();
+
     private CartInfo getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return new CartInfo(totalPrice(games), games);
@@ -55,6 +62,8 @@ public class CartService {
 
     @CustomerOnly
     public synchronized void checkout() {
+        metricsRegistry.counter("my_non_aop_metric", "endpoint", "checkout").increment(counter.incrementAndGet());
+
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 

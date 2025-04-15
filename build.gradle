@@ -51,6 +51,7 @@ dependencies {
 
 	// AOP
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation "org.aspectj:aspectjtools:$aspectjVersion"
 	implementation "org.aspectj:aspectjrt:$aspectjVersion"
 	implementation "org.aspectj:aspectjweaver:$aspectjVersion"
 

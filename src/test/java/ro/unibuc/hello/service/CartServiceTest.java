@@ -1,11 +1,10 @@
 package ro.unibuc.hello.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import ro.unibuc.hello.data.entity.CartEntity;
 import ro.unibuc.hello.data.entity.GameEntity;
 import ro.unibuc.hello.data.entity.LibraryEntity;
@@ -52,6 +51,9 @@ class CartServiceTest {
     @Mock
     protected GameService gameService;
 
+    @Mock
+    private MeterRegistry metricsRegistry;
+
     @InjectMocks
     private CartService cartService;
 
@@ -82,7 +84,6 @@ class CartServiceTest {
     @Test
     void testGetCart_InvalidId() {
         UserEntity customer = mockCustomerAuth();
-        List<GameEntity> games = buildGames(3);
         String customerId = customer.getId();
         when(customerService.getCustomer(customerId))
                 .thenThrow(new NotFoundException(notFoundFormat, customerId));
@@ -109,11 +110,14 @@ class CartServiceTest {
         customerGames.add(games.get(2));
         games.removeAll(customerGames);
         int initialNumGames = customerGames.size();
+        Counter counterMock = Mockito.mock(Counter.class);
 
         ArgumentCaptor<GameEntity> gameCaptor = ArgumentCaptor.forClass(GameEntity.class);
         ArgumentCaptor<LibraryEntity> libraryCaptor = ArgumentCaptor.forClass(LibraryEntity.class);
         ArgumentCaptor<CompositeKey> wishlistCaptor = ArgumentCaptor.forClass(CompositeKey.class);
 
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(cartRepository.getGamesByCustomer(customer)).thenReturn(games);
         when(gameRepository.save(any(GameEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(libraryRepository.save(any(LibraryEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -150,7 +154,7 @@ class CartServiceTest {
             assertNotNull(capturedCompositeKeys.get(i));
             assertEquals(game.getId(), capturedCompositeKeys.get(i).getGameId());
             assertEquals(customer.getId(), capturedCompositeKeys.get(i).getCustomerId());
-        };
+        }
     }
 
     @Test
@@ -159,6 +163,10 @@ class CartServiceTest {
         List<GameEntity> games = buildGames(3);
         String notEnoughKeysFormat = "There are no more keys for %s, please remove it from the cart!";
         games.get(2).setKeys(0);
+        Counter counterMock = Mockito.mock(Counter.class);
+
+        when(metricsRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counterMock);
+        doNothing().when(counterMock).increment();
         when(cartRepository.getGamesByCustomer(customer)).thenReturn(games);
 
         ValidationException exception = assertThrows(

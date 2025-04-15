@@ -1,5 +1,7 @@
 package ro.unibuc.hello.controller;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,8 @@ public class CartController {
     @PostMapping("/checkout")
     @ResponseBody
     @CustomerOnly
+    @Timed(value = "hello.checkout.time", description = "Time taken to return checkout")
+    @Counted(value = "hello.checkout.count", description = "Times checkout was returned")
     public ResponseEntity<Void> checkout() {
         cartService.checkout();
         return noContent();
