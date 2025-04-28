@@ -1,6 +1,6 @@
 services:
   hello:
-    image: andrei137/hello-img:${IMAGE_TAG}
+    image: sebimih/hello-img:${IMAGE_TAG}
     ports:
       - 8080:8080
       # Port for debug
