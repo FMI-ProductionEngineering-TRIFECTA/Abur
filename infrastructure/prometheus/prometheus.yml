@@ -19,7 +19,7 @@ scrape_configs:
     static_configs:
       - targets: ['mongodb-exporter:9001']
   - job_name: 'spring-hello-app'
-    metrics_path: '/actuator/prometheus'
+    metrics_path: '/api/actuator/prometheus'
     static_configs:
       - targets: ['hello:8080']
 

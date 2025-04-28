@@ -21,4 +21,3 @@ elif [[ "$1" == "monitor" ]]; then
 else
   stop_default
 fi
-

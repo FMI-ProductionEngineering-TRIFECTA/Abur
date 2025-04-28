@@ -30,7 +30,7 @@ setup_monitor() {
 
 start_monitor() {
   setup_monitor
-  docker compose --profile monitoring --profile mongo --profile hello-service up -d
+  docker compose --profile monitoring up -d
 }
 
 set +x
