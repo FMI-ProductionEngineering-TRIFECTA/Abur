@@ -15,6 +15,7 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
     profiles:
       - "hello-service"
+
   jenkins:
     image: jenkins/jenkins
     ports:
@@ -36,6 +37,9 @@ services:
     user: 0:0
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - public
+
   mongo:
     image: mongo:6.0.20
     restart: always
@@ -48,6 +52,9 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - public
+
   mongo-admin-ui:
     image: mongo-express
     restart: always
@@ -63,6 +70,9 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - public
+
 # MONITORING SERVICES
   cadvisor: # container metric prometheus exporter
     image: gcr.io/cadvisor/cadvisor:v0.51.0
@@ -78,6 +88,9 @@ services:
       - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   mongodb-exporter:
     build: ./infrastructure/mongodb_exporter/
     command: ./mongodb_exporter-linux-amd64 -logtostderr -mongodb.uri mongodb://root:example@mongo:27017 -groups.enabled 'asserts,durability,background_flusshing,connections,extra_info,global_lock,index_counters,network,op_counters,op_counters_repl,memory,locks,metrics'
@@ -86,6 +99,9 @@ services:
       - 9001:9001
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   loki:
     image: grafana/loki:3.3.2
     ports:
@@ -95,6 +111,9 @@ services:
     command: -config.file=/etc/loki/config.yaml
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   prometheus: # metrics aggregation and alert definition server (prometheus server)
     image: prom/prometheus:v3.1.0
     volumes:
@@ -110,6 +129,9 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   alertmanager: # alert manager (prometheus)
     image: prom/alertmanager:v0.28.0
     volumes:
@@ -123,6 +145,9 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   grafana: # dashboard visualisation tool (metrics & logs)
     image: grafana/grafana:11.4.0
     volumes:
@@ -136,6 +161,9 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     profiles:
       - "monitoring"
+    networks:
+      - public
+
   wrk-injector-hello-functional: # traffic injector (low)
     image: mtchavez/docker-wrk
     profiles:
@@ -145,6 +173,8 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - public
     
   wrk-injector-info-perf: # traffic injector (high)
     image: mtchavez/docker-wrk
@@ -155,3 +185,10 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
+    networks:
+      - public
+
+networks:
+  public:
+    external:
+      name: public
