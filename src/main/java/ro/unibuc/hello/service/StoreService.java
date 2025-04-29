@@ -25,13 +25,11 @@ public class StoreService {
     @Autowired
     private MeterRegistry metricsRegistry;
 
-    private final AtomicLong counter = new AtomicLong();
-
     @CustomerOnly
     public List<GameEntity> getStore(Boolean hideOwned) {
         metricsRegistry
-                .counter("my_non_aop_metric", "endpoint", "store")
-                .increment(counter.incrementAndGet());
+                .counter("abur_view_metric", "endpoint", "store")
+                .increment(1);
 
         List<GameEntity> gamesAndDlcs = gameRepository.findAll();
         if (hideOwned) gamesAndDlcs.removeAll(libraryRepository.getGamesByCustomer(getUser()));

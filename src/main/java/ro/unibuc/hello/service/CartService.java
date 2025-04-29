@@ -48,8 +48,6 @@ public class CartService {
     @Autowired
     private MeterRegistry metricsRegistry;
 
-    private final AtomicLong counter = new AtomicLong();
-
     private CartInfo getCartByCustomerId(String customerId) {
         List<GameEntity> games = cartRepository.getGamesByCustomer(customerService.getCustomer(customerId));
         return new CartInfo(totalPrice(games), games);
@@ -58,8 +56,8 @@ public class CartService {
     @CustomerOnly
     public CartInfo getCart() {
         metricsRegistry
-                .counter("my_non_aop_metric", "endpoint", "cart")
-                .increment(counter.incrementAndGet());
+                .counter("abur_view_metric", "endpoint", "cart")
+                .increment(1);
 
         return getCartByCustomerId(getUser().getId());
     }
@@ -67,8 +65,8 @@ public class CartService {
     @CustomerOnly
     public synchronized void checkout() {
         metricsRegistry
-                .counter("my_non_aop_metric", "endpoint", "checkout")
-                .increment(counter.incrementAndGet());
+                .counter("abur_view_metric", "endpoint", "checkout")
+                .increment(1);
 
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
@@ -85,6 +83,10 @@ public class CartService {
                 )
         ));
         games.forEach(game -> wishlistRepository.deleteById(build(game, getUser())));
+
+        metricsRegistry
+                .summary("abur_total_price_metric", "endpoint", "checkout")
+                .record(totalPrice(games));
 
         removeAllFromCart();
     }

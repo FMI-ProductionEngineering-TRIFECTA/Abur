@@ -38,13 +38,11 @@ public class WishlistService {
     @Autowired
     private MeterRegistry metricsRegistry;
 
-    private final AtomicLong counter = new AtomicLong();
-
     @CustomerOnly
     public List<GameEntity> getWishlist() {
         metricsRegistry
-                .counter("my_non_aop_metric", "endpoint", "wishlist")
-                .increment(counter.incrementAndGet());
+                .counter("abur_view_metric", "endpoint", "wishlist")
+                .increment(1);
 
         return wishlistRepository.getGamesByCustomer(getUser());
     }

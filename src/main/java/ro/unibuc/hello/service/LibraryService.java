@@ -24,12 +24,10 @@ public class LibraryService {
     @Autowired
     private MeterRegistry metricsRegistry;
 
-    private final AtomicLong counter = new AtomicLong();
-
     public List<GameEntity> getLibraryByCustomerId(String customerId) {
         metricsRegistry
-                .counter("my_non_aop_metric", "endpoint", "library")
-                .increment(counter.incrementAndGet());
+                .counter("abur_view_metric", "endpoint", "library")
+                .increment(1);
 
         return libraryRepository.getGamesByCustomer(customerService.getCustomer(customerId));
     }

@@ -47,6 +47,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    profiles:
+      - "mongo"
     logging:
       driver: loki
       options:
@@ -62,6 +64,8 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
       ME_CONFIG_BASICAUTH_USERNAME: unibuc
       ME_CONFIG_BASICAUTH_PASSWORD: adobe
+    profiles:
+      - "mongo"
     logging:
       driver: loki
       options:

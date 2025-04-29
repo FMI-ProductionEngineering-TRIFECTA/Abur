@@ -21,7 +21,7 @@ scrape_configs:
   - job_name: 'spring-hello-app'
     metrics_path: '/api/actuator/prometheus'
     static_configs:
-      - targets: ['hello:8080']
+      - targets: ['host.docker.internal:8080']
 
 # Rules and alerts are read from the specified file(s)
 rule_files:
