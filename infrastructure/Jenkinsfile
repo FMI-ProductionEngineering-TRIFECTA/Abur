@@ -27,18 +27,10 @@ pipeline {
                             management.endpoints.web.exposure.include=info,health,prometheus
                           """.stripIndent()
                 )
-                sh "cat ${WORKSPACE}/src/main/resources/application.properties"
             }
         }
 
-        /*
-         stage('Build & Test') {
-            steps {
-                sh './gradlew clean build test testIT'
-            }
-         }
-         */
-
+        // TODO: replace "-x test" with "test testIT"
          stage('Build without tests') {
             steps {
                 sh './gradlew clean build -x test'
