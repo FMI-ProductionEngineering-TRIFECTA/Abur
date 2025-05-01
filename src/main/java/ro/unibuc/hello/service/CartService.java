@@ -15,7 +15,6 @@ import ro.unibuc.hello.dto.CartInfo;
 import ro.unibuc.hello.exception.ValidationException;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static ro.unibuc.hello.data.entity.CartEntity.buildCartEntry;
 import static ro.unibuc.hello.data.entity.GameEntity.*;
@@ -71,7 +70,14 @@ public class CartService {
         UserEntity customer = getUser();
         List<GameEntity> games = cartRepository.getGamesByCustomer(customer);
 
-        games.forEach(GameEntity::decreaseNoKeys);
+        try {
+            games.forEach(GameEntity::decreaseNoKeys);
+        } catch (Exception e) {
+            metricsRegistry
+                    .counter("abur_checkout_failures_metric", "endpoint", "checkout")
+                    .increment(1);
+            throw e;
+        }
         games.forEach(game -> {
             gameRepository.save(game);
             customer.getGames().add(game);
